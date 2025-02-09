@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Note-Taking App</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="A simple and efficient note-taking app built with ASP.NET Core MVC.">
+    <meta name="keywords" content="note-taking, ASP.NET Core, MVC, tags, user profile">
+    <meta name="author" content="Warrior">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/aos.css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/css/templatemo-digital-trend.css">
+    @*
+    <link rel="stylesheet" href="/css/site.css">
+    <link rel="stylesheet" href="/css/styles.output.css">
+*@
+</head>
+<body>
+
+<!-- MENU BAR -->
+@await Html.PartialAsync("_Navbar")
+
+<div style="margin-top: 1.5rem; margin-bottom:3rem;">
+    @RenderBody()
+</div>
+<!-- FOOTER -->
+@await Html.PartialAsync("_Footer")
+
+<!-- SCRIPTS -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/aos.js"></script>
+<script src="js/owl.carousel.min.js"></script>
+<script src="js/smoothscroll.js"></script>
+<script src="js/custom.js"></script>
+
+@await RenderSectionAsync("Scripts", false)
+</body>
+</html>

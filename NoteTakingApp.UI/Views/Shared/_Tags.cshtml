@@ -1,0 +1,35 @@
+﻿<section class="project section-padding" id="tags">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-12">
+                <h2 class="mb-5 text-center" data-aos="fade-up">Your <strong>Tags</strong></h2>
+
+                <!-- Add Tag Form -->
+                <div class="card mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-body">
+                        <h5 class="card-title">Create a New Tag</h5>
+                        <form action="/tags/create" method="post">
+                            <div class="form-group">
+                                <label for="tagName">Tag Name</label>
+                                <input type="text" class="form-control" id="tagName" name="tagName" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Tag</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- List of Tags -->
+                <div class="card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Tags</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">Work</li>
+                            <li class="list-group-item">Personal</li>
+                            <li class="list-group-item">Important</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
