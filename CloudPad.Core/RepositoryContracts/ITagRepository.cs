@@ -1,0 +1,14 @@
+﻿using NoteTakingApp.Core.Entities;
+
+namespace NoteTakingApp.Core.RepositoryContracts;
+
+public interface ITagRepository
+{
+    Task<Tag?> GetByIdAsync(int userId, int tagId);
+    Task<List<Tag>> GetAllAsync(int userId);
+    Task<bool> ExistsAsync(int userId, int tagId);
+    Task<bool> ExistsAsync(int userId, string tagName);
+    Task<Tag> CreateAsync(int userId, Tag tag);
+    Task<Tag> UpdateAsync(int userId, Tag tag);
+    Task<List<Tag>> UpdateNoteTagsAsync(int userId, Guid noteId, List<int> tagIds);
+}

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NoteTakingApp.Core.Attributes.Enums;
 using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Mappers;
@@ -8,6 +9,7 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Controllers;
 
+[Route("[controller]")]
 [AllowAnonymous]
 public class AccountController : Controller
 {
@@ -28,7 +30,7 @@ public class AccountController : Controller
     }
 
 
-    [HttpGet("/register")]
+    [HttpGet("register")]
     public async Task<IActionResult> Register()
     {
         ViewBag.Countries = await _getterCountryService.GetAllCountries();
@@ -43,7 +45,8 @@ public class AccountController : Controller
     // use the signinmanager to sign in the user and create cookie 
     // user the userroles to add a role to the user 
     // at each step validate that work so for is correct 
-    [HttpPost("/register")]
+    [HttpPost("register")]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
         ViewBag.Countries = await _getterCountryService.GetAllCountries();
@@ -52,21 +55,6 @@ public class AccountController : Controller
         {
             // Todo: Log errors  
             return View(registerDto);
-        }
-
-        // Assume user did not use the website form to post the data but instead,
-        // typed any invalid id, and posted the data using any tool, basically bypassing the form validation
-        if (registerDto.CountryId.HasValue && (
-                registerDto.CountryId <= 0 ||
-                !await _getterCountryService.Exists((short)registerDto.CountryId)))
-        {
-            return BadRequest("Invalid country Id");
-        }
-
-        //Same, What if a malicious user typed posted a username that's in use
-        if (await _userManager.FindByNameAsync(registerDto.UserName.Trim()) != null)
-        {
-            return BadRequest("Username is already taken");
         }
 
         ApplicationUser user = registerDto.ToEntity();
@@ -86,29 +74,18 @@ public class AccountController : Controller
             return View(registerDto);
         }
 
-        // Create the role 
-        // Check first whether the role exists or not 
-        // If it doesn't exist then creat it and if it was created successfully then add the role to the user otherwise,
-        // log a message informing that an error has occured and user was not assigned a role
-        // If the role already exists, then assign it to the user 
-        //  _userManager.AddToRoleAsync(user, role);
-
-        string role = registerDto.UserRole.ToString();
-        if (!await _roleManager.RoleExistsAsync(role))
+        // The role "User" always exists, Migration folder contains some seeded roles
+        // Assign a role to the user 
+        var assigningRoleIdentityResult = await _userManager.AddToRoleAsync(user, nameof(UserRole.User));
+        if (assigningRoleIdentityResult.Succeeded == false)
         {
-            var roleIdentityResult = await _roleManager.CreateAsync(new ApplicationRole() { Name = role });
-            if (roleIdentityResult.Succeeded)
-                await _userManager.AddToRoleAsync(user, role);
-        }
-        else
-        {
-            await _userManager.AddToRoleAsync(user, role);
+            // Todo: Log a warning message 
         }
 
         return RedirectToAction(nameof(NotesController.Index), "Notes");
     }
 
-    [HttpGet("/login")]
+    [HttpGet("login")]
     public IActionResult Login()
     {
         return View(new LoginDto());
@@ -119,8 +96,9 @@ public class AccountController : Controller
     // model is valid then login but could not login return errors to user 
     // if manage to log in then go to notes page 
     
-    [HttpPost("/login")]
-    public async Task<IActionResult> Login(LoginDto loginDto)
+    [HttpPost("login")]
+    [AutoValidateAntiforgeryToken]
+    public async Task<IActionResult> Login(LoginDto loginDto, string? ReturnUrl)
     {
         if (ModelState.IsValid == false)
         {
@@ -134,7 +112,20 @@ public class AccountController : Controller
             ModelState.AddModelError("", "Invalid username or password");
             return View(loginDto);
         }
-        
+
+        if (!string.IsNullOrEmpty(ReturnUrl)  && Url.IsLocalUrl(ReturnUrl))
+            return LocalRedirect(ReturnUrl);
+
         return RedirectToAction(nameof(NotesController.Index), "Notes");
+    }
+
+    [HttpGet("validate-username")]
+    public async Task<IActionResult> ValidateUsername(string? username)
+    {
+        if (username == null)
+            return Json(true);
+
+        var user = await _userManager.FindByNameAsync(username);
+        return user == null? Json(true): Json(false);
     }
 }

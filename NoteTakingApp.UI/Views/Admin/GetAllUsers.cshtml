@@ -1,0 +1,62 @@
+﻿
+@model IEnumerable<UserDto>
+
+@{
+    ViewData["Title"] = "Manage Users";
+    var pageNumber =ViewBag.pageNumber;
+    var pageSize = ViewBag.pageSize;
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Manage Users</h2>
+    @Html.AntiForgeryToken()
+    <table class="table-striped table-hover table rounded shadow-sm">
+        <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Profile</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Country</th>
+            <th>Birth Date</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in Model)
+        {
+            <style>
+                    .role-btn {
+                        width: 135px; /* Adjust this width as needed */
+                        text-align: center;
+                    }
+            </style>
+
+                var role = user.Role == "User" ? "Admin" : "User";
+
+                <tr>
+                <td>@user.Id</td>
+                <td>
+                    <img src="@user.ProfileImageUrl" class="rounded-circle" width="40" height="40" alt="Profile">
+                </td>
+                <td>@user.Name</td>
+                <td>@user.Username</td>
+                <td>@user.CountryName</td>
+                <td>@user.BirthDate?.ToString("yyyy-MM-dd")</td>
+                <td>@user.Role</td>
+                <td>
+                        <a href="/admin/users/delete?username=@user.Username&page=@pageNumber&pageSize=@pageSize" class="btn btn-danger delete-btn">
+                        Delete
+                    </a>
+                        <a href="/admin/users/assign-role?username=@user.Username&role=@role&page=@pageNumber&pageSize=@pageSize"
+                           class="btn btn-primary assign-role-btn role-btn" data-username="@user.Username">
+                            Set to @role
+                        </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
