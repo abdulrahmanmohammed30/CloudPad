@@ -16,14 +16,4 @@
       <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Data\countries.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
 </Project>
