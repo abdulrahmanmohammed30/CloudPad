@@ -7,6 +7,7 @@ using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.RepositoryContracts;
 using NoteTakingApp.Core.ServiceContracts;
 using NoteTakingApp.Core.Services;
+using NoteTakingApp.Filters;
 using NoteTakingApp.Infrastructure.Context;
 using NoteTakingApp.Infrastructure.Repositories;
 using NoteTakingApp.Middleware;
@@ -38,13 +39,11 @@ builder.Services.AddScoped<INoteSorterService, NoteSorterService>();
 builder.Services.AddScoped<INoteValidatorService, NoteValidatorService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IUserValidationService, UserValidationService>();
-
-
+builder.Services.AddScoped<EnsureUserIdExistsFilter>();
 
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -52,7 +51,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/account/login";
 });
 
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+    })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
     .AddUserStore<UserStore<ApplicationUser, ApplicationRole, AppDbContext, int>>()

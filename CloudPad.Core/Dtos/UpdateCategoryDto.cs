@@ -9,7 +9,7 @@ public class UpdateCategoryDto
     
     [Required]
     [MaxLength(50)]
-    [Remote("ValidateCategoryName", "Note")]
+    [Remote("ValidateCategoryName", "Category")]
     public string Name { get; set; } = string.Empty;
     
     [MaxLength(500)]

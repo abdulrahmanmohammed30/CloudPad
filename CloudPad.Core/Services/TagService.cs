@@ -1,4 +1,5 @@
-﻿using NoteTakingApp.Core.Dtos;
+﻿using Microsoft.Extensions.Caching.Memory;
+using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.Mappers;
 using NoteTakingApp.Core.RepositoryContracts;
@@ -6,22 +7,12 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 
-public class TagService(ITagRepository tagRepository,   
-    IUserService userService) : ITagService
+public class TagService(ITagRepository tagRepository,
+    IUserValidationService userValidationService, IMemoryCache cache) : ITagService
 {
-    private async Task ValidateUserAsync(int userId)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
-
-        if (!await userService.ExistsAsync(userId))
-        {
-            throw new UserNotFoundException($"User with id {userId} doesn't exist");
-        }
-    }
-    
     public async Task<TagDto?> GetByIdAsync(int userId, int id)
     {
-        await ValidateUserAsync(userId);
+        await userValidationService.EnsureUserValidation(userId);
         
         var tag = await tagRepository.GetByIdAsync(userId, id);
         return tag?.ToDto();
@@ -29,10 +20,13 @@ public class TagService(ITagRepository tagRepository,
 
     public async Task<IEnumerable<TagDto>> GetAllAsync(int userId)
     {        
-        await ValidateUserAsync(userId);
-        
-        var tags = await tagRepository.GetAllAsync(userId);
-        return tags.ToDtoList();
+        return await cache.GetOrCreateAsync($"tags/{userId}", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+            await userValidationService.EnsureUserValidation(userId);
+            var tags = await tagRepository.GetAllAsync(userId);
+            return tags.ToDtoList();
+        }) ?? throw new InvalidOperationException();
     }
 
     public async Task<bool> ExistsAsync(int userId, int id)
@@ -47,7 +41,7 @@ public class TagService(ITagRepository tagRepository,
 
     public async Task<TagDto> CreateAsync(int userId, CreateTagDto tagDto)
     {
-        await ValidateUserAsync(userId);
+        await userValidationService.EnsureUserValidation(userId);
         
         if (string.IsNullOrEmpty(tagDto.Name))
         {
@@ -56,7 +50,7 @@ public class TagService(ITagRepository tagRepository,
 
         if (await ExistsAsync(userId, tagDto.Name))
         {
-            throw new DuplicateCategoryNameException("Tag name already exists");
+            throw new DuplicateTagNameException("Tag name already exists");
         }
         
         var tag = tagDto.ToEntity();
@@ -66,7 +60,7 @@ public class TagService(ITagRepository tagRepository,
 
     public async Task<TagDto> UpdateAsync(int userId, UpdateTagDto tagDto)
     {
-        await ValidateUserAsync(userId);
+        await userValidationService.EnsureUserValidation(userId);
         
         if (string.IsNullOrEmpty(tagDto.Name))
         {
@@ -75,7 +69,7 @@ public class TagService(ITagRepository tagRepository,
 
         if (await ExistsAsync(userId, tagDto.Name))
         {
-            throw new DuplicateCategoryNameException("Tag name already exists");
+            throw new DuplicateTagNameException("Tag name already exists");
         }
         
         var tag = tagDto.ToEntity();

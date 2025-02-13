@@ -3,13 +3,14 @@
 namespace NoteTakingApp.Core.Dtos;
 
 public class CreateNoteDto
-{
+{   
     [Required(AllowEmptyStrings = false)]
     [MaxLength(150)]
     public string Title { get; set; } = string.Empty;
     
     public string? Content { get; set; }
-    public List<int> Tags { get; set; } = new List<int>();
+
+    public List<int>? Tags { get; set; }
     public Guid? CategoryId { get; set; }
 
     public bool IsFavorite { get; set; } = false;

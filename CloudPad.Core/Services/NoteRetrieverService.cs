@@ -6,8 +6,8 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 
-public class NoteRetrieverService(INoteRepository noteRepository, IUserService userService, ICategoryService categoryService,
-    ITagService tagService, IUserValidationService userValidationService): INoteRetrieverService
+public class NoteRetrieverService(INoteRepository noteRepository, ICategoryService categoryService, ITagService tagService,
+    IUserValidationService userValidationService): INoteRetrieverService
 {
     private async Task ValidateCategoryAsync(int userId, Guid categoryId)
     {
@@ -27,6 +27,7 @@ public class NoteRetrieverService(INoteRepository noteRepository, IUserService u
         }
     }
     
+
     public async Task<NoteDto?> GetByIdAsync(int userId, Guid noteId)
     {
         await userValidationService.EnsureUserValidation(userId);
@@ -46,7 +47,8 @@ public class NoteRetrieverService(INoteRepository noteRepository, IUserService u
 
     public async Task<IEnumerable<NoteDto>> GetByTagAsync(int userId, int tagId, int pageNumber = 0, int pageSize = 20)
     {
-        Task.WaitAll(userValidationService.EnsureUserValidation(userId), ValidateTagAsync(userId, tagId));
+        Task.WaitAll(userValidationService.EnsureUserValidation(userId), 
+            ValidateTagAsync(userId, tagId));
 
         var notes = await noteRepository.GetByTagAsync(userId, tagId, pageNumber, pageSize);
         ;

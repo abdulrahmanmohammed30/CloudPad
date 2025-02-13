@@ -72,7 +72,7 @@ public class TagRepository(AppDbContext context) : ITagRepository
            .ToListAsync();
        
        if (existingTags.Count != tagIds.Count)
-           throw new ArgumentException("Some tags do not exist.");
+           throw new TagMismatchException("Some tags do not exist.");
        
        note.Tags.RemoveAll(nt => tagIds.All(t => t != nt.TagId));
 

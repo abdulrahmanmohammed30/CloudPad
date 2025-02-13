@@ -10,6 +10,16 @@ namespace NoteTakingApp.Core.Services;
 public class NoteSorterService(INoteRepository noteRepository, IUserValidationService userValidationService)
 :INoteSorterService
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="column"></param>
+    /// <param name="sortDescending"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
+    /// <exception cref="NoteColumnNotSortable"></exception>
     public async Task<IEnumerable<NoteDto>> SortAsync(int userId, string column, bool sortDescending = true,
         int pageNumber = 0,
         int pageSize = 20)

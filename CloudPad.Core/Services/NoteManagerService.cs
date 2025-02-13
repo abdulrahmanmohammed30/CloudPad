@@ -12,8 +12,8 @@ public class NoteManagerService(
     INoteRepository noteRepository,
     ITagService tagService,
     IUserValidationService userValidationService
-    )
-    :INoteManagerService
+)
+    : INoteManagerService
 {
     public async Task<NoteDto> AddAsync(int userId, CreateNoteDto note)
     {
@@ -103,6 +103,13 @@ public class NoteManagerService(
         return note?.ToDto();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="noteId"></param>
+    /// <returns></returns>
+    /// <exception cref="NoteNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int userId, Guid noteId)
     {
         await userValidationService.EnsureUserValidation(userId);

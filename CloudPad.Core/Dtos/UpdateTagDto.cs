@@ -8,7 +8,7 @@ public class UpdateTagDto
     public int TagId { get; set; }
     [Required]
     [MaxLength(50)]
-    [Remote("ValidateTagName", "Note")]
+    [Remote("ValidateTagName", "Tag")]
     public string Name { get; set; } = string.Empty;
     
     [MaxLength(500)]

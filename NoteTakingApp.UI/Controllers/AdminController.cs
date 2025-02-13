@@ -9,24 +9,16 @@ namespace NoteTakingApp.Controllers;
 
 [Authorize(Roles = "Admin")]
 [Route("[controller]/users")]
-public class AdminController : Controller
+public class AdminController(
+    UserManager<ApplicationUser> userManager,
+    RoleManager<ApplicationRole> roleManager,
+    IUserService userService)
+    : Controller
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserService _userService;
-
-    private readonly RoleManager<ApplicationRole> _roleManager;
-    
-    public AdminController(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IUserService userService)
-    {
-        _userManager = userManager;
-        _roleManager= roleManager;
-        _userService = userService;
-    }
-
     [HttpGet("")]
     public async Task<IActionResult> GetAllUsers(string? errorMessage, int page = 1, int pageSize = 10)
     {
-        var usersWithRoles = await _userService.GetUsersAsync();
+        var usersWithRoles = await userService.GetUsersAsync();
         ViewBag.errorMessage = errorMessage;
         ViewBag.pageNumber = page;
         ViewBag.pageSize = pageSize;
@@ -44,14 +36,14 @@ public class AdminController : Controller
                 new { page, pageSize, errorMessage = "User and role are required" });
         }
 
-        var user = await _userManager.FindByNameAsync(username);
+        var user = await userManager.FindByNameAsync(username);
         if (user == null)
         {
             return RedirectToAction(nameof(GetAllUsers), "Admin",
                 new { page, pageSize, errorMessage = "User was not found" });
         }
         
-        if (await _roleManager.RoleExistsAsync(role) == false)
+        if (await roleManager.RoleExistsAsync(role) == false)
         {
             return RedirectToAction(nameof(GetAllUsers), "Admin",
                 new { page, pageSize, errorMessage = "role was not found" });
@@ -60,9 +52,9 @@ public class AdminController : Controller
         // uawe can only have one role but that's not how Identity architecture works 
         // so we will enforce that, by removing all roles user has which is at most can be one 
         // I don't know if a role doesn't exist would it count it as error or not
-        var removeRolesResult=await _userManager.RemoveFromRolesAsync(user, Enum.GetNames(typeof(UserRole)));
+        var removeRolesResult=await userManager.RemoveFromRolesAsync(user, Enum.GetNames(typeof(UserRole)));
 
-        var res = await _userManager.AddToRoleAsync(user, role);
+        var res = await userManager.AddToRoleAsync(user, role);
         
         return res.Succeeded == false
             ? RedirectToAction(nameof(GetAllUsers), "Admin",
@@ -80,14 +72,14 @@ public class AdminController : Controller
                 new { page, pageSize, errorMessage = "User id is required" });
         }
 
-        var user = await _userManager.FindByNameAsync(username);
+        var user = await userManager.FindByNameAsync(username);
         if (user == null)
         {
             return RedirectToAction(nameof(GetAllUsers), "Admin",
                 new { page, pageSize, errorMessage = "User was not found" });
         }
 
-        var res = await _userManager.DeleteAsync(user);
+        var res = await userManager.DeleteAsync(user);
 
         return res.Succeeded == false
             ? RedirectToAction(nameof(GetAllUsers), "Admin",

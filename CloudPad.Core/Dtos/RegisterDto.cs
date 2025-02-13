@@ -24,7 +24,7 @@ public class RegisterDto
 
     [Required]
     [DisplayName("Username")]
-    [UserName]
+    //[UserName]
     [Remote("ValidateUsername", "Account", ErrorMessage = "Username is already taken.")]
     public string UserName { get; set; } = string.Empty;
     

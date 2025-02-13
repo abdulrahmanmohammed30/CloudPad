@@ -59,6 +59,11 @@ namespace NoteTakingApp.Infrastructure.Configurations
                    .IsRequired();
 
             builder.HasIndex(n => n.NoteGuid).IsUnique();
+
+            builder.Navigation(b => b.Tags).AutoInclude();
+            builder.Navigation(b=>b.Category).AutoInclude();
+
+            builder.HasQueryFilter(b => !b.IsDeleted);
         }
     }
 }

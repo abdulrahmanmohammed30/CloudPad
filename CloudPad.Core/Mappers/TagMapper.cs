@@ -49,4 +49,18 @@ public static class TagMapper {
     {
         return tags.Select(t => t.ToDto()).ToList();
     }
+    
+    public static UpdateTagDto ToUpdateDto(this Tag tag)
+    {
+        return new UpdateTagDto()
+        {
+          TagId = tag.TagId,
+          Name = tag.Name,
+          Description = tag.Description,
+        };
+    }
+    public static List<UpdateTagDto> ToUpdateDtoList(this List<Tag> tags)
+    {
+        return tags.Select(t => t.ToUpdateDto()).ToList();
+    }
 }

@@ -7,7 +7,7 @@ public class CreateCategoryDto
 {
     [Required]
     [MaxLength(50)]
-    [Remote("ValidateCategoryName", "Note")]
+    [Remote("ValidateCategoryName", "Category", ErrorMessage ="Name is already taken.")]
     public string Name { get; set; } = string.Empty;
     
     [MaxLength(500)]

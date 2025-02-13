@@ -11,29 +11,20 @@ namespace NoteTakingApp.Controllers;
 
 [Route("[controller]")]
 [AllowAnonymous]
-public class AccountController : Controller
+public class AccountController(
+    IGetterCountryService getterCountryService,
+    UserManager<ApplicationUser> userManager,
+    SignInManager<ApplicationUser> signInManager,
+    RoleManager<ApplicationRole> roleManager)
+    : Controller
 {
-    private readonly IGetterCountryService _getterCountryService;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
-
-    public AccountController(IGetterCountryService getterCountryService,
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        RoleManager<ApplicationRole> roleManager)
-    {
-        _getterCountryService = getterCountryService;
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _roleManager = roleManager;
-    }
+    private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
 
 
     [HttpGet("register")]
     public async Task<IActionResult> Register()
     {
-        ViewBag.Countries = await _getterCountryService.GetAllCountries();
+        ViewBag.Countries = await getterCountryService.GetAllCountries();
         return View(new RegisterDto());
     }
 
@@ -46,10 +37,9 @@ public class AccountController : Controller
     // user the userroles to add a role to the user 
     // at each step validate that work so for is correct 
     [HttpPost("register")]
-    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
-        ViewBag.Countries = await _getterCountryService.GetAllCountries();
+        ViewBag.Countries = await getterCountryService.GetAllCountries();
 
         if (!ModelState.IsValid)
         {
@@ -60,7 +50,7 @@ public class AccountController : Controller
         ApplicationUser user = registerDto.ToEntity();
 
         // Create the user 
-        var userIdentityResult = await _userManager.CreateAsync(user, registerDto.Password);
+        var userIdentityResult = await userManager.CreateAsync(user, registerDto.Password);
 
         if (userIdentityResult.Succeeded == false)
         {
@@ -76,13 +66,13 @@ public class AccountController : Controller
 
         // The role "User" always exists, Migration folder contains some seeded roles
         // Assign a role to the user 
-        var assigningRoleIdentityResult = await _userManager.AddToRoleAsync(user, nameof(UserRole.User));
+        var assigningRoleIdentityResult = await userManager.AddToRoleAsync(user, nameof(UserRole.User));
         if (assigningRoleIdentityResult.Succeeded == false)
         {
             // Todo: Log a warning message 
         }
 
-        return RedirectToAction(nameof(NotesController.Index), "Notes");
+        return RedirectToAction(nameof(NoteController.Index), "Note");
     }
 
     [HttpGet("login")]
@@ -97,7 +87,6 @@ public class AccountController : Controller
     // if manage to log in then go to notes page 
     
     [HttpPost("login")]
-    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Login(LoginDto loginDto, string? ReturnUrl)
     {
         if (ModelState.IsValid == false)
@@ -106,7 +95,7 @@ public class AccountController : Controller
             return View(loginDto);
         }
         
-        var loginResult = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
+        var loginResult = await signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
         if (loginResult.Succeeded == false)
         {
             ModelState.AddModelError("", "Invalid username or password");
@@ -116,7 +105,7 @@ public class AccountController : Controller
         if (!string.IsNullOrEmpty(ReturnUrl)  && Url.IsLocalUrl(ReturnUrl))
             return LocalRedirect(ReturnUrl);
 
-        return RedirectToAction(nameof(NotesController.Index), "Notes");
+        return RedirectToAction(nameof(NoteController.Index), "Note");
     }
 
     [HttpGet("validate-username")]
@@ -125,7 +114,7 @@ public class AccountController : Controller
         if (username == null)
             return Json(true);
 
-        var user = await _userManager.FindByNameAsync(username);
+        var user = await userManager.FindByNameAsync(username);
         return user == null? Json(true): Json(false);
     }
 }

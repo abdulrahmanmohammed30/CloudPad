@@ -7,13 +7,14 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 
-public class NoteFilterService(IUserService userService, INoteRepository noteRepository, IUserValidationService userValidationServiceS)
+public class NoteFilterService(INoteRepository noteRepository,
+    IUserValidationService userValidationService)
     :INoteFilterService
 {
     public async Task<IEnumerable<NoteDto>> SearchAsync(int userId, string searchTerm, int pageNumber = 0,
         int pageSize = 20)
     {
-        await userValidationServiceS.EnsureUserValidation(userId);
+        await userValidationService.EnsureUserValidation(userId);
 
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -28,7 +29,7 @@ public class NoteFilterService(IUserService userService, INoteRepository noteRep
     public async Task<IEnumerable<NoteDto>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber = 0,
         int pageSize = 20)
     {
-        await userValidationServiceS.EnsureUserValidation(userId);
+        await userValidationService.EnsureUserValidation(userId);
 
 
         if (string.IsNullOrWhiteSpace(searchTerm))
@@ -44,7 +45,7 @@ public class NoteFilterService(IUserService userService, INoteRepository noteRep
     public async Task<IEnumerable<NoteDto>> SearchByContentAsync(int userId, string searchTerm, int pageNumber = 0,
         int pageSize = 20)
     {
-        await userValidationServiceS.EnsureUserValidation(userId);
+        await userValidationService.EnsureUserValidation(userId);
 
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -59,7 +60,7 @@ public class NoteFilterService(IUserService userService, INoteRepository noteRep
     public async Task<IEnumerable<NoteDto>> FilterAsync(int userId, string column, string value, int pageNumber = 0,
         int pageSize = 20)
     {
-        await userValidationServiceS.EnsureUserValidation(userId);
+        await userValidationService.EnsureUserValidation(userId);
 
         var isSearchableColumn = (Enum.GetNames(typeof(NoteSearchableColumn))).Any(n => n.Equals(column));
         if (!isSearchableColumn)

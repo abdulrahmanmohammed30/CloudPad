@@ -1,4 +1,5 @@
-﻿using NoteTakingApp.Core.Dtos;
+﻿using Microsoft.Extensions.Caching.Memory;
+using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.Mappers;
 using NoteTakingApp.Core.RepositoryContracts;
@@ -6,8 +7,7 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 
-public class CategoryService(ICategoryRepository categoryRepository,   
-    IUserService userService
+public class CategoryService(ICategoryRepository categoryRepository, IUserService userService, IMemoryCache cache
 ) : ICategoryService
 {
     private async Task ValidateUserAsync(int userId)
@@ -37,10 +37,13 @@ public class CategoryService(ICategoryRepository categoryRepository,
 
     public async Task<IEnumerable<CategoryDto>> GetAllAsync(int userId)
     {
-        await ValidateUserAsync(userId);
-
-        var categories = await categoryRepository.GetAllAsync(userId);
-        return categories.ToDtoList();
+        return await cache.GetOrCreateAsync($"Categories/{userId}", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
+            await ValidateUserAsync(userId);
+            var categories = await categoryRepository.GetAllAsync(userId);
+            return categories.ToDtoList();
+        }) ?? throw new InvalidOperationException();
     }
 
     public async Task<bool> ExistsAsync(int userId, Guid categoryId)
@@ -64,6 +67,9 @@ public class CategoryService(ICategoryRepository categoryRepository,
         
         var category = categoryDto.ToEntity();
         var createdCategory = await categoryRepository.CreateAsync(userId, category);
+
+        cache.Remove($"Categories/{userId}");
+
         return createdCategory.ToDto();
     }
 
@@ -83,6 +89,8 @@ public class CategoryService(ICategoryRepository categoryRepository,
         
         var category = categoryDto.ToEntity();
         var updatedCategory = await categoryRepository.UpdateAsync(userId, category);
+
+        cache.Remove($"Categories/{userId}");
         return updatedCategory.ToDto();
     }
 

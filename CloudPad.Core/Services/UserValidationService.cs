@@ -1,5 +1,4 @@
-﻿using NoteTakingApp.Core.Exceptions;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 
@@ -9,9 +8,10 @@ public class UserValidationService(IUserService userService):IUserValidationServ
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
 
-        if (!await userService.ExistsAsync(userId))
-        {
-            throw new UserNotFoundException($"User with id {userId} doesn't exist");
-        }
+        // Todo, read userId from the HttpContext
+        //if (!await userService.ExistsAsync(userId))
+        //{
+        //    throw new UserNotFoundException($"User with id {userId} doesn't exist");
+        //}
     }
 }

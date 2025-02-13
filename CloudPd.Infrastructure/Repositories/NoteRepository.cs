@@ -9,6 +9,7 @@ using NoteTakingApp.Infrastructure.Context;
 
 namespace NoteTakingApp.Infrastructure.Repositories
 {
+    // Query filter for IsDeleted
     public class NoteRepository : INoteRepository
     {
         private readonly AppDbContext _context;
@@ -21,14 +22,14 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<Note?> GetById(int userId, Guid noteId)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.NoteGuid == noteId && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.NoteGuid == noteId)
                 .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Note>> GetByCategoryAsync(int userId, Guid categoryGuid, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.Category != null && n.Category.CategoryGuid == categoryGuid && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.Category != null && n.Category.CategoryGuid == categoryGuid)
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -37,7 +38,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> GetByTagAsync(int userId, int tagId, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.Tags.Any(t => t.TagId == tagId) && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.Tags.Any(t => t.TagId == tagId))
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -46,7 +47,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> GetFavoritesAsync(int userId, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.IsFavorite && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.IsFavorite)
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -55,7 +56,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> GetPinnedAsync(int userId, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.IsPinned && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.IsPinned)
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -64,7 +65,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> GetArchivedAsync(int userId, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.IsArchived && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.IsArchived)
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -73,7 +74,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> GetAllAsync(int userId, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && !n.IsDeleted)
+                .Where(n => n.UserId == userId)
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -83,8 +84,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         {
             return await _context.Notes
                 .Where(n => n.UserId == userId &&
-                            (n.Title.Contains(searchTerm) || n.Content.Contains(searchTerm)) &&
-                            !n.IsDeleted)
+                            (n.Title.Contains(searchTerm) || (n.Content != null && n.Content.Contains(searchTerm))))
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -93,7 +93,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.Title.Contains(searchTerm) && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.Title.Contains(searchTerm))
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -102,7 +102,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> SearchByContentAsync(int userId, string searchTerm, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.Content.Contains(searchTerm) && !n.IsDeleted)
+                .Where(n => n.UserId == userId && n.Content != null &&  n.Content.Contains(searchTerm))
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -110,7 +110,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
 
         public async Task<IEnumerable<Note>> FilterAsync(int userId, NoteSearchableColumn searchableColumn, string value, int pageNumber = 0, int pageSize = 20)
         {
-            Expression<Func<Note, bool>> filter = n => n.UserId == userId && !n.IsDeleted;
+            Expression<Func<Note, bool>> filter = n => n.UserId == userId;
 
             if (!string.IsNullOrWhiteSpace(value))
             {
@@ -137,7 +137,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> SortAsync(int userId, NoteSortableColumn column, bool sortDescending = true, int pageNumber = 0, int pageSize = 20)
         {
             var query = _context.Notes
-                .Where(n => n.UserId == userId && !n.IsDeleted);
+                .Where(n => n.UserId == userId);
 
             query = column switch
             {
