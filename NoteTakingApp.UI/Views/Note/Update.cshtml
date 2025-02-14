@@ -30,7 +30,7 @@
                 <option value="">-- Select a Category --</option>
                 @foreach (var category in categories)
                 {
-                    <option value="@category.CategoryId">@category.Name</option>
+                    <option value="@category.Id">@category.Name</option>
                 }
             </select>
         </div>
@@ -40,7 +40,7 @@
             <select asp-for="Tags" class="form-select" multiple>
                 @foreach (var tag in tags)
                 {
-                    <option value="@tag.TagId">@tag.Name</option>
+                    <option value="@tag.Id">@tag.Name</option>
                 }
             </select>
         </div>

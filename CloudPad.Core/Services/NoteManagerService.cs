@@ -43,7 +43,7 @@ public class NoteManagerService(
 
         var notesDto = (await noteRepository.AddAsync(userId, newNote)).ToDto();
 
-        var tagsDto = await tagService.UpdateNoteTagsAsync(userId, notesDto.NoteId, note.Tags);
+        var tagsDto = await tagService.UpdateNoteTagsAsync(userId, notesDto.Id, note.Tags);
 
         notesDto.Tags = tagsDto;
         notesDto.Category = categoryDto;

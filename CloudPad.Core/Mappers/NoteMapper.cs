@@ -10,7 +10,7 @@ public static class NoteMapper
     {
         return new NoteDto()
         {
-            NoteId = note.NoteGuid,
+            Id = note.NoteGuid,
             Title = note.Title,
             Content = note.Content,
             Category = note.Category?.ToDto(),
@@ -32,7 +32,7 @@ public static class NoteMapper
     {
         return new Note()
         {
-            NoteGuid = noteDto.NoteId,
+            NoteGuid = noteDto.Id,
             IsArchived = noteDto.IsArchived,
             IsPinned = noteDto.IsPinned,
             Title = noteDto.Title,

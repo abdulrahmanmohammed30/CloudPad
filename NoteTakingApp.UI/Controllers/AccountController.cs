@@ -24,6 +24,11 @@ public class AccountController(
     [HttpGet("register")]
     public async Task<IActionResult> Register()
     {
+        if (HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Index", "Note");
+        }
+
         ViewBag.Countries = await getterCountryService.GetAllCountries();
         return View(new RegisterDto());
     }
@@ -78,6 +83,11 @@ public class AccountController(
     [HttpGet("login")]
     public IActionResult Login()
     {
+        if (HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Index", "Note");
+        }
+
         return View(new LoginDto());
     }
 

@@ -8,7 +8,7 @@ public static class TagMapper {
     {
         return new TagDto()
         {
-            TagId = tag.TagId,
+            Id = tag.TagId,
             Name = tag.Name,
             Description = tag.Description,
         };
@@ -18,7 +18,7 @@ public static class TagMapper {
     {
         return new Tag()
         {
-            TagId = tagDto.TagId,
+            TagId = tagDto.Id,
             Name = tagDto.Name,
             Description = tagDto.Description,
             Notes = new List<Note>(),

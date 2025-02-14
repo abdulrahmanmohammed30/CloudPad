@@ -111,11 +111,11 @@ public class NoteController: Controller
 
         var note = new UpdateNoteDto()
         {
-            NoteId = existingNote.NoteId,
+            NoteId = existingNote.Id,
             Title = existingNote.Title,
             Content = existingNote.Content,
-            Tags = existingNote.Tags.Select(t => t.TagId).ToList(),
-            CategoryId = existingNote.Category?.CategoryId,
+            Tags = existingNote.Tags.Select(t => t.Id).ToList(),
+            CategoryId = existingNote.Category?.Id,
             IsArchived = existingNote.IsArchived,
             IsFavorite = existingNote.IsFavorite,
             IsPinned = existingNote.IsPinned,

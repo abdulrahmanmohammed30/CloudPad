@@ -9,7 +9,7 @@ public static class CategoryMapper
     {
         return new CategoryDto()
         {
-            CategoryId = category.CategoryGuid,
+            Id = category.CategoryGuid,
             Name = category.Name,
             Description = category.Description,
             IsFavorite = category.IsFavorite
@@ -23,7 +23,7 @@ public static class CategoryMapper
             IsFavorite = categoryDto.IsFavorite,
             Description = categoryDto.Description,
             Name = categoryDto.Name,
-            CategoryGuid = categoryDto.CategoryId,
+            CategoryGuid = categoryDto.Id,
 
         };
     }

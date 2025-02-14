@@ -2,7 +2,7 @@
 
 public class NoteDto
 {
-    public Guid NoteId { get; set; }
+    public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Content { get; set; }
     public List<TagDto> Tags { get; set; } = new List<TagDto>();
