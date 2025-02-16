@@ -37,7 +37,7 @@ namespace NoteTakingApp.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Create(CreateCategoryDto createCategoryDto)
         {
-            if (ModelState.IsValid == false)
+            if (ModelState.IsValid == false)    
             {
                 return View(createCategoryDto);
             }

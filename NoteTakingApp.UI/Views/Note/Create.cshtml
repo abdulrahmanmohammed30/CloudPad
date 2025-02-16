@@ -1,4 +1,4 @@
-﻿@model NoteTakingApp.Core.Dtos.CreateNoteDto
+﻿@model CreateNoteDto
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
@@ -22,9 +22,9 @@
             <textarea asp-for="Content" class="form-control" rows="5"></textarea>
         </div>
 
-        <div class="mb-3">
+        <div class="form-group mb-3">
             <label asp-for="CategoryId" class="form-label">Category</label>
-            <select asp-for="CategoryId" class="form-select">
+            <select asp-for="CategoryId" class="form-select form-control">
                 <option value="">-- Select a Category --</option>
                 @foreach (var category in categories)
                 {
@@ -33,9 +33,9 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Tags</label>
-            <select asp-for="Tags" class="form-select" multiple>
+        <div class="form-group mb-3">
+            <label asp-for="Tags" class="form-label">Tags</label>
+            <select asp-for="Tags" class="form-select form-control" multiple>
                 @foreach (var tag in tags)
                 {
                     <option value="@tag.Id">@tag.Name</option>

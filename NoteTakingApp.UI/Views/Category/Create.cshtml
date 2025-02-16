@@ -9,7 +9,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-center text-white" >
+                <div class="card-header text-center text-white" style="background-color:#0c8195; ">
                     <h4 style="color:white;">Create Category</h4>
                 </div>
                 <div class="card-body">
@@ -30,12 +30,13 @@
                             <input asp-for="IsFavorite" class="form-check-input" />
                             <label asp-for="IsFavorite" class="form-check-label">Mark as Favorite</label>
                         </div>
+                        <div asp-validation-summary="All"  class="text-danger"></div>
 
-                        <button type="submit" class="btn btn-primary w-100">Create</button>
+                        <button type="submit" class="btn w-100 text-white" style="background-color:#0c8195; ">Create</button>
                     </form>
                 </div>
             </div>
-        </div>
+        </div>  
     </div>
 </div>
 

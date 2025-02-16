@@ -21,15 +21,18 @@
 *@
 </head>
 <body>
+    <div class="d-flex flex-column min-vh-100">
 
-<!-- MENU BAR -->
-@await Html.PartialAsync("_Navbar")
+        <!-- MENU BAR -->
+        @await Html.PartialAsync("_Navbar")
 
-<div style="margin-bottom:3rem;">
-    @RenderBody()
-</div>
-<!-- FOOTER -->
-@await Html.PartialAsync("_Footer")
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            @RenderBody()
+        </div>
+
+ 
+    </div>
 
 <!-- SCRIPTS -->
 <script src="js/jquery.min.js"></script>

@@ -2,7 +2,7 @@
     <div class="container">
         <a class="navbar-brand" href="/">
             <i class="fa fa-sticky-note"></i>
-            Note-Taking App
+            CloudPad
         </a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
@@ -12,21 +12,30 @@
 
         <div class="navbar-collapse collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a href="#notes" class="nav-link smoothScroll">My Notes</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#tags" class="nav-link smoothScroll">Tags</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#profile" class="nav-link smoothScroll">Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/account/login" class="nav-link">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/account/register" class="nav-link contact">Register</a>
-                </li>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a href="/note" class="nav-link smoothScroll">My Notes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/category" class="nav-link smoothScroll">Categories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/tag" class="nav-link smoothScroll">Tags</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/signout" class="nav-link smoothScroll">Sign out</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a href="/account/login" class="nav-link">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/account/register" class="nav-link contact" style="border-color: #FFD700; color:#FFD700;">Register</a>
+                    </li>
+                }
             </ul>
         </div>
     </div>

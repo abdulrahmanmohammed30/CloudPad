@@ -118,6 +118,14 @@ public class AccountController(
         return RedirectToAction(nameof(NoteController.Index), "Note");
     }
 
+    [HttpPost("signout")]
+    public async Task<IActionResult> Signout()
+    {
+        await signInManager.SignOutAsync();
+
+        return RedirectToAction(nameof(HomeController.Index), "Home");
+    }
+
     [HttpGet("validate-username")]
     public async Task<IActionResult> ValidateUsername(string? username)
     {

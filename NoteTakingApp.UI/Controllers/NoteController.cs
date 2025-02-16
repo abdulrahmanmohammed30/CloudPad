@@ -36,10 +36,10 @@ public class NoteController: Controller
 
 
     [HttpGet("")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromBody]int page=0, [FromBody] int size=20)
     { 
-        var notes = await noteRetrieverService.GetAllAsync(UserId);
-        return Json(notes);
+        var notes = await noteRetrieverService.GetAllAsync(UserId, page, size);
+        return View(notes);
     }
     // all user categories should be cached: select, cache categories 
     // all user tags should be cached: multi-select, cache tags 

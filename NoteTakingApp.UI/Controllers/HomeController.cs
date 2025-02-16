@@ -10,8 +10,7 @@ public class HomeController: Controller
     [Route("/")]
     public IActionResult Index()
     {
-        return Json(HttpContext.GetEndpoint()?.DisplayName);
-        //return View();
+        return View();
     }
 
     [Route("/error")]

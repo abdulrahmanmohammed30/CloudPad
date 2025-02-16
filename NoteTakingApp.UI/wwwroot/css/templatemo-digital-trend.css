@@ -234,13 +234,26 @@ https://templatemo.com/tm-538-digital-trend
     font-size: var(--h2-font-size);
   }
 
-  .nav-link {
+.nav-link-main {
+    color: #f3d308;
+    font-size: var(--menu-font-size);
+    letter-spacing: 0.4px;
+    margin: 0 1.6em;
+    padding: 0.6em;
+}
+
+.nav-link-main:hover {
+    background-color: #f3d308;
+    color:white;
+}
+
+.nav-link {
     color: var(--white-color);
     font-size: var(--menu-font-size);
     letter-spacing: 0.4px;
     margin: 0 1.6em;
     padding: 0.6em;
-  }
+}
 
   .nav-link.active,
   .nav-link:hover {

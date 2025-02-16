@@ -1,6 +1,86 @@
-﻿@{
-    ViewBag.Title = "Notes";
-    Layout = null;
+﻿@model List<NoteDto>
+
+@{
+    ViewData["Title"] = "Notes";
 }
 
-<p>Notes</p>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar (Note Titles) -->
+        <div class="col-md-3 bg-light border-end p-3">
+            <h5 class="text-center">Notes</h5>
+            <input type="text" id="searchNotes" class="form-control mb-2" placeholder="Search notes...">
+            <ul class="list-group" id="notesList">
+                @foreach (var note in Model.OrderByDescending(n => n.IsPinned))
+                {
+                    <li class="list-group-item list-note" data-id="@note.Id">
+                        @if (note.IsPinned)
+                        {
+                            <span class="badge bg-warning">📌</span>
+                        }
+                        @if (note.IsFavorite)
+                        {
+                            <span class="badge bg-danger">❤️</span>
+                        }
+                        @note.Title
+                    </li>
+                }
+            </ul>4
+        </div>
+
+        <!-- Content Area (Selected Note) -->
+        <div class="col-md-9 p-4">
+            <h3 id="noteTitle">Select a Note</h3>
+            <p id="noteContent">Click on a note to view its content.</p>
+            <hr>
+            <div id="noteMeta"></div>
+            <div id="noteTags"></div>
+            <div id="noteResources"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const notes = @Html.Raw(Json.Serialize(Model));
+            const notesList = document.querySelectorAll(".list-note");
+
+            notesList.forEach(note => {
+                note.addEventListener("click", function () {
+                    let noteId = this.getAttribute("data-id");
+                    let selectedNote = notes.find(n => n.id == noteId);
+
+                    document.getElementById("noteTitle").innerText = selectedNote.title;
+                    document.getElementById("noteContent").innerText = selectedNote.content || "No content available.";
+
+                    // Category & Status
+                    document.getElementById("noteMeta").innerHTML = selectedNote.category
+                        ? `<strong>Category:</strong> ${selectedNote.category.name}`
+                        : "No category assigned.";
+
+                    // Tags
+                    let tagsHtml = selectedNote.tags.length
+                        ? `<strong>Tags:</strong> ${selectedNote.tags.map(tag => `<span class="badge bg-white">${tag.name}</span>`).join(" ")}`
+                        : "No tags assigned.";
+                    document.getElementById("noteTags").innerHTML = tagsHtml;
+
+                    // Resources
+                    let resourcesHtml = selectedNote.resources.length
+                        ? `<strong>Resources:</strong> <ul>${selectedNote.resources.map(res => `<li><a href="${res.url}" target="_blank">${res.name}</a></li>`).join("")}</ul>`
+                        : "No resources attached.";
+                    document.getElementById("noteResources").innerHTML = resourcesHtml;
+                });
+            });
+
+            // Search Notes
+            document.getElementById("searchNotes").addEventListener("input", function () {
+                let searchValue = this.value.toLowerCase();
+                notesList.forEach(note => {
+                    let text = note.innerText.toLowerCase();    
+                    note.style.display = text.includes(searchValue) ? "" : "none";
+                });
+            });
+        });
+    </script>
+}
