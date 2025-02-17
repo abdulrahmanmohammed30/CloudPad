@@ -50,7 +50,7 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
 
     public async Task<Category> UpdateAsync(int userId, Category category)
     {
-        var existingCategory = await context.Categories
+        var existingCategory = await context.Categories.AsTracking()
             .FirstOrDefaultAsync(c => c.UserId == userId && c.CategoryGuid == category.CategoryGuid);
 
         if (existingCategory == null)
@@ -61,6 +61,7 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
         existingCategory.IsFavorite = category.IsFavorite;
         existingCategory.UpdatedAt = DateTime.UtcNow;
 
+        context.Update(existingCategory);
         await context.SaveChangesAsync();
         
         return existingCategory;

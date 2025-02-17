@@ -11,6 +11,11 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
 {
     private async Task ValidateCategoryAsync(int userId, Guid categoryId)
     {
+        if (categoryId == Guid.Empty)
+        {
+            throw new InvalidCategoryException("Category id cannot be empty");
+        }
+
         if (!await categoryService.ExistsAsync(userId, categoryId))
         {
             throw new CategoryNotFoundException($"Category with id {categoryId} doesn't exist");
@@ -19,7 +24,8 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
     
     private async Task ValidateTagAsync(int userId, int tagId)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(tagId);
+        if (tagId <=0)
+            throw new InvalidTagException("Tag id cannot be less than or equal 0");
 
         if (!await tagService.ExistsAsync(userId, tagId))
         {

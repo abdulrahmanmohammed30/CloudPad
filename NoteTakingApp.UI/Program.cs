@@ -21,7 +21,7 @@ builder.Services.AddControllersWithViews(options =>
 
 // Should be placed after the registration of repositories, services, AppDbContext
 builder.Services.AddMemoryCache();
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options =>  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -40,6 +40,14 @@ builder.Services.AddScoped<INoteValidatorService, NoteValidatorService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IUserValidationService, UserValidationService>();
 builder.Services.AddScoped<EnsureUserIdExistsFilter>();
+
+builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
+
+builder.Services.AddScoped<IResourceService, ResourceService>();
+
+builder.Services.AddScoped<NoteExceptionFilter>();
+builder.Services.AddScoped<CategoryExceptionFilter>();
+
 
 builder.Services.AddAuthorization(options =>
 {

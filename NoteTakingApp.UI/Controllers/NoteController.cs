@@ -39,7 +39,17 @@ public class NoteController: Controller
     public async Task<IActionResult> Index([FromBody]int page=0, [FromBody] int size=20)
     { 
         var notes = await noteRetrieverService.GetAllAsync(UserId, page, size);
-        return View(notes);
+
+        HttpContext.Response.Cookies.Append("preferredLanguage", "en-US", new CookieOptions()
+        {
+            Expires = DateTime.Now.AddDays(1),
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+        
+
+        return Json(notes);
     }
     // all user categories should be cached: select, cache categories 
     // all user tags should be cached: multi-select, cache tags 
@@ -64,7 +74,15 @@ public class NoteController: Controller
         {
             return NotFound($"Note with id {id} was not found");
         }
-        
+
+        HttpContext.Response.Cookies.Append("preferredLanguage", "en-US", new CookieOptions()
+        {
+            Expires = DateTime.Now.AddDays(1),
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+
         return Json(note);
     }
 

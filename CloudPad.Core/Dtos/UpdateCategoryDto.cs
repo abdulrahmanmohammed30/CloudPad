@@ -8,8 +8,8 @@ public class UpdateCategoryDto
     public Guid CategoryId { get; set; }
     
     [Required]
-    [MaxLength(50)]
-    [Remote("ValidateCategoryName", "Category")]
+    [MaxLength(50, ErrorMessage ="Category characters cannot be more than 50")]
+    [Remote("ValidateCategoryName", "Category", ErrorMessage ="Category Name is in use.")]
     public string Name { get; set; } = string.Empty;
     
     [MaxLength(500)]

@@ -1,0 +1,49 @@
+﻿@model NoteTakingApp.Core.Dtos.UpdateCategoryDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Update Category";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-center text-white">
+                    <h4>Update Category</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Update" asp-controller="Category" method="post">
+                        <input type="hidden" asp-for="CategoryId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Category Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter category name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter description (optional)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsFavorite" class="form-check-input" />
+                            <label asp-for="IsFavorite" class="form-check-label">Mark as Favorite</label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Update</button>
+                            <a asp-action="Index" class="btn btn-secondary mt-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

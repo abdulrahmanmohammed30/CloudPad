@@ -28,4 +28,9 @@ public static class ResourceMapper
             Size = resourceDto.Size,
         };
     }
+
+    public static List<ResourceDto> ToDtoList (this List<Resource> resources)
+    {
+        return resources.Select(resource => resource.ToDto()).ToList();
+    }
 }

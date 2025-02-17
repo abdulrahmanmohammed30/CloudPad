@@ -1,16 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPad.Core", "CloudPad.Core\CloudPad.Core.csproj", "{07C8D307-090B-4D5A-9A91-45CF8C5B46D2}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudPad.Core", "CloudPad.Core\CloudPad.Core.csproj", "{07C8D307-090B-4D5A-9A91-45CF8C5B46D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPd.Infrastructure", "CloudPd.Infrastructure\CloudPd.Infrastructure.csproj", "{2C0CA72F-C720-44BC-B638-77FBFA20F977}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudPd.Infrastructure", "CloudPd.Infrastructure\CloudPd.Infrastructure.csproj", "{2C0CA72F-C720-44BC-B638-77FBFA20F977}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1EEFD15F-ECFC-428D-B357-6A5DB5CD93AA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0A5EB5F1-9AE8-40D8-9BEC-A37A3FD79817}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteTakingApp.Tests.Unit", "NoteTakingApp.Tests.Unit\NoteTakingApp.Tests.Unit.csproj", "{3A0162DD-3185-4567-AAC7-815D1CB670DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoteTakingApp.Tests.Unit", "NoteTakingApp.Tests.Unit\NoteTakingApp.Tests.Unit.csproj", "{3A0162DD-3185-4567-AAC7-815D1CB670DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPad.UI", "NoteTakingApp.UI\CloudPad.UI.csproj", "{E26C2E97-EC9A-405B-BF4F-680767C7D07B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudPad.UI", "NoteTakingApp.UI\CloudPad.UI.csproj", "{E26C2E97-EC9A-405B-BF4F-680767C7D07B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{DCD6FE95-141F-4BEC-9571-B103DA1D35B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +39,13 @@ Global
 		{E26C2E97-EC9A-405B-BF4F-680767C7D07B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E26C2E97-EC9A-405B-BF4F-680767C7D07B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E26C2E97-EC9A-405B-BF4F-680767C7D07B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD6FE95-141F-4BEC-9571-B103DA1D35B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD6FE95-141F-4BEC-9571-B103DA1D35B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD6FE95-141F-4BEC-9571-B103DA1D35B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD6FE95-141F-4BEC-9571-B103DA1D35B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{07C8D307-090B-4D5A-9A91-45CF8C5B46D2} = {1EEFD15F-ECFC-428D-B357-6A5DB5CD93AA}

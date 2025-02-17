@@ -76,10 +76,15 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
     public async Task<CategoryDto> UpdateAsync(int userId, UpdateCategoryDto categoryDto)
     {
         await ValidateUserAsync(userId);
+
+        if (categoryDto.CategoryId == Guid.Empty)
+        {
+            throw new InvalidCategoryException("Category id cannot be empty");
+        }
         
         if (string.IsNullOrEmpty(categoryDto.Name))
         {
-            throw new ArgumentNullException(nameof(categoryDto.Name), "Category name cannot be null or empty");
+            throw new InvalidCategoryException("Category name cannot be null or empty");
         }
 
         if (await ExistsAsync(userId, categoryDto.Name))
