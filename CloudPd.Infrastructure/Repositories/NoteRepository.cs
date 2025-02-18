@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.Enums;
@@ -102,7 +103,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         public async Task<IEnumerable<Note>> SearchByContentAsync(int userId, string searchTerm, int pageNumber = 0, int pageSize = 20)
         {
             return await _context.Notes
-                .Where(n => n.UserId == userId && n.Content != null &&  n.Content.Contains(searchTerm))
+                .Where(n => n.UserId == userId && n.Content != null && n.Content.Contains(searchTerm))
                 .Skip(pageNumber * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -133,7 +134,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        
+
         public async Task<IEnumerable<Note>> SortAsync(int userId, NoteSortableColumn column, bool sortDescending = true, int pageNumber = 0, int pageSize = 20)
         {
             var query = _context.Notes
@@ -187,22 +188,67 @@ namespace NoteTakingApp.Infrastructure.Repositories
             return note;
         }
 
+        //public async Task<bool> DeleteAsync(int userId, Guid noteId)
+        //{
+        //    var note = await GetById(userId, noteId);
+        //    if (note != null)
+        //    {
+        //        note.IsDeleted = true;
+        //        await _context.SaveChangesAsync();
+        //        return true;
+        //    }
+        //    return false;
+        //}
+
         public async Task<bool> DeleteAsync(int userId, Guid noteId)
         {
             var note = await GetById(userId, noteId);
-            if (note != null)
-            {
-                note.IsDeleted = true;
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            return false;
+            note.IsDeleted = true;
+            _context.Notes.Update(note);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> Exists(int userId, Guid noteId)
         {
             return await _context.Notes
                 .AnyAsync(n => n.UserId == userId && n.NoteGuid == noteId && !n.IsDeleted);
+        }
+
+
+        public async Task<IEnumerable<Note>> FilterAsync(int userId, string title, string content, string tag,
+                     string category, bool isFavorite, bool isPinned, bool isArchived, int pageNumber, int pageSize)
+        {
+            var query = _context.Notes.Where(n=>n.Title.Contains(title) && (n.Content == null || n.Content.Contains(content)) && n.UserId == userId)
+                .Skip(pageNumber * pageSize).Take(pageSize);
+
+            // if the content is not null, filter by content 
+            if (!string.IsNullOrWhiteSpace(tag))
+            {
+                query = query.Where(n => n.Tags.Any(t => t.Name.ToLower().Equals(tag.ToLower())));
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(n => n.Category != null && n.Category.Name.ToLower().Equals(category.ToLower()));
+            }
+
+            if (isFavorite)
+            {
+                query = query.Where(n => n.IsFavorite);
+            }
+
+            if (isPinned)
+            {
+                   query = query.Where(n => n.IsPinned);
+            }
+
+            if (isArchived)
+            {
+                query = query.Where(n => n.IsArchived);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

@@ -41,6 +41,7 @@ namespace NoteTakingApp.Infrastructure.Configurations
                 .HasDefaultValueSql("SYSUTCDATETIME()")
                 .IsRequired();
 
+            builder.HasQueryFilter(r => !r.IsDeleted);
         }
     }
 }

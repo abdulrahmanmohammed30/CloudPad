@@ -75,15 +75,10 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
 
     public async Task<bool> DeleteAsync(int userId, Guid categoryGuid)
     {
-        var category = await context.Categories
-            .FirstOrDefaultAsync(c => c.UserId == userId && c.CategoryGuid == categoryGuid);
-
-        if (category == null)
-            return false;
-
-        context.Categories.Remove(category);
+        var existingCategory = await GetByIdAsync(userId, categoryGuid);
+        existingCategory.IsDeleted = true;
+        context.Update(existingCategory);
         await context.SaveChangesAsync();
-        
         return true;
     }
 

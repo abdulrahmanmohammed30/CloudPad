@@ -60,10 +60,10 @@ namespace NoteTakingApp.Infrastructure.Configurations
 
             builder.HasIndex(n => n.NoteGuid).IsUnique();
 
-            builder.Navigation(b => b.Tags).AutoInclude();
-            builder.Navigation(b=>b.Category).AutoInclude();
+            builder.Navigation(n => n.Tags).AutoInclude();
+            builder.Navigation(n=>n.Category).AutoInclude();
 
-            builder.HasQueryFilter(b => !b.IsDeleted);
+            builder.HasQueryFilter(n => !n.IsDeleted);
         }
     }
 }

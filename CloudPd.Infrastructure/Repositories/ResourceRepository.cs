@@ -30,5 +30,24 @@ namespace NoteTakingApp.Infrastructure.Repositories
             return await context.Resources.Where(r=>r.Note.NoteGuid == noteId)
                 .ToListAsync();
         }
+
+        public async Task<bool> DeleteAsync(Guid resourceId)
+        {
+            var existingResource = await GetByIdAsync(resourceId);
+            existingResource.IsDeleted = true;
+            context.Update(existingResource);
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<Resource?> GetByIdAsync(Guid resourceId)
+        {
+            return await context.Resources.FirstOrDefaultAsync(r => r.ResourceId == resourceId);
+        }
+
+        public async Task<bool> Exists(Guid resourceId)
+        {
+            return await context.Resources.AnyAsync(r=>r.ResourceId == resourceId);
+        }
     }
 }

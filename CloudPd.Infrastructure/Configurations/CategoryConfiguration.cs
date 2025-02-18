@@ -48,6 +48,8 @@ namespace NoteTakingApp.Infrastructure.Configurations
 
             builder.HasIndex(c => c.Name).IsUnique();
             builder.HasIndex(c => c.CategoryGuid).IsUnique();
+
+            builder.HasQueryFilter(c => !c.IsDeleted);
         }
     }
 }

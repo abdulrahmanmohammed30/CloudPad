@@ -42,6 +42,8 @@ namespace NoteTakingApp.Infrastructure.Configurations
             .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasIndex(t => t.Name).IsUnique();
+
+            builder.HasQueryFilter(t => !t.IsDeleted);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Design;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.RepositoryContracts;
@@ -86,5 +87,13 @@ public class TagRepository(AppDbContext context) : ITagRepository
 
        await context.SaveChangesAsync();
        return note.Tags.ToList();
+    }
+
+    public async Task<bool> DeleteAsync(int userId, int tagId)
+    {
+        var existingTag = await GetByIdAsync(userId, tagId);
+        existingTag.IsDeleted = true;
+        context.Update(existingTag);
+        return true;
     }
 }
