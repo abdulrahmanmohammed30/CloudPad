@@ -48,6 +48,11 @@ public class TagService(ITagRepository tagRepository,
             throw new ArgumentNullException(nameof(tagDto.Name), "Tag name cannot be null or empty");
         }
 
+        if(!string.IsNullOrEmpty(tagDto.Description) && tagDto.Description.Length > 500)
+        {
+            throw new InvalidTagException("Tag description cannot be more than 500 characters");
+        }
+
         if (await ExistsAsync(userId, tagDto.Name))
         {
             throw new DuplicateTagNameException("Tag name already exists");
@@ -67,6 +72,11 @@ public class TagService(ITagRepository tagRepository,
             throw new ArgumentNullException(nameof(tagDto.Name), "Tag name cannot be null or empty");
         }
 
+        if (!string.IsNullOrEmpty(tagDto.Description) && tagDto.Description.Length > 500)
+        {
+            throw new InvalidTagException("Tag description cannot be more than 500 characters");
+        }
+
         if (await ExistsAsync(userId, tagDto.Name))
         {
             throw new DuplicateTagNameException("Tag name already exists");
@@ -84,5 +94,24 @@ public class TagService(ITagRepository tagRepository,
         
         var tags = await tagRepository.UpdateNoteTagsAsync(userId, noteId, tagIds);
         return tags.ToDtoList();
+    }
+
+    public async Task<bool> DeleteAsync(int userId, int tagId)
+    {
+        await userValidationService.EnsureUserValidation(userId);
+
+        if (tagId <= 0)
+        {
+            throw new InvalidTagIdException("Tag id cannot be 0");
+        }
+
+        var tag = await GetByIdAsync(userId, tagId);
+
+        if (tag == null)
+        {
+            throw new TagNotFoundException("Tag not found");
+        }
+
+        return await tagRepository.DeleteAsync(userId, tagId);
     }
 }

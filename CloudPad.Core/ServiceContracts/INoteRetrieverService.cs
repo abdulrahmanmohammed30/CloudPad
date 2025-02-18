@@ -5,7 +5,6 @@ namespace NoteTakingApp.Core.ServiceContracts;
 public interface INoteRetrieverService
 {
     Task<NoteDto?> GetByIdAsync(int userId, Guid noteId);
-
     Task<IEnumerable<NoteDto>> GetByCategoryAsync(int userId, Guid categoryGuid, int pageNumber = 0,
         int pageSize = 20);
 

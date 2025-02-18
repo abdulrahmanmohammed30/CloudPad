@@ -1,44 +1,27 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Exceptions;
-using NoteTakingApp.Core.Mappers;
 using NoteTakingApp.Core.ServiceContracts;
 using NoteTakingApp.Filters;
 using NoteTakingApp.Helpers;
-using Xunit.Sdk;
 
 namespace NoteTakingApp.Controllers;
 
 [Route("[controller]")]
 [Authorize]
 [EnsureUserIdExistsFilterFactory]
-public class NoteController: Controller
+public class NoteController(INoteRetrieverService noteRetrieverService, INoteManagerService noteManagerService,
+  ITagService tagService, ICategoryService categoryService, INoteFilterService noteFilterService) : Controller
 {
-    private readonly INoteRetrieverService noteRetrieverService;
-    private readonly INoteManagerService noteManagerService;
-    private readonly ITagService tagService;
-    private readonly ICategoryService categoryService;
     private int UserId => HttpContext.GetUserId()!.Value;
-
-    public NoteController(INoteRetrieverService noteRetrieverService,
-    INoteManagerService noteManagerService,
-    ITagService tagService,
-    ICategoryService categoryService)
-    {
-        this.noteRetrieverService = noteRetrieverService;
-        this.noteManagerService = noteManagerService;
-        this.tagService = tagService;
-        this.categoryService = categoryService;
-    }
 
 
     [HttpGet("")]
-    public async Task<IActionResult> Index([FromBody]int page=0, [FromBody] int size=20)
-    { 
-        var notes = await noteRetrieverService.GetAllAsync(UserId, page, size);
+    public async Task<IActionResult> Index(string tag = "", string title = "", string content = "", string category = "", bool isFavorite = false,
+        bool isPinned = false, bool isArchived = false, int page = 0, int size = 20)
+    {
+        var notes = await noteFilterService.FilterAsync(UserId, title, content, tag, category, isFavorite, isPinned, isArchived, page, size);
 
         HttpContext.Response.Cookies.Append("preferredLanguage", "en-US", new CookieOptions()
         {
@@ -49,7 +32,7 @@ public class NoteController: Controller
         });
         ViewBag.Categories = await categoryService.GetAllAsync(UserId);
         ViewBag.Tags = await tagService.GetAllAsync(UserId);
-        
+
 
         return View(notes);
     }
@@ -95,28 +78,22 @@ public class NoteController: Controller
         ViewBag.Tags = await tagService.GetAllAsync(UserId);
         return View(new CreateNoteDto());
     }
-    
+
     [HttpPost("[action]")]
     public async Task<IActionResult> Create(CreateNoteDto noteDto)
     {
         if (ModelState.IsValid == false)
-        {   
+        {
             // Categories and Tags are cached on the server 
             ViewBag.Categories = await categoryService.GetAllAsync(UserId);
             ViewBag.Tags = await tagService.GetAllAsync(UserId);
             return View(noteDto);
         }
 
-        try
-        {
-            noteDto.Tags = noteDto.Tags == null ? [] : noteDto.Tags; 
-            var note=await noteManagerService.AddAsync(UserId, noteDto);
-            return RedirectToAction("Index");
-        }
-        catch (TagNotFoundException ex)
-        {
-            return BadRequest(new { error = "Some of the tags assigned to the note could not be found" });
-        }
+        noteDto.Tags = noteDto.Tags == null ? [] : noteDto.Tags;
+        var note = await noteManagerService.AddAsync(UserId, noteDto);
+        return RedirectToAction("Index");
+
     }
 
     [HttpGet("[action]/{id}")]
@@ -140,10 +117,10 @@ public class NoteController: Controller
             IsFavorite = existingNote.IsFavorite,
             IsPinned = existingNote.IsPinned,
         };
-        
+
         ViewBag.Categories = await categoryService.GetAllAsync(UserId);
         ViewBag.Tags = await tagService.GetAllAsync(UserId);
-        
+
         return View(note);
     }
 
@@ -165,34 +142,27 @@ public class NoteController: Controller
             var updatedNote = await noteManagerService.UpdateAsync(UserId, noteDto);
             return RedirectToAction("Index");
         }
-        
+
         catch (NoteNotFoundException ex)
         {
-            return NotFound(new { error =$"Note with id {noteDto.NoteId} was not found." });
-        }
-        
-        catch (TagNotFoundException ex)
-        {
-            return BadRequest(new { message = $"Some of the tags assigned to not with id {noteDto.NoteId} were not be found" });
+            return NotFound(new { error = ex.Message });
         }
     }
 
-    [HttpGet("[action]/{id}")]
+    [HttpPost("[action]/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try
         {
             if (await noteManagerService.DeleteAsync(UserId, id) == false)
             {
-                return BadRequest(new { Rmessage = $"Failed to delete note with id {id}" });
+                return BadRequest(new { message = $"Failed to delete note with id {id}" });
             }
             return RedirectToAction("Index");
         }
         catch (NoteNotFoundException ex)
         {
-            return NotFound(new { message = $"Note with id: {id} was not found" });
+            return NotFound(new { message = ex.Message });
         }
     }
-    
-    
 }

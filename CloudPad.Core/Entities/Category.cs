@@ -13,6 +13,8 @@
 
         public bool IsFavorite { get; set; } = false;
 
+        public bool IsDeleted { get; set; } = false;
+
         public int UserId { get; set; }
 
     }

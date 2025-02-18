@@ -10,7 +10,7 @@
             <!-- Search Bar -->
             <form asp-action="Index" method="get" class="mb-3">
                 <div class="input-group">
-                    <input type="text" name="searchTerm" class="form-control" placeholder="Search notes..." value="@Context.Request.Query["searchTerm"]">
+                    <input type="text" name="title" class="form-control" placeholder="Search notes..." value="@Context.Request.Query["searchTerm"]">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </form>
@@ -20,12 +20,12 @@
                 <h5>Categories</h5>
                 <ul class="list-group">
                     <li class="list-group-item">
-                        <a asp-action="Index" asp-route-categoryId="" class="text-decoration-none">All Categories</a>
+                        <a asp-action="Index" asp-route-category="" class="text-decoration-none">All Categories</a>
                     </li>
                     @foreach (var category in ViewBag.Categories as List<CategoryDto>)
                     {
                         <li class="list-group-item">
-                            <a asp-action="Index" asp-route-categoryId="@category.Id" class="text-decoration-none">@category.Name</a>
+                            <a asp-action="Index" asp-route-category="@category.Name" class="text-decoration-none">@category.Name</a>
                         </li>
                     }
                 </ul>
@@ -38,7 +38,7 @@
                     @foreach (var tag in ViewBag.Tags as List<TagDto>)
                     {
                         <li class="list-group-item">
-                            <a asp-action="Index" asp-route-tagId="@tag.Id" class="text-decoration-none">#@tag.Name</a>
+                            <a asp-action="Index" asp-route-tag="@tag.Name" class="text-decoration-none">#@tag.Name</a>
                         </li>
                     }
                 </ul>

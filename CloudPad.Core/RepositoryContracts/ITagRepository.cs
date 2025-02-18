@@ -11,4 +11,5 @@ public interface ITagRepository
     Task<Tag> CreateAsync(int userId, Tag tag);
     Task<Tag> UpdateAsync(int userId, Tag tag);
     Task<List<Tag>> UpdateNoteTagsAsync(int userId, Guid noteId, List<int> tagIds);
+    Task<bool> DeleteAsync(int userId, int tagId);
 }

@@ -9,9 +9,10 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card border-0 shadow-lg">
-                <div class="card-header bg-primary text-center text-white">
-                    <h4>Update Category</h4>
+                <div class="card-header text-center text-white" style="background-color:#0c8195; ">
+                    <h4 style="color:white;">Update Category</h4>
                 </div>
+
                 <div class="card-body">
                     <form asp-action="Update" asp-controller="Category" method="post">
                         <input type="hidden" asp-for="CategoryId" />
@@ -33,9 +34,9 @@
                             <label asp-for="IsFavorite" class="form-check-label">Mark as Favorite</label>
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">Update</button>
-                            <a asp-action="Index" class="btn btn-secondary mt-2">Cancel</a>
+                        <div class="d-flex align-items-center" style="display:flex;align-items:center;gap:1;">
+                            <button type="submit" class="btn btn-success mr-3">Update</button>
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

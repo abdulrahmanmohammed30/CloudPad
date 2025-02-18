@@ -12,11 +12,12 @@ namespace NoteTakingApp.Controllers
     [EnsureUserIdExistsFilterFactory]
     [Authorize]
     public class TagController(ITagService tagService) : Controller
-    {   
+    {
         private int UserId => HttpContext.GetUserId()!.Value;
 
+        [HttpGet("[action]")]
         public async Task<IActionResult> ValidateTagName(string name)
-        {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+        {
             var doesTagWithSameNameExist = await tagService.ExistsAsync(UserId, name);
             return Json(!doesTagWithSameNameExist);
         }
@@ -24,7 +25,7 @@ namespace NoteTakingApp.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-   
+
             var tags = await tagService.GetAllAsync(UserId);
             return View(tags);
         }
@@ -46,11 +47,87 @@ namespace NoteTakingApp.Controllers
             try
             {
                 var tagDto = await tagService.CreateAsync(UserId, createTagDto);
-                return Json(tagDto
-                        );
+                return RedirectToAction("Index");
             }
-            catch (DuplicateTagNameException ex) { 
-                return BadRequest(new {error = ex.Message});
+            catch (DuplicateTagNameException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> Update(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Tag Id is not valid");
+            }
+
+            var tag = await tagService.GetByIdAsync(UserId, id);
+
+            if (tag == null)
+            {
+                return NotFound($"Tag with id {id} was not found");
+            }
+
+            var tagDto = new UpdateTagDto()
+            {
+                TagId = tag.Id,
+                Name = tag.Name,
+                Description = tag.Description
+            };
+
+            return View(tagDto);
+        }
+
+        [HttpPost("[action]/{id}")]
+        public async Task<IActionResult> Update(int id, UpdateTagDto updateTagDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(updateTagDto);
+            }
+
+            if (id <= 0)
+            {
+                return BadRequest("tag id is not valid");
+            }
+
+            try
+            {
+                var updatedTag = await tagService.UpdateAsync(UserId, updateTagDto);
+                return RedirectToAction("Index");
+            }
+
+            catch (TagNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch (DuplicateTagNameException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
+
+        [HttpPost("[action]/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Tag Id is not valid");
+            }
+
+            try
+            {
+                await tagService.DeleteAsync(UserId, id);
+                return RedirectToAction("Index");
+            }
+            catch (TagNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
             }
         }
     }

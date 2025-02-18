@@ -1,4 +1,5 @@
-﻿using NoteTakingApp.Core.Dtos;
+﻿using Newtonsoft.Json.Linq;
+using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Enums;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.Mappers;
@@ -78,5 +79,17 @@ public class NoteFilterService(INoteRepository noteRepository,
         //Expression<Func<NoteDto, bool>> filter 
         return (await noteRepository.FilterAsync(userId, searchableColumn, value, pageNumber, pageSize))
             .ToDtoList();
+    }
+
+    public async Task<IEnumerable<NoteDto>> FilterAsync(int userId, string title="", string content="", string tag = "", string category = "",
+        bool IsFavorite = false, bool IsPinned = false, bool IsArchived = false, int pageNumber = 0, int pageSize = 20)
+    {
+        await userValidationService.EnsureUserValidation(userId);
+
+
+        return (await noteRepository.FilterAsync(userId, title, content, tag, category, IsFavorite,
+            IsPinned, IsArchived, pageNumber, pageSize))
+    .ToDtoList();
+
     }
 }

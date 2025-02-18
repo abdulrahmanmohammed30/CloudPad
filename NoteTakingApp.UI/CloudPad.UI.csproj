@@ -17,7 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CloudPad.Core\CloudPad.Core.csproj" />
-      <ProjectReference Include="..\CloudPd.Infrastructure\CloudPd.Infrastructure.csproj" />
+      <ProjectReference Include="..\CloudPd.Infrastructure\CloudPad.Infrastructure.csproj" />
       <ProjectReference Include="..\NoteTakingApp.Tests.Unit\NoteTakingApp.Tests.Unit.csproj" />
     </ItemGroup>
 

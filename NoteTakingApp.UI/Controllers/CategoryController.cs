@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.ServiceContracts;
-using NoteTakingApp.Core.Services;
 using NoteTakingApp.Filters;
 using NoteTakingApp.Helpers;
 
@@ -40,13 +38,13 @@ namespace NoteTakingApp.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Create(CreateCategoryDto createCategoryDto)
         {
-            if (ModelState.IsValid == false)    
+            if (ModelState.IsValid == false)
             {
                 return View(createCategoryDto);
             }
 
-                var categoryDto = await categoryService.CreateAsync(UserId, createCategoryDto);
-                return Json(categoryDto);
+            var categoryDto = await categoryService.CreateAsync(UserId, createCategoryDto);
+            return RedirectToAction("Index");
         }
 
         // What options 
@@ -55,13 +53,18 @@ namespace NoteTakingApp.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<IActionResult> Update(Guid id)
         {
-            if(!await categoryService.ExistsAsync(UserId, id))
+            if (id == Guid.Empty)
             {
-                return BadRequest($"Category with id {id} doesn't exist");
+                return BadRequest(new { message = "Category id is invalid" });
             }
 
             var category = await categoryService.GetByIdAsync(UserId, id);
-            
+
+            if (category == null)
+            {
+                return NotFound($"category was id {id} was not found");
+            }
+
             UpdateCategoryDto updateCategoryDto = new UpdateCategoryDto()
             {
                 CategoryId = category.Id,
@@ -75,12 +78,65 @@ namespace NoteTakingApp.Controllers
         [HttpPost("[action]/{categoryId}")]
         public async Task<IActionResult> Update([FromRoute] Guid categoryId, UpdateCategoryDto categoryDto)
         {
+            if (categoryId == Guid.Empty)
+            {
+                return BadRequest(new { message = "Category id is invalid" });
+            }
+            
+            if (categoryDto == null)
+            {
+                return BadRequest(new { message = "Category is null" });
+            }
+
             if (ModelState.IsValid == false)
             {
                 return View(categoryId);
             }
+            try
+            {
             var updatedCategory = await categoryService.UpdateAsync(UserId, categoryDto);
-            return Json(updatedCategory);
+            return RedirectToAction("Index");
+
+            }
+
+            catch (InvalidCategoryException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (CategoryNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch (DuplicateCategoryNameException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+
+        [HttpPost("[action]/{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { message = "Category id is invalid" });
+            }
+
+            try
+            {
+                if (await categoryService.DeleteAsync(UserId, id) == false)
+                {
+                    return BadRequest(new { Rmessage = $"Failed to delete category with id {id}" });
+                }
+                return RedirectToAction("Index");
+            }
+            catch (CategoryNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }

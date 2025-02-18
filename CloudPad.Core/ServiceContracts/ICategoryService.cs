@@ -13,4 +13,6 @@ public interface ICategoryService
     Task<CategoryDto> UpdateAsync(int userId, UpdateCategoryDto category);
 
     Task<int?> FindCategoryIdByGuidAsync(int userId, Guid categoryId);
+
+    Task<bool> DeleteAsync(int userId, Guid id);
 }

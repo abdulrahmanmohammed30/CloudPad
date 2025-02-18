@@ -8,7 +8,8 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services
 {
-    public class ResourceService(INoteValidatorService noteValidatorService, IResourceRepository resourceRepository) : IResourceService
+    public class ResourceService(INoteValidatorService noteValidatorService, IResourceRepository resourceRepository,
+        IUserValidationService userValidationService) : IResourceService
     {
         private static readonly HashSet<string> fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -40,12 +41,13 @@ namespace NoteTakingApp.Core.Services
                 throw new ArgumentException("Invalid file type", nameof(file));
             }
 
-            if (!fileExtensions.Contains(extension)) {            
+            if (!fileExtensions.Contains(extension))
+            {
                 throw new ArgumentException("File type is not supported", nameof(file));
             }
 
             var uniqueFileName = fileName + "_" + Guid.NewGuid().ToString() + extension;
-           
+
             var filepath = Path.Combine(uploadsDirectoryPath, uniqueFileName);
 
             using (var stream = new FileStream(filepath, FileMode.Create))
@@ -54,36 +56,32 @@ namespace NoteTakingApp.Core.Services
             }
 
             var uploadsDirectory = Path.GetDirectoryName(filepath).Split(Path.DirectorySeparatorChar).LastOrDefault();
-            if (uploadsDirectory == null)
-            {
-                   throw new Exception("Uploads directory was not found");
-            }
 
             return Path.Combine(uploadsDirectory, uniqueFileName);
         }
 
         public async Task<ResourceDto> CreateResourceDto(int userId, string uploadsDirectoryPath, CreateResourceDto resourceDto)
         {
-           if (resourceDto == null) throw new ArgumentNullException(nameof(resourceDto));
+            if (resourceDto == null) throw new ResourceArgumentNullException(nameof(resourceDto));
 
-           if (resourceDto.DisplayName != null && resourceDto.DisplayName.Length > 255)
+            if (resourceDto.DisplayName != null && resourceDto.DisplayName.Length > 255)
             {
-                throw new ArgumentException("Display name is too long", nameof(resourceDto.DisplayName));
+                throw new InvalidResourceException("Display name is too long");
             }
 
             if (resourceDto.Description != null && resourceDto.Description.Length > 500)
             {
-                throw new ArgumentException("Description is too long", nameof(resourceDto.Description));
+                throw new InvalidResourceException("Description is too long");
             }
 
             if (resourceDto.File == null)
             {
-                throw new ArgumentException("File is required", nameof(resourceDto.File));
+                throw new InvalidResourceException("File is required");
             }
 
             if (resourceDto.NoteId == Guid.Empty)
             {
-                throw new ArgumentException("Note id is required", nameof(resourceDto.NoteId));
+                throw new InvalidResourceException("Note id is required");
             }
 
             // make sure noteid exists first 
@@ -91,7 +89,7 @@ namespace NoteTakingApp.Core.Services
             {
                 throw new NoteNotFoundException($"Note with Id {resourceDto.NoteId} was not found");
             }
-          
+
             var filepath = await UploadDocument(uploadsDirectoryPath, resourceDto.File);
 
             var resource = new Resource()
@@ -109,7 +107,24 @@ namespace NoteTakingApp.Core.Services
 
         public async Task<List<ResourceDto>> GetAllResources(Guid noteId)
         {
-            return (await resourceRepository.GetAllAsync(noteId)).ToDtoList();    
+            return (await resourceRepository.GetAllAsync(noteId)).ToDtoList();
+        }
+
+        public async Task<bool> DeleteAsync(Guid resourceId)
+        {
+            if (resourceId == Guid.Empty)
+            {
+                throw new InvalidResourceIdException("Resource id is required");
+            }
+
+            var resource = await resourceRepository.Exists(resourceId);
+
+            if (resource == false)
+            {
+                throw new ResourceNotFoundException($"Resource with Id {resourceId} was not found");
+            }
+
+            return await resourceRepository.DeleteAsync(resourceId);
         }
     }
 }

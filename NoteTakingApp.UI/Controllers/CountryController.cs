@@ -1,5 +1,4 @@
-﻿    using Microsoft.AspNetCore.Mvc;
-using NoteTakingApp.Core.Mappers;
+﻿using Microsoft.AspNetCore.Mvc;
 using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Controllers;

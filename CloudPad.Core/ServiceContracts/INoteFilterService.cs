@@ -14,4 +14,7 @@ public interface INoteFilterService
 
     Task<IEnumerable<NoteDto>> FilterAsync(int userId, string column, string value, int pageNumber = 0,
         int pageSize = 20);
+
+    Task<IEnumerable<NoteDto>> FilterAsync(int userId, string title, string content, string tag, string category, bool IsFavorite,
+        bool IsPinned, bool IsArchived, int pageNumber = 0, int pageSize = 20);
 }

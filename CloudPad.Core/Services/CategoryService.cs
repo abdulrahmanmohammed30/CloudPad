@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.Mappers;
@@ -55,6 +56,11 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
     {        
         await ValidateUserAsync(userId);
 
+        if (categoryDto == null)
+        {
+            throw new CategoryArgumentNullException($"category was null");
+        }
+
         if (string.IsNullOrEmpty(categoryDto.Name))
         {
             throw new ArgumentNullException(nameof(categoryDto.Name), "Category name cannot be null or empty");
@@ -77,9 +83,14 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
     {
         await ValidateUserAsync(userId);
 
+        if (categoryDto == null)
+        {
+            throw new CategoryArgumentNullException($"category was null");
+        }
+
         if (categoryDto.CategoryId == Guid.Empty)
         {
-            throw new InvalidCategoryException("Category id cannot be empty");
+            throw new InvalidCategoryIdException("Category id cannot be empty");
         }
         
         if (string.IsNullOrEmpty(categoryDto.Name))
@@ -103,4 +114,27 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
     {
         return await categoryRepository.FindCategoryIdByGuidAsync(userId, categoryId);
     }
+
+    public async Task<bool> DeleteAsync(int userId, Guid id)
+    {
+        await ValidateUserAsync(userId);
+
+        if (id == Guid.Empty)
+        {
+            throw new InvalidCategoryException("Category id cannot be empty");
+        }
+
+        var category = await categoryRepository.GetByIdAsync(userId, id);
+
+        if (category == null)
+        {
+            throw new CategoryNotFoundException($"Category with id {id} was not found");
+        }
+
+        var deleted = await categoryRepository.DeleteAsync(userId, id);
+       
+        cache.Remove($"Categories/{userId}");
+        return true;
+    }
 }
+

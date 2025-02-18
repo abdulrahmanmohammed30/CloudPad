@@ -113,6 +113,12 @@ public class NoteManagerService(
     public async Task<bool> DeleteAsync(int userId, Guid noteId)
     {
         await userValidationService.EnsureUserValidation(userId);
+
+        if (noteId == Guid.Empty)
+        {
+            throw new InvalidNoteIdException("NoteId cannot be empty");
+        }
+
         var note = await noteRepository.GetById(userId, noteId);
 
         if (note == null)

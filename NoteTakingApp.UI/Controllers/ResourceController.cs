@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.ServiceContracts;
 using NoteTakingApp.Helpers;
@@ -32,22 +31,13 @@ namespace NoteTakingApp.Controllers
                 return View(resourceDto);
             }
 
-            if (!await noteValidatorService.ExistsAsync(UserId, resourceDto.NoteId))
-            {
-                return BadRequest($"Note with id {resourceDto.NoteId} doesn't exist");
-            }
-
-            try {
+            try 
                 var uploadedDirectoryPath = Path.Combine(webHostEnvironment.WebRootPath, "uploads");
                 var resource = await resourceService.CreateResourceDto(UserId, uploadedDirectoryPath, resourceDto);
-                return Json(resource);
+                return RedirectToAction("Get", "Note", new {id=resourceDto.NoteId});
 
             }
             catch(NoteNotFoundException ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-            catch(ArgumentNullException ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
@@ -58,6 +48,27 @@ namespace NoteTakingApp.Controllers
         {
             var resources = await resourceService.GetAllResources(noteId);
             return Json(resources);
+        }
+
+        [HttpPost("[action]/{resourceId}")]
+        public async Task<IActionResult> Delete(Guid resourceId)
+        {
+            if (resourceId == Guid.Empty)
+            {
+                return BadRequest(new { message = "resource id is invalid" });
+            }
+
+           try {
+               if (await resourceService.DeleteAsync(resourceId))
+                {
+                    return BadRequest($"Failed to delete resource with id {resourceId}");
+                }
+               return RedirectToAction("Index");
+            }
+
+            catch(ResourceNotFoundException ex) {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }
