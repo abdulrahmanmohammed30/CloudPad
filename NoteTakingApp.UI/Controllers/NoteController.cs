@@ -47,9 +47,11 @@ public class NoteController: Controller
             Secure = true,
             SameSite = SameSiteMode.Strict
         });
+        ViewBag.Categories = await categoryService.GetAllAsync(UserId);
+        ViewBag.Tags = await tagService.GetAllAsync(UserId);
         
 
-        return Json(notes);
+        return View(notes);
     }
     // all user categories should be cached: select, cache categories 
     // all user tags should be cached: multi-select, cache tags 
@@ -65,7 +67,7 @@ public class NoteController: Controller
     // test using index to get all notes 
     // return createdNote 
 
-    [HttpGet("[action]/{id}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id)
     {
         var note = await noteRetrieverService.GetByIdAsync(UserId, id);
@@ -83,7 +85,7 @@ public class NoteController: Controller
             SameSite = SameSiteMode.Strict
         });
 
-        return Json(note);
+        return View(note);
     }
 
     [HttpGet("[action]")]

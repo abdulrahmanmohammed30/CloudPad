@@ -28,7 +28,7 @@ namespace NoteTakingApp.Controllers
         public async Task<IActionResult> Index()
         {
             var categories = await categoryService.GetAllAsync(UserId);
-            return Json(categories);
+            return View(categories);
         }
 
         [HttpGet("[action]")]

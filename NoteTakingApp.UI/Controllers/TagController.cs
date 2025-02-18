@@ -26,7 +26,7 @@ namespace NoteTakingApp.Controllers
         {
    
             var tags = await tagService.GetAllAsync(UserId);
-            return Json(tags);
+            return View(tags);
         }
 
         [HttpGet("[action]")]

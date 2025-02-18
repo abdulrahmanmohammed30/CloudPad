@@ -656,6 +656,22 @@ video {
   margin-top: 0.5rem;
 }
 
+.me-1 {
+  margin-inline-end: 0.25rem;
+}
+
+.me-2 {
+  margin-inline-end: 0.5rem;
+}
+
+.ms-2 {
+  margin-inline-start: 0.5rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
 .flex {
   display: flex;
 }
@@ -666,6 +682,10 @@ video {
 
 .hidden {
   display: none;
+}
+
+.gap-2 {
+  gap: 0.5rem;
 }
 
 .rounded {
