@@ -8,8 +8,8 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services
 {
-    public class ResourceService(INoteRepository noteRepository, INoteValidatorService noteValidatorService, IResourceRepository resourceRepository,
-        IUserValidationService userValidationService) : IResourceService
+    public class ResourceService(INoteRepository noteRepository, IResourceRepository resourceRepository
+        ) : IResourceService
     {
         private static readonly HashSet<string> fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -132,7 +132,55 @@ namespace NoteTakingApp.Core.Services
             resource.IsDeleted = true;
             await resourceRepository.UpdateAsync(resource);
 
+
             return true;
+        }
+
+        public async Task<ResourceDto> UpdateAsync(int userId, UpdateResourceDto resourceDto)
+        {
+
+            if (resourceDto == null) throw new ResourceArgumentNullException(nameof(resourceDto));
+
+            if (resourceDto.DisplayName != null && resourceDto.DisplayName.Length > 255)
+            {
+                throw new InvalidResourceException("Display name is too long");
+            }
+
+            if (resourceDto.Description != null && resourceDto.Description.Length > 500)
+            {
+                throw new InvalidResourceException("Description is too long");
+            }
+
+            if (resourceDto.NoteId == Guid.Empty)
+            {
+                throw new InvalidResourceException("Note id is required");
+            }
+
+            // make sure noteid exists first 
+            if (!await noteRepository.ExistsAsync(userId, resourceDto.NoteId))
+            {
+                throw new NoteNotFoundException($"Note with Id {resourceDto.NoteId} was not found");
+            }
+
+            var resource = await resourceRepository.GetByIdAsync(resourceDto.ResourceId);
+
+            if(resource == null)
+            {
+                throw new ResourceNotFoundException($"Resource with Id {resourceDto.ResourceId} was not found");
+            }
+
+            resource.DisplayName = resourceDto.DisplayName;
+            resource.Description = resourceDto.Description;
+            resource.UpdatedAt = DateTime.UtcNow;
+
+            var updatedResource = await resourceRepository.UpdateAsync(resource);
+
+            return updatedResource.ToDto();
+        }
+
+        public async Task<ResourceDto?> GetByIdAsync(Guid resourceId)
+        {
+            return (await resourceRepository.GetByIdAsync(resourceId))?.ToDto();
         }
     }
 }

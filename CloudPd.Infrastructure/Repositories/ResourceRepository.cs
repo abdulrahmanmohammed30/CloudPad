@@ -35,10 +35,11 @@ namespace NoteTakingApp.Infrastructure.Repositories
             return await context.Resources.FirstOrDefaultAsync(r => r.ResourceId == resourceId);
         }
 
-        public Task UpdateAsync(Resource resource)
+        public async Task<Resource> UpdateAsync(Resource resource)
         {
             context.Resources.Update(resource);
-            return context.SaveChangesAsync();
+            await context.SaveChangesAsync();
+            return resource;
         }
 
         public async Task<bool> ExistsAsync(Guid resourceId)

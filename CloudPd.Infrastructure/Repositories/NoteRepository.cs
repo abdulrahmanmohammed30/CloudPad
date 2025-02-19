@@ -24,6 +24,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
         {
             return await _context.Notes
                 .Where(n => n.UserId == userId && n.NoteGuid == noteId)
+                .Include(n=>n.Resources)
                 .FirstOrDefaultAsync();
         }
 

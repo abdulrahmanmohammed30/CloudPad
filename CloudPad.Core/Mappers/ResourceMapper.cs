@@ -5,15 +5,15 @@ namespace NoteTakingApp.Core.Mappers;
 
 public static class ResourceMapper
 {
-    public static ResourceDto ToDto(this Resource resourceDto)
+    public static ResourceDto ToDto(this Resource resource)
     {
         return new ResourceDto()
         {
-            ResourceId = resourceDto.ResourceId,
-            DisplayName = resourceDto.DisplayName,
-            FilePath = resourceDto.FilePath,
-            Description = resourceDto.Description,
-            Size = resourceDto.Size,
+            ResourceId = resource.ResourceId,
+            DisplayName = resource.DisplayName,
+            FilePath = resource.FilePath,
+            Description = resource.Description,
+            Size = resource.Size,
         };
     }
 
