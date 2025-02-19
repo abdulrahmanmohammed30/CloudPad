@@ -156,9 +156,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
 
         public async Task<Note> AddAsync(int userId, Note note)
         {
-            note.UserId = userId;
-            note.CreatedAt = DateTime.UtcNow;
-            note.UpdatedAt = DateTime.UtcNow;
+
 
             _context.Notes.Add(note);
             await _context.SaveChangesAsync();
@@ -168,8 +166,6 @@ namespace NoteTakingApp.Infrastructure.Repositories
 
         public async Task<Note> UpdateAsync(Note note)
         {
-            note.UpdatedAt = DateTime.UtcNow;
-
             _context.Notes.Update(note);
             await _context.SaveChangesAsync();
 
@@ -209,7 +205,7 @@ namespace NoteTakingApp.Infrastructure.Repositories
             return true;
         }
 
-        public async Task<bool> Exists(int userId, Guid noteId)
+        public async Task<bool> ExistsAsync(int userId, Guid noteId)
         {
             return await _context.Notes
                 .AnyAsync(n => n.UserId == userId && n.NoteGuid == noteId && !n.IsDeleted);

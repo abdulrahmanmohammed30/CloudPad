@@ -70,6 +70,7 @@ namespace NoteTakingApp.Controllers
                 CategoryId = category.Id,
                 Name = category.Name,
                 Description = category.Description,
+                IsFavorite=category.IsFavorite
             };
 
             return View(updateCategoryDto);

@@ -16,6 +16,7 @@ namespace NoteTakingApp.Controllers
         [HttpGet("[action]/{noteId}")]
         public async Task<IActionResult> Create(Guid noteId)
         {
+
            if (!await noteValidatorService.ExistsAsync(UserId, noteId))
             {
                 return BadRequest($"Note with id {noteId} doesn't exist");
@@ -31,7 +32,7 @@ namespace NoteTakingApp.Controllers
                 return View(resourceDto);
             }
 
-            try 
+            try { 
                 var uploadedDirectoryPath = Path.Combine(webHostEnvironment.WebRootPath, "uploads");
                 var resource = await resourceService.CreateResourceDto(UserId, uploadedDirectoryPath, resourceDto);
                 return RedirectToAction("Get", "Note", new {id=resourceDto.NoteId});
@@ -72,3 +73,6 @@ namespace NoteTakingApp.Controllers
         }
     }
 }
+
+
+

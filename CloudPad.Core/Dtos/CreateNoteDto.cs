@@ -4,7 +4,6 @@ namespace NoteTakingApp.Core.Dtos;
 
 public class CreateNoteDto
 {   
-    [Required(AllowEmptyStrings = false)]
     [MaxLength(150)]
     public string Title { get; set; } = string.Empty;
     

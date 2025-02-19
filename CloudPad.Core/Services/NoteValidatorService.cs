@@ -7,6 +7,6 @@ public class NoteValidatorService(INoteRepository noteRepository):INoteValidator
 {
     public async Task<bool> ExistsAsync(int userId, Guid noteId)
     {
-        return await noteRepository.Exists(userId, noteId);
+        return await noteRepository.ExistsAsync(userId, noteId);
     }
 }

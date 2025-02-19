@@ -34,7 +34,7 @@ namespace NoteTakingApp.Core.RepositoryContracts
         Task<Note> UpdateAsync(Note note);
         Task<Note?> RestoreAsync(int userId, Guid noteId);
         Task<bool> DeleteAsync(int userId, Guid noteId);
-        Task<bool> Exists(int userId, Guid noteId);
+        Task<bool> ExistsAsync(int userId, Guid noteId);
         Task<IEnumerable<Note>> FilterAsync(int userId, string title, string content, string tag, string category, bool isFavorite,
             bool isPinned, bool isArchived, int pageNumber, int pageSize);
     }

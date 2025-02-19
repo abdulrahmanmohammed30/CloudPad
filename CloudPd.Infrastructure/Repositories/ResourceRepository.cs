@@ -9,16 +9,6 @@ namespace NoteTakingApp.Infrastructure.Repositories
     {
         public async Task<Resource> CreateAsync(Guid noteId, Resource resource)
         {
-            resource.CreatedAt= DateTime.UtcNow;
-            resource.UpdatedAt = DateTime.UtcNow;
-
-            var note = await context.Notes.AsTracking()
-                .Where(n => n.NoteGuid == noteId)
-                .SingleOrDefaultAsync();
-
-            resource.Note= note;
-            resource.NoteId = note.NoteId;
-
             context.Resources.Add(resource);
 
             await context.SaveChangesAsync();
@@ -45,7 +35,13 @@ namespace NoteTakingApp.Infrastructure.Repositories
             return await context.Resources.FirstOrDefaultAsync(r => r.ResourceId == resourceId);
         }
 
-        public async Task<bool> Exists(Guid resourceId)
+        public Task UpdateAsync(Resource resource)
+        {
+            context.Resources.Update(resource);
+            return context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ExistsAsync(Guid resourceId)
         {
             return await context.Resources.AnyAsync(r=>r.ResourceId == resourceId);
         }

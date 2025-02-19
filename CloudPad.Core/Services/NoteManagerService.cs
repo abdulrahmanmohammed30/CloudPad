@@ -9,6 +9,8 @@ namespace NoteTakingApp.Core.Services;
 
 public class NoteManagerService(
     ICategoryService categoryService,
+    ICategoryRepository categoryRepository,
+    ITagRepository tagRepository,
     INoteRepository noteRepository,
     ITagService tagService,
     IUserValidationService userValidationService
@@ -17,6 +19,8 @@ public class NoteManagerService(
 {
     public async Task<NoteDto> AddAsync(int userId, CreateNoteDto note)
     {
+        await userValidationService.EnsureUserValidation(userId);
+
         var newNote = new Note()
         {
             UserId = userId,
@@ -40,8 +44,11 @@ public class NoteManagerService(
         newNote.IsFavorite = note.IsFavorite;
         newNote.UpdatedAt = DateTime.Now;
         newNote.CategoryId = categoryId;
+        newNote.UserId = userId;
+        newNote.CreatedAt = DateTime.UtcNow;
+        newNote.UpdatedAt = DateTime.UtcNow;
 
-        var notesDto = (await noteRepository.AddAsync(userId, newNote)).ToDto();
+        NoteDto notesDto = (await noteRepository.AddAsync(userId, newNote)).ToDto();
 
         var tagsDto = await tagService.UpdateNoteTagsAsync(userId, notesDto.Id, note.Tags);
 
@@ -54,31 +61,33 @@ public class NoteManagerService(
 
     public async Task<NoteDto> UpdateAsync(int userId, UpdateNoteDto note)
     {
-        Note? existingNote = null;
-        var existingNoteTask = noteRepository.GetById(userId, note.NoteId);
-        CategoryDto? categoryDto = null;
-        int? categoryId = null;
-        if (note.CategoryId.HasValue)
-        {
-            var categoryNoteTask = categoryService.FindCategoryIdByGuidAsync(userId, note.CategoryId.Value);
-            var categoryDtoTask = categoryService.GetByIdAsync(userId, note.CategoryId.Value);
-            await Task.WhenAll(existingNoteTask, categoryNoteTask, categoryDtoTask);
-            existingNote = await existingNoteTask;
-            categoryId = await categoryNoteTask;
-            categoryDto = await categoryDtoTask;
-        }
-        else
-        {
-            existingNote = await existingNoteTask;
-        }
+        await userValidationService.EnsureUserValidation(userId);
+
+        Note? existingNote = await noteRepository.GetById(userId, note.NoteId);
 
         if (existingNote == null)
         {
             throw new NoteNotFoundException($"Note with with Id {userId} for user with Id {userId} was not found");
         }
 
-        // Add tags to note 
-        var tagsDto = await tagService.UpdateNoteTagsAsync(userId, note.NoteId, note.Tags);
+        // note category was not changed 
+        // note category chagned to null 
+        // note category changed to a new category 
+
+        if (note.CategoryId == null)
+        {
+            existingNote.Category = null;
+            existingNote.CategoryId = null;
+        } else if(note.CategoryId != existingNote.Category?.CategoryGuid) {
+            existingNote.Category = await categoryRepository.GetByIdAsync(userId, note.CategoryId.Value);
+
+            if (existingNote.Category == null)
+            {
+                throw new CategoryNotFoundException($"Category {note.CategoryId} assigned to note {note.NoteId} was not found");            
+            }
+
+            existingNote.CategoryId = existingNote.Category.CategoryId;
+        }
 
         existingNote.Title = note.Title;
         existingNote.Content = note.Content;
@@ -86,14 +95,15 @@ public class NoteManagerService(
         existingNote.IsFavorite = note.IsFavorite;
         existingNote.IsPinned = note.IsPinned;
         existingNote.UpdatedAt = DateTime.Now;
-        existingNote.CategoryId = categoryId;
+        existingNote.UpdatedAt = DateTime.UtcNow;
 
-        var notesDto = (await noteRepository.UpdateAsync(existingNote)).ToDto();
-        notesDto.Tags = tagsDto;
-        notesDto.Category = categoryDto;
+        var noteDto = (await noteRepository.UpdateAsync(existingNote)).ToDto();
 
-        // Todo: Add resources 
-        return notesDto;
+        // Add tags to note 
+        var tagsDto = (await tagRepository.UpdateNoteTagsAsync(userId, note.NoteId, note.Tags == null?[] : note.Tags)).ToDtoList();
+        noteDto.Tags = tagsDto;
+
+        return noteDto;
     }
 
     public async Task<NoteDto?> RestoreAsync(int userId, Guid noteId)
@@ -103,13 +113,6 @@ public class NoteManagerService(
         return note?.ToDto();
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="noteId"></param>
-    /// <returns></returns>
-    /// <exception cref="NoteNotFoundException"></exception>
     public async Task<bool> DeleteAsync(int userId, Guid noteId)
     {
         await userValidationService.EnsureUserValidation(userId);
@@ -126,6 +129,9 @@ public class NoteManagerService(
             throw new NoteNotFoundException($"Note with with Id {userId} for user with Id {userId} was not found");
         }
 
-        return await noteRepository.DeleteAsync(userId, noteId);
+        note.IsDeleted = true;
+        await noteRepository.UpdateAsync(note);
+
+        return true;
     }
 }

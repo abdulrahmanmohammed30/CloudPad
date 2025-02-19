@@ -13,6 +13,7 @@ namespace NoteTakingApp.Core.RepositoryContracts
         Task<List<Resource>> GetAllAsync(Guid noteId);
         Task<bool> DeleteAsync(Guid resourceId);
         Task<Resource?> GetByIdAsync(Guid resourceId);
-        Task<bool> Exists(Guid resourceId);
+        public Task UpdateAsync(Resource resource);
+        Task<bool> ExistsAsync(Guid resourceId);
     }
 }

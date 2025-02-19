@@ -26,17 +26,6 @@ public class GetterCountryService : IGetterCountryService
             var countries = await _countryRepository.GetAllCountriesAsync();
             return countries.Select(c => c.ToDto()).ToList();
         }) ?? throw new InvalidOperationException();
-        
-        // if (_cache.GetOrCreateAsync())
-        // {
-        //     
-        // }   
-        // if (!_cache.TryGetValue(CacheKey, out List<CountryDTO>? countries))
-        // {
-        //     countries = (await _countryRepository.GetAllCountriesAsync()).Select(c=>c.ToDto());
-        //     _cache.Set(CacheKey, countries, TimeSpan.FromDays(1));
-        // }
-        // return countries;  
     }
 
     public async Task<CountryDto?> GetCountryById(short id)

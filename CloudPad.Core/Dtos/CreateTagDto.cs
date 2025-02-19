@@ -5,7 +5,6 @@ namespace NoteTakingApp.Core.Dtos;
 
 public class CreateTagDto
 {
-    [Required(AllowEmptyStrings =false)]
     [MaxLength(50)]
     [Remote("ValidateTagName", "Tag", ErrorMessage ="Name is already taken.")]
     public string Name { get; set; } = string.Empty;

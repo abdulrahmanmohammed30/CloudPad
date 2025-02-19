@@ -21,7 +21,7 @@
                     <td>@tag.Name</td>
                     <td>@(string.IsNullOrEmpty(tag.Description) ? "No description" : tag.Description)</td>
                     <td class="text-center">
-                        <a asp-action="Edit" asp-route-id="@tag.Id" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-action="Update" asp-route-id="@tag.Id" class="btn btn-warning btn-sm">Edit</a>
                         <button class="btn btn-danger btn-sm" onclick="confirmDelete('@tag.Id')">Delete</button>
                     </td>
                 </tr>

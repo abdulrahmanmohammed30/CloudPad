@@ -8,7 +8,7 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services
 {
-    public class ResourceService(INoteValidatorService noteValidatorService, IResourceRepository resourceRepository,
+    public class ResourceService(INoteRepository noteRepository, INoteValidatorService noteValidatorService, IResourceRepository resourceRepository,
         IUserValidationService userValidationService) : IResourceService
     {
         private static readonly HashSet<string> fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -85,7 +85,8 @@ namespace NoteTakingApp.Core.Services
             }
 
             // make sure noteid exists first 
-            if (!await noteValidatorService.ExistsAsync(userId, resourceDto.NoteId))
+            var note = await noteRepository.GetById(userId, resourceDto.NoteId);
+            if (note == null)
             {
                 throw new NoteNotFoundException($"Note with Id {resourceDto.NoteId} was not found");
             }
@@ -98,7 +99,11 @@ namespace NoteTakingApp.Core.Services
                 DisplayName = resourceDto.DisplayName,
                 Description = resourceDto.Description,
                 Size = resourceDto.File.Length,
-            };
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                NoteId = note.NoteId, 
+                Note = note
+        };
 
             var createdResource = await resourceRepository.CreateAsync(resourceDto.NoteId, resource);
 
@@ -117,14 +122,17 @@ namespace NoteTakingApp.Core.Services
                 throw new InvalidResourceIdException("Resource id is required");
             }
 
-            var resource = await resourceRepository.Exists(resourceId);
+            var resource = await resourceRepository.GetByIdAsync(resourceId);
 
-            if (resource == false)
+            if (resource == null)
             {
                 throw new ResourceNotFoundException($"Resource with Id {resourceId} was not found");
             }
 
-            return await resourceRepository.DeleteAsync(resourceId);
+            resource.IsDeleted = true;
+            await resourceRepository.UpdateAsync(resource);
+
+            return true;
         }
     }
 }

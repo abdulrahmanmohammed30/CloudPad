@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.Mappers;
@@ -8,22 +7,11 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 
-public class CategoryService(ICategoryRepository categoryRepository, IUserService userService, IMemoryCache cache
-) : ICategoryService
+public class CategoryService(ICategoryRepository categoryRepository, IMemoryCache cache, IUserValidationService userValidationService) : ICategoryService
 {
-    private async Task ValidateUserAsync(int userId)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
-
-        if (!await userService.ExistsAsync(userId))
-        {
-            throw new UserNotFoundException($"User with id {userId} doesn't exist");
-        }
-    }
-    
     public async Task<CategoryDto?> GetByIdAsync(int userId, Guid categoryId)
     {
-        await ValidateUserAsync(userId);
+        await userValidationService.EnsureUserValidation(userId);
         
         var category = await categoryRepository.GetByIdAsync(userId, categoryId);
         return category?.ToDto();
@@ -31,17 +19,18 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
     
     public async Task<bool> ExistsAsync(int userId, string categoryName)
     {
-        await ValidateUserAsync(userId);
-        
+        await userValidationService.EnsureUserValidation(userId);
+
         return await categoryRepository.ExistsAsync(userId, categoryName);
     }
 
     public async Task<IEnumerable<CategoryDto>> GetAllAsync(int userId)
     {
+         await userValidationService.EnsureUserValidation(userId);
+
         return await cache.GetOrCreateAsync($"Categories/{userId}", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
-            await ValidateUserAsync(userId);
             var categories = await categoryRepository.GetAllAsync(userId);
             return categories.ToDtoList();
         }) ?? throw new InvalidOperationException();
@@ -49,12 +38,14 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
 
     public async Task<bool> ExistsAsync(int userId, Guid categoryId)
     {
+        await userValidationService.EnsureUserValidation(userId);
+
         return await categoryRepository.ExistsAsync(userId, categoryId);
     }
 
     public async Task<CategoryDto> CreateAsync(int userId, CreateCategoryDto categoryDto)
-    {        
-        await ValidateUserAsync(userId);
+    {
+        await userValidationService.EnsureUserValidation(userId);
 
         if (categoryDto == null)
         {
@@ -63,15 +54,25 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
 
         if (string.IsNullOrEmpty(categoryDto.Name))
         {
-            throw new ArgumentNullException(nameof(categoryDto.Name), "Category name cannot be null or empty");
+            throw new InvalidCategoryException("Category name cannot be null or empty");
         }
 
         if (await ExistsAsync(userId, categoryDto.Name))
         {
             throw new DuplicateCategoryNameException("Category name already exists");
         }
-        
+
+        if (categoryDto.Description != null && categoryDto.Description.Length > 500)
+        {
+            throw new InvalidCategoryException("Category description cannot be more than 500 characters");
+        }
+
         var category = categoryDto.ToEntity();
+        category.UserId = userId;
+        category.CreatedAt = DateTime.UtcNow;
+        category.UpdatedAt = DateTime.UtcNow;
+        category.CategoryGuid = Guid.NewGuid();
+
         var createdCategory = await categoryRepository.CreateAsync(userId, category);
 
         cache.Remove($"Categories/{userId}");
@@ -81,7 +82,7 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
 
     public async Task<CategoryDto> UpdateAsync(int userId, UpdateCategoryDto categoryDto)
     {
-        await ValidateUserAsync(userId);
+        await userValidationService.EnsureUserValidation(userId);
 
         if (categoryDto == null)
         {
@@ -98,26 +99,45 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
             throw new InvalidCategoryException("Category name cannot be null or empty");
         }
 
-        if (await ExistsAsync(userId, categoryDto.Name))
+        if (categoryDto.Description != null && categoryDto.Description.Length > 500)
+        {
+            throw new InvalidCategoryException("Category description cannot be more than 500 characters");
+        }
+
+        var category = await categoryRepository.GetByIdAsync(userId, categoryDto.CategoryId);
+
+        if (category == null)
+        {
+            throw new CategoryNotFoundException("Category was not found");
+        }
+
+        if (category.Name != categoryDto.Name && await ExistsAsync(userId, categoryDto.Name))
         {
             throw new DuplicateCategoryNameException("Category name already exists");
         }
         
-        var category = categoryDto.ToEntity();
+        category.Name = categoryDto.Name;
+        category.Description = categoryDto.Description;
+        category.IsFavorite = categoryDto.IsFavorite;
+        category.UpdatedAt = DateTime.UtcNow;
+        
         var updatedCategory = await categoryRepository.UpdateAsync(userId, category);
 
         cache.Remove($"Categories/{userId}");
+
         return updatedCategory.ToDto();
     }
 
     public async Task<int?> FindCategoryIdByGuidAsync(int userId, Guid categoryId)
     {
+        await userValidationService.EnsureUserValidation(userId);
+
         return await categoryRepository.FindCategoryIdByGuidAsync(userId, categoryId);
     }
 
     public async Task<bool> DeleteAsync(int userId, Guid id)
     {
-        await ValidateUserAsync(userId);
+        await userValidationService.EnsureUserValidation(userId);
 
         if (id == Guid.Empty)
         {
@@ -131,7 +151,9 @@ public class CategoryService(ICategoryRepository categoryRepository, IUserServic
             throw new CategoryNotFoundException($"Category with id {id} was not found");
         }
 
-        var deleted = await categoryRepository.DeleteAsync(userId, id);
+        category.IsDeleted = true;
+
+        await categoryRepository.UpdateAsync(userId, category);
        
         cache.Remove($"Categories/{userId}");
         return true;
