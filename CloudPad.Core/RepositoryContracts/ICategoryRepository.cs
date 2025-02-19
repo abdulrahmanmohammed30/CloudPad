@@ -1,4 +1,5 @@
-﻿using NoteTakingApp.Core.Entities;
+﻿using NoteTakingApp.Core.Dtos;
+using NoteTakingApp.Core.Entities;
 
 namespace NoteTakingApp.Core.RepositoryContracts;
 
@@ -17,4 +18,5 @@ public interface ICategoryRepository
     Task<int?> FindCategoryIdByGuidAsync(int userId, Guid categoryId);
 
     Task<bool> DeleteAsync(int userId, Guid categoryId);
+    Task<Category?> GetByNameAsync(int userId, string categoryName);
 }

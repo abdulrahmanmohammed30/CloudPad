@@ -156,4 +156,13 @@ public class TagService(ITagRepository tagRepository,
 
         return true;
     }
+
+    public async Task<TagDto?> GetByNameAsync(int userId, string name)
+    {
+        await userValidationService.EnsureUserValidation(userId);
+
+        var tag = await tagRepository.GetByNameAsync(userId, name);
+        return tag?.ToDto();
+
+    }
 }

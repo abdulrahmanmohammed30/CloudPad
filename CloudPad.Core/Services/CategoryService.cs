@@ -16,6 +16,14 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
         var category = await categoryRepository.GetByIdAsync(userId, categoryId);
         return category?.ToDto();
     }
+
+    public async Task<CategoryDto?> GetByNameAsync(int userId, string categoryName)
+    {
+        await userValidationService.EnsureUserValidation(userId);
+
+        var category = await categoryRepository.GetByNameAsync(userId, categoryName);
+        return category?.ToDto();
+    }
     
     public async Task<bool> ExistsAsync(int userId, string categoryName)
     {
@@ -158,5 +166,6 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
         cache.Remove($"Categories/{userId}");
         return true;
     }
+
 }
 

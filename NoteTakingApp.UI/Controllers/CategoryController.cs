@@ -18,8 +18,31 @@ namespace NoteTakingApp.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> ValidateCategoryName(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return Json(true);
+            }
+
             var doesNoteExist = await categoryService.ExistsAsync(UserId, name);
             return Json(!doesNoteExist);
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ValidateExistingCategoryName(string name, Guid categoryId)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return Json(true);
+            }
+
+            var category = await categoryService.GetByNameAsync(UserId, name);
+
+            if (category == null)
+            {
+                return Json(true);
+            }
+
+            return Json(category.Id == categoryId);
         }
 
         [HttpGet("")]
@@ -70,7 +93,7 @@ namespace NoteTakingApp.Controllers
                 CategoryId = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                IsFavorite=category.IsFavorite
+                IsFavorite = category.IsFavorite
             };
 
             return View(updateCategoryDto);
@@ -83,7 +106,7 @@ namespace NoteTakingApp.Controllers
             {
                 return BadRequest(new { message = "Category id is invalid" });
             }
-            
+
             if (categoryDto == null)
             {
                 return BadRequest(new { message = "Category is null" });
@@ -95,14 +118,9 @@ namespace NoteTakingApp.Controllers
             }
             try
             {
-            var updatedCategory = await categoryService.UpdateAsync(UserId, categoryDto);
-            return RedirectToAction("Index");
+                var updatedCategory = await categoryService.UpdateAsync(UserId, categoryDto);
+                return RedirectToAction("Index");
 
-            }
-
-            catch (InvalidCategoryException ex)
-            {
-                return BadRequest(new { message = ex.Message });
             }
 
             catch (CategoryNotFoundException ex)
@@ -110,11 +128,22 @@ namespace NoteTakingApp.Controllers
                 return NotFound(new { message = ex.Message });
             }
 
-            catch (DuplicateCategoryNameException ex)
+            catch (InvalidCategoryException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                // Todo: How to know which field is invalid, Modify the custom exception
+                ModelState.AddModelError("", ex.Message);
+
+                ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+
+                return View(categoryDto);
             }
 
+            catch (DuplicateCategoryNameException ex)
+            {
+                // Todo: Does Remote Validation can send the tagName and tag Id or it's just one value? 
+                ModelState.AddModelError("Name", ex.Message);
+                return View(categoryDto);
+            }
         }
 
 

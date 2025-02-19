@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.RepositoryContracts;
@@ -70,5 +71,11 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
     {
         return await context.Categories
             .AnyAsync(c => c.UserId == userId && c.CategoryGuid == categoryGuid);
+    }
+
+    public async Task<Category?> GetByNameAsync(int userId, string categoryName)
+    {
+        return await context.Categories
+             .FirstOrDefaultAsync(c => c.UserId == userId && c.Name == categoryName);
     }
 }

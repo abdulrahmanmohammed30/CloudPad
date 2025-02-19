@@ -18,8 +18,31 @@ namespace NoteTakingApp.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> ValidateTagName(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return Json(true);
+            }
+
             var doesTagWithSameNameExist = await tagService.ExistsAsync(UserId, name);
             return Json(!doesTagWithSameNameExist);
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ValidateExistingTagName(string name, int tagId)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return Json(true);
+            }
+
+            var tag = await tagService.GetByNameAsync(UserId, name);
+
+            if (tag == null)
+            {
+                return Json(true);
+            }
+
+            return Json(tag.Id == tagId);
         }
 
         [HttpGet("")]
@@ -106,7 +129,8 @@ namespace NoteTakingApp.Controllers
 
             catch (DuplicateTagNameException ex)
             {
-                return BadRequest(new { error = ex.Message });
+                ModelState.AddModelError("Name", ex.Message);
+                return View(updateTagDto);
             }
         }
 

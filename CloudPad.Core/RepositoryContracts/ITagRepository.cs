@@ -1,4 +1,5 @@
-﻿using NoteTakingApp.Core.Entities;
+﻿using NoteTakingApp.Core.Dtos;
+using NoteTakingApp.Core.Entities;
 
 namespace NoteTakingApp.Core.RepositoryContracts;
 
@@ -12,4 +13,5 @@ public interface ITagRepository
     Task<Tag> UpdateAsync(int userId, Tag tag);
     Task<List<Tag>> UpdateNoteTagsAsync(int userId, Guid noteId, List<int> tagIds);
     Task<bool> DeleteAsync(int userId, int tagId);
+    Task<Tag?> GetByNameAsync(int userId, string name);
 }

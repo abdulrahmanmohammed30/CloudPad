@@ -9,7 +9,7 @@ public class UpdateCategoryDto
     
     [Required]
     [MaxLength(50, ErrorMessage ="Category characters cannot be more than 50")]
-    [Remote("ValidateCategoryName", "Category", ErrorMessage ="Category Name is in use.")]
+    [Remote("ValidateExistingCategoryName", "Category", ErrorMessage ="Category Name is in use.", AdditionalFields = nameof(CategoryId))]
     public string Name { get; set; } = string.Empty;
     
     [MaxLength(500)]

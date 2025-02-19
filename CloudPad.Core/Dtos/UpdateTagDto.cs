@@ -8,11 +8,9 @@ public class UpdateTagDto
     public int TagId { get; set; }
     [Required]
     [MaxLength(50)]
-    [Remote("ValidateTagName", "Tag", ErrorMessage ="Tag name is in use")]
+    [Remote("ValidateExistingTagName", "Tag", ErrorMessage = "Tag name is in use", AdditionalFields = nameof(TagId))]
     public string Name { get; set; } = string.Empty;
-    
+
     [MaxLength(500)]
     public string? Description { get; set; }
 }
-
-    

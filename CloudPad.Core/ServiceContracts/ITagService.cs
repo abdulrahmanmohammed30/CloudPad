@@ -16,6 +16,7 @@ public interface ITagService
     Task<List<TagDto>> UpdateNoteTagsAsync(int userId, Guid noteId, List<int> noteIds);
 
     Task<bool> DeleteAsync(int userId, int tagId);
+    Task<TagDto?> GetByNameAsync(int userId, string name);
 }
 
 

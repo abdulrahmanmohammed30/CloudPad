@@ -15,4 +15,5 @@ public interface ICategoryService
     Task<int?> FindCategoryIdByGuidAsync(int userId, Guid categoryId);
 
     Task<bool> DeleteAsync(int userId, Guid id);
+    Task<CategoryDto?> GetByNameAsync(int userId, string categoryName);
 }
