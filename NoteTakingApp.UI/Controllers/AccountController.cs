@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using NoteTakingApp.Core.Attributes.Enums;
 using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Dtos;
@@ -79,7 +80,7 @@ public class AccountController(
             .Replace("/", "_")  // Replace / with _
             .TrimEnd('=');      // Remove padding
         var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
-       // var confirmationLink = $"{baseUrl}/account/confirmemail?userId={user.Id}&token={encodedToken}";
+        // var confirmationLink = $"{baseUrl}/account/confirmemail?userId={user.Id}&token={encodedToken}";
 
         var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);
 
@@ -128,7 +129,7 @@ public class AccountController(
         }
 
         var user = await userManager.FindByNameAsync(loginDto.UserName);
-        
+
         if (user.EmailConfirmed == false)
         {
             ModelState.AddModelError(string.Empty, "You must confirm your email before logging in.");
@@ -193,7 +194,7 @@ public class AccountController(
             return NotFound("User not found.");
         }
 
-        var result=await userManager.ConfirmEmailAsync(user, token);
+        var result = await userManager.ConfirmEmailAsync(user, token);
 
         if (result.Succeeded)
         {
@@ -202,5 +203,75 @@ public class AccountController(
 
         return BadRequest("Email confirmation failed.");
     }
+
+    [HttpGet("forget-password")]
+    public IActionResult ForgetPassword()
+    {
+        return View(new ForgetPasswordDto());
+    }
+
+    [HttpPost("forget-password")]
+    public async Task<IActionResult> ForgetPassword(ForgetPasswordDto rorgetPasswordDto)
+    {
+        if (ModelState.IsValid == false)
+        {
+            return View(rorgetPasswordDto);
+        }
+
+        var user = await userManager.FindByEmailAsync(rorgetPasswordDto.Email);
+
+        if (user == null)
+        {
+            return NotFound($"User with email {rorgetPasswordDto.Email} was not found.");
+        }
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+        var confirmationLink = Url.Action("ResetPassword", "Account", new { userId = user.Id, token }, Request.Scheme);
+
+        await emailService.SendEmailAsync(rorgetPasswordDto.Email, "Reset your account pasword", $"Please confirm your email by clicking {confirmationLink}");
+
+        ViewBag.Email=rorgetPasswordDto.Email;
+        return View("ForgetPasswordConfirmation");
+    }
+
+    [HttpGet("reset-password")]
+    public IActionResult ResetPassword(string userId, string token)
+    {
+        var resetPasswordDto = new ResetPasswordDto()
+        {
+            UserId = userId,
+            Token = token
+        };
+        return View(resetPasswordDto);
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        if (ModelState.IsValid == false)
+        {
+            return View(resetPasswordDto);
+        }
+
+        var user = await userManager.FindByIdAsync(resetPasswordDto.UserId);
+        if (user == null)
+        {
+            return NotFound($"User with id {resetPasswordDto.UserId} was not found.");
+        }
+
+        var result = await userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
+
+        if (result.Succeeded == false)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View(resetPasswordDto);
+        }
+        return View("ResetPasswordConfirmation");
+    }
 }
+
 
