@@ -23,6 +23,12 @@ public class RegisterDto
     public DateOnly? BirthDate { get; set; }
 
     [Required]
+    [EmailAddress]
+    [DataType(DataType.EmailAddress)]
+    public string Email { get; set; } = string.Empty;
+
+
+    [Required]
     [DisplayName("Username")]
     //[UserName]
     [Remote("ValidateUsername", "Account", ErrorMessage = "Username is already taken.")]

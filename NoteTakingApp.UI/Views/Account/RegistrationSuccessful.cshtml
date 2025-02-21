@@ -1,0 +1,19 @@
+@{
+    ViewData["Title"] = "Registration Successful";
+    var userEmail = ViewBag.UserEmail as string;
+}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header text-center">
+            <h2>Account Created Successfully</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">Your account has been created successfully!</p>
+            <p>A confirmation email has been sent to your email address.</p>
+            <p>Please check your inbox and click on the confirmation link to verify your email address.</p>
+            <p>Email: <a href="mailto:@userEmail">@userEmail</a></p>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Go to Login</a>
+        </div>
+    </div>
+</div>

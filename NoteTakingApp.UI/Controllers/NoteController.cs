@@ -33,7 +33,6 @@ public class NoteController(INoteRetrieverService noteRetrieverService, INoteMan
         ViewBag.Categories = await categoryService.GetAllAsync(UserId);
         ViewBag.Tags = await tagService.GetAllAsync(UserId);
 
-
         return View(notes);
     }
     // all user categories should be cached: select, cache categories 

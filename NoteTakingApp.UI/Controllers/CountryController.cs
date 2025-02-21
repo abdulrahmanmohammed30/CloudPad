@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Controllers;
@@ -6,6 +7,7 @@ namespace NoteTakingApp.Controllers;
 public class CountryController(IGetterCountryService getterCountryService) : Controller
 {
     [HttpGet("/countries")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAllCountries([FromQuery]short? id, [FromQuery]string? name)
     {
         if (id.HasValue)

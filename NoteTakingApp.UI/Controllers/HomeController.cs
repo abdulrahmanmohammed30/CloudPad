@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace NoteTakingApp.Controllers;
 
-//[Route("")]
 [AllowAnonymous]
 public class HomeController: Controller
 {
@@ -12,6 +11,9 @@ public class HomeController: Controller
     {
         return View();
     }
+
+    
+
 
     [Route("/error")]
     public IActionResult Error()

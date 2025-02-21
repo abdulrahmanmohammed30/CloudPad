@@ -13,7 +13,8 @@ public static class UserMapper
             CountryId = (short?)registerDto.CountryId,
             Name = registerDto.Name.Trim(),
             ProfileImageUrl = registerDto.ProfileImageUrl?.Trim(),
-            UserName = registerDto.UserName.Trim()
+            UserName = registerDto.UserName.Trim(),
+            Email=registerDto.Email.Trim()
         };
     }
 

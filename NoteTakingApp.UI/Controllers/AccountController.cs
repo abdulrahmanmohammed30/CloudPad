@@ -6,6 +6,8 @@ using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Mappers;
 using NoteTakingApp.Core.ServiceContracts;
+using System.Net;
+using System.Text;
 
 namespace NoteTakingApp.Controllers;
 
@@ -15,7 +17,8 @@ public class AccountController(
     IGetterCountryService getterCountryService,
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
-    RoleManager<ApplicationRole> roleManager)
+    RoleManager<ApplicationRole> roleManager,
+    IEmailService emailService)
     : Controller
 {
     private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
@@ -65,9 +68,24 @@ public class AccountController(
             {
                 ModelState.AddModelError("", error.Description);
             }
-            
+
             return View(registerDto);
         }
+
+        // generate email confirmation token 
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        var encodedToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
+            .Replace("+", "-")  // Replace + with -
+            .Replace("/", "_")  // Replace / with _
+            .TrimEnd('=');      // Remove padding
+        var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+       // var confirmationLink = $"{baseUrl}/account/confirmemail?userId={user.Id}&token={encodedToken}";
+
+        var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);
+
+
+
+        await emailService.SendEmailAsync(user.Email!, "Confirm Your Email", $"Please confirm your email by clicking {confirmationLink}.");
 
         // The role "User" always exists, Migration folder contains some seeded roles
         // Assign a role to the user 
@@ -77,7 +95,11 @@ public class AccountController(
             // Todo: Log a warning message 
         }
 
-        return RedirectToAction(nameof(NoteController.Index), "Note");
+
+        ViewBag.userEmail = user.Email;
+        return View("RegistrationSuccessful");
+
+        //return RedirectToAction(nameof(NoteController.Index), "Note");
     }
 
     [HttpGet("login")]
@@ -95,7 +117,7 @@ public class AccountController(
     //Model is not valid then return view 
     // model is valid then login but could not login return errors to user 
     // if manage to log in then go to notes page 
-    
+
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto, string? ReturnUrl)
     {
@@ -104,15 +126,26 @@ public class AccountController(
             // To do: Login data
             return View(loginDto);
         }
+
+        var user = await userManager.FindByNameAsync(loginDto.UserName);
         
+        if (user.EmailConfirmed == false)
+        {
+            ModelState.AddModelError(string.Empty, "You must confirm your email before logging in.");
+            ViewBag.EmailNotConfirmed = true;
+            return View(loginDto);
+
+        }
+
         var loginResult = await signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
+
         if (loginResult.Succeeded == false)
         {
             ModelState.AddModelError("", "Invalid username or password");
             return View(loginDto);
         }
 
-        if (!string.IsNullOrEmpty(ReturnUrl)  && Url.IsLocalUrl(ReturnUrl))
+        if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
             return LocalRedirect(ReturnUrl);
 
         return RedirectToAction(nameof(NoteController.Index), "Note");
@@ -133,8 +166,41 @@ public class AccountController(
             return Json(true);
 
         var user = await userManager.FindByNameAsync(username);
-        return user == null? Json(true): Json(false);
+        return user == null ? Json(true) : Json(false);
+    }
+
+    [HttpGet("send-email")]
+    public IActionResult SendEmail()
+    {
+        return View(new EmailRequest());
     }
 
 
+
+    [HttpGet("confirmEmail")]
+    public async Task<IActionResult> ConfirmEmail(string userId, string token)
+    {
+        var decodedToken = Encoding.UTF8.GetString(Convert.FromBase64String(
+            token.Replace("-", "+").Replace("_", "/") + new string('=', (4 - token.Length % 4) % 4)));
+        if (userId == null || token == null)
+        {
+            return BadRequest("Invalid email confirmation request");
+        }
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var result=await userManager.ConfirmEmailAsync(user, token);
+
+        if (result.Succeeded)
+        {
+            return View("EmailConfirmed"); // Success message
+        }
+
+        return BadRequest("Email confirmation failed.");
+    }
 }
+

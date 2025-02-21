@@ -9,8 +9,13 @@
         <div class="col-md-4">
             <!-- Search Bar -->
             <form asp-action="Index" method="get" class="mb-3">
+                <!-- Preserve previous filters -->
+                <input type="hidden" name="tag" value="@ViewContext.HttpContext.Request.Query["tag"]" />
+                <input type="hidden" name="category" value="@ViewContext.HttpContext.Request.Query["category"]" />
+
                 <div class="input-group">
-                    <input type="text" name="title" class="form-control" placeholder="Search notes..." value="@Context.Request.Query["searchTerm"]">
+                    <input type="text" name="title" class="form-control" placeholder="Search notes..."
+                           value="@ViewContext.HttpContext.Request.Query["title"]">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </form>
@@ -20,12 +25,16 @@
                 <h5>Categories</h5>
                 <ul class="list-group">
                     <li class="list-group-item">
-                        <a asp-action="Index" asp-route-category="" class="text-decoration-none">All Categories</a>
+                        <a asp-action="Index" asp-route-category=""
+                           asp-route-tag="@ViewContext.HttpContext.Request.Query["tag"]"
+                           class="text-decoration-none">All Categories</a>
                     </li>
                     @foreach (var category in ViewBag.Categories as List<CategoryDto>)
                     {
                         <li class="list-group-item">
-                            <a asp-action="Index" asp-route-category="@category.Name" class="text-decoration-none">@category.Name</a>
+                            <a asp-action="Index" asp-route-category="@category.Name"
+                               asp-route-tag="@ViewContext.HttpContext.Request.Query["tag"]"
+                               class="text-decoration-none">@category.Name</a>
                         </li>
                     }
                 </ul>
@@ -35,10 +44,17 @@
             <div>
                 <h5>Tags</h5>
                 <ul class="list-group">
+                    <li class="list-group-item">
+                        <a asp-action="Index" asp-route-tag=""
+                           asp-route-category="@ViewContext.HttpContext.Request.Query["category"]"
+                           class="text-decoration-none">All Tags</a>
+                    </li>
                     @foreach (var tag in ViewBag.Tags as List<TagDto>)
                     {
                         <li class="list-group-item">
-                            <a asp-action="Index" asp-route-tag="@tag.Name" class="text-decoration-none">#@tag.Name</a>
+                            <a asp-action="Index" asp-route-tag="@tag.Name"
+                               asp-route-category="@ViewContext.HttpContext.Request.Query["category"]"
+                               class="text-decoration-none">#@tag.Name</a>
                         </li>
                     }
                 </ul>

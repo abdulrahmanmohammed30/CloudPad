@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.ServiceContracts;
 using NoteTakingApp.Helpers;
