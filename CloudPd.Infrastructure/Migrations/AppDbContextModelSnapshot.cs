@@ -137,7 +137,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
                     b.HasIndex("TagsTagId");
 
-                    b.ToTable("NoteTags");
+                    b.ToTable("NoteTags", (string)null);
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Domains.ApplicationRole", b =>
@@ -168,91 +168,6 @@ namespace NoteTakingApp.Infrastructure.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("NoteTakingApp.Core.Domains.ApplicationUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<DateOnly?>("BirthDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<short?>("CountryId")
-                        .HasColumnType("smallint");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ProfileImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CountryId");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Domains.ApplicationUserWithRole", b =>
@@ -326,6 +241,28 @@ namespace NoteTakingApp.Infrastructure.Migrations
                     b.ToView("UserWithRole", (string)null);
                 });
 
+            modelBuilder.Entity("NoteTakingApp.Core.Domains.UserSocialLink", b =>
+                {
+                    b.Property<int>("UserSocialLinkId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserSocialLinkId"));
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserSocialLinkId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSocialLinks", (string)null);
+                });
+
             modelBuilder.Entity("NoteTakingApp.Core.Entities.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -379,7 +316,131 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
+                });
+
+            modelBuilder.Entity("NoteTakingApp.Core.Entities.Domains.ApplicationUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<short?>("CountryId")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DateTime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("PreferredLanguageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("PreferredLanguageId");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("NoteTakingApp.Core.Entities.Language", b =>
+                {
+                    b.Property<int>("LanguageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LanguageId"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NativeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("LanguageId");
+
+                    b.ToTable("Languages", (string)null);
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Entities.Note", b =>
@@ -440,7 +501,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notes");
+                    b.ToTable("Notes", (string)null);
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Entities.Resource", b =>
@@ -485,7 +546,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
                     b.HasIndex("NoteId");
 
-                    b.ToTable("Resources");
+                    b.ToTable("Resources", (string)null);
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Entities.Tag", b =>
@@ -528,7 +589,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Models.Country", b =>
@@ -564,7 +625,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
                     b.HasKey("CountryId");
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -578,7 +639,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("NoteTakingApp.Core.Domains.ApplicationUser", null)
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -587,7 +648,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("NoteTakingApp.Core.Domains.ApplicationUser", null)
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -602,7 +663,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NoteTakingApp.Core.Domains.ApplicationUser", null)
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -611,7 +672,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("NoteTakingApp.Core.Domains.ApplicationUser", null)
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -633,22 +694,40 @@ namespace NoteTakingApp.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NoteTakingApp.Core.Domains.ApplicationUser", b =>
+            modelBuilder.Entity("NoteTakingApp.Core.Domains.UserSocialLink", b =>
+                {
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", "User")
+                        .WithMany("SocialLinks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NoteTakingApp.Core.Entities.Category", b =>
+                {
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NoteTakingApp.Core.Entities.Domains.ApplicationUser", b =>
                 {
                     b.HasOne("NoteTakingApp.Core.Models.Country", "Country")
                         .WithMany()
                         .HasForeignKey("CountryId");
 
-                    b.Navigation("Country");
-                });
+                    b.HasOne("NoteTakingApp.Core.Entities.Language", "PreferredLanguage")
+                        .WithMany()
+                        .HasForeignKey("PreferredLanguageId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity("NoteTakingApp.Core.Entities.Category", b =>
-                {
-                    b.HasOne("NoteTakingApp.Core.Domains.ApplicationUser", null)
-                        .WithMany("Categories")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Country");
+
+                    b.Navigation("PreferredLanguage");
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Entities.Note", b =>
@@ -658,7 +737,7 @@ namespace NoteTakingApp.Infrastructure.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("NoteTakingApp.Core.Domains.ApplicationUser", null)
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", null)
                         .WithMany("Notes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -679,25 +758,27 @@ namespace NoteTakingApp.Infrastructure.Migrations
 
             modelBuilder.Entity("NoteTakingApp.Core.Entities.Tag", b =>
                 {
-                    b.HasOne("NoteTakingApp.Core.Domains.ApplicationUser", null)
+                    b.HasOne("NoteTakingApp.Core.Entities.Domains.ApplicationUser", null)
                         .WithMany("Tags")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NoteTakingApp.Core.Domains.ApplicationUser", b =>
+            modelBuilder.Entity("NoteTakingApp.Core.Entities.Category", b =>
+                {
+                    b.Navigation("Notes");
+                });
+
+            modelBuilder.Entity("NoteTakingApp.Core.Entities.Domains.ApplicationUser", b =>
                 {
                     b.Navigation("Categories");
 
                     b.Navigation("Notes");
 
-                    b.Navigation("Tags");
-                });
+                    b.Navigation("SocialLinks");
 
-            modelBuilder.Entity("NoteTakingApp.Core.Entities.Category", b =>
-                {
-                    b.Navigation("Notes");
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("NoteTakingApp.Core.Entities.Note", b =>

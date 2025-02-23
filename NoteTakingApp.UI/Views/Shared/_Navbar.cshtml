@@ -23,27 +23,22 @@
             </button>
             <div class="navbar-collapse collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item"><a href="/note" class="nav-link">My Notes</a></li>
-                    <li class="nav-item"><a href="/category" class="nav-link">Categories</a></li>
-                    <li class="nav-item"><a href="/tag" class="nav-link">Tags</a></li>
                     @if (User.Identity.IsAuthenticated)
                     {
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <form asp-action="Signout" asp-controller="Account" method="post">
-                                    <button type="submit" class="btn btn-link nav-link" style="border: none; background: none; cursor: pointer;">Sign Out</button>
-                                </form>
-                            </li>
-                        }
+                        <li class="nav-item"><a href="/note" class="nav-link">My Notes</a></li>
+                        <li class="nav-item"><a href="/category" class="nav-link">Categories</a></li>
+                        <li class="nav-item"><a href="/tag" class="nav-link">Tags</a></li>
+
+                        <li class="nav-item">
+                            <form asp-action="Signout" asp-controller="Account" method="post">
+                                <button type="submit" class="btn btn-link nav-link" style="border: none; background: none; cursor: pointer;">Sign Out</button>
+                            </form>
+                        </li>
                     }
                     else
                     {
-                        <ul class="navbar-nav ml-auto">
-
                         <li class="nav-item"><a href="/account/login" class="nav-link">Login</a></li>
                         <li class="nav-item"><a href="/account/register" class="nav-link text-warning">Register</a></li>
-                        </ul>
                     }
                 </ul>
             </div>
@@ -99,8 +94,11 @@ else
                             <a href="/tag" class="nav-link smoothScroll">Tags</a>
                         </li>
                         <li class="nav-item">
-                            <a href="/account/signout" class="nav-link smoothScroll">Sign out</a>
+                            <form asp-action="Signout" asp-controller="Account" method="post">
+                                <button type="submit" class="btn btn-link nav-link" style="border: none; background: none; cursor: pointer;">Sign Out</button>
+                            </form>
                         </li>
+
                     }
                     else
                     {

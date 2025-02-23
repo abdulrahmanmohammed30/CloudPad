@@ -3,17 +3,26 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NoteTakingApp.Core.Configurations;
 using NoteTakingApp.Core.Domains;
+using NoteTakingApp.Core.Entities.Domains;
 using NoteTakingApp.Core.RepositoryContracts;
 using NoteTakingApp.Core.ServiceContracts;
 using NoteTakingApp.Core.Services;
 using NoteTakingApp.Filters;
+using NoteTakingApp.Helpers;
 using NoteTakingApp.Infrastructure.Context;
 using NoteTakingApp.Infrastructure.Repositories;
 using NoteTakingApp.Middleware;
+using NuGet.Protocol;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration
+    .AddJsonFile("countries.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("languages.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .AddCommandLine(args);
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -41,6 +50,8 @@ builder.Services.AddScoped<INoteValidatorService, NoteValidatorService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IUserValidationService, UserValidationService>();
 builder.Services.AddScoped<EnsureUserIdExistsFilter>();
+builder.Services.AddScoped<IUploadDocumentService, UploadDocumentService>();
+builder.Services.AddScoped<IUploadImageService, UploadImageService>();
 
 builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
 
@@ -49,6 +60,9 @@ builder.Services.AddScoped<IResourceService, ResourceService>();
 builder.Services.AddScoped<NoteExceptionFilter>();
 builder.Services.AddScoped<CategoryExceptionFilter>();
 
+builder.Services.Configure<CountrySettings>(builder.Configuration.GetSection("CountrySettings"));
+
+builder.Services.Configure<LanguageSettings>(builder.Configuration.GetSection("LanguageSettings"));
 
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 

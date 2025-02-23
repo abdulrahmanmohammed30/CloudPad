@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NoteTakingApp.Core.Attributes.Enums;
 using NoteTakingApp.Core.Domains;
+using NoteTakingApp.Core.Entities.Domains;
 using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Controllers;

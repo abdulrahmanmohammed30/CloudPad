@@ -1,5 +1,6 @@
 ﻿using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Dtos;
+using NoteTakingApp.Core.Entities.Domains;
 
 namespace NoteTakingApp.Core.Mappers;
 
@@ -12,7 +13,6 @@ public static class UserMapper
             BirthDate = registerDto.BirthDate,
             CountryId = (short?)registerDto.CountryId,
             Name = registerDto.Name.Trim(),
-            ProfileImageUrl = registerDto.ProfileImageUrl?.Trim(),
             UserName = registerDto.UserName.Trim(),
             Email=registerDto.Email.Trim()
         };
@@ -30,7 +30,8 @@ public static class UserMapper
                 Name = user.Name,
                 ProfileImageUrl = user.ProfileImageUrl?.Trim(),
                 CountryName=user.CountryName,
-                Role=string.IsNullOrEmpty(user.RoleName) == true? "User": user.RoleName
+                Role=string.IsNullOrEmpty(user.RoleName) == true? "User": user.RoleName,
+                Email = user.Email,
             };
     }
 }

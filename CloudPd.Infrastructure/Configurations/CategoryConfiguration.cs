@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Entities;
+using NoteTakingApp.Core.Entities.Domains;
 
 namespace NoteTakingApp.Infrastructure.Configurations
 {

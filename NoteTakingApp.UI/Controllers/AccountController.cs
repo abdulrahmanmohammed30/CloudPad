@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
@@ -9,6 +10,7 @@ using NoteTakingApp.Core.Mappers;
 using NoteTakingApp.Core.ServiceContracts;
 using System.Net;
 using System.Text;
+using NoteTakingApp.Core.Entities.Domains;
 
 namespace NoteTakingApp.Controllers;
 
@@ -19,7 +21,10 @@ public class AccountController(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     RoleManager<ApplicationRole> roleManager,
-    IEmailService emailService)
+    IEmailService emailService,
+    IUploadDocumentService uploadDocumentService,
+    IWebHostEnvironment webHostEnvironment,
+    IUploadImageService uploadImageService)
     : Controller
 {
     private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
@@ -58,6 +63,18 @@ public class AccountController(
 
         ApplicationUser user = registerDto.ToEntity();
 
+    try
+        {
+            if (registerDto.ImageFile != null && registerDto.ImageFile.Length != 0)
+            {
+                user.ProfileImageUrl = await uploadImageService.Upload(Path.Combine(webHostEnvironment.WebRootPath, "uploads"), registerDto.ImageFile);
+            }
+        }catch(Exception ex)
+        {
+            ModelState.AddModelError("", ex.Message);
+            return View(registerDto);
+        }
+
         // Create the user 
         var userIdentityResult = await userManager.CreateAsync(user, registerDto.Password);
 
@@ -72,6 +89,7 @@ public class AccountController(
 
             return View(registerDto);
         }
+
 
         // generate email confirmation token 
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -225,13 +243,21 @@ public class AccountController(
             return NotFound($"User with email {rorgetPasswordDto.Email} was not found.");
         }
 
+        if ((await userManager.IsEmailConfirmedAsync(user)) == false)
+        {
+            ModelState.AddModelError(string.Empty, "You must confirm your email before logging in.");
+            ViewBag.EmailNotConfirmed = true;
+            return View(rorgetPasswordDto);
+
+        }
+
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
 
         var confirmationLink = Url.Action("ResetPassword", "Account", new { userId = user.Id, token }, Request.Scheme);
 
         await emailService.SendEmailAsync(rorgetPasswordDto.Email, "Reset your account pasword", $"Please confirm your email by clicking {confirmationLink}");
 
-        ViewBag.Email=rorgetPasswordDto.Email;
+        ViewBag.Email = rorgetPasswordDto.Email;
         return View("ForgetPasswordConfirmation");
     }
 

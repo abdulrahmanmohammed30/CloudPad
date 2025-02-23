@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NoteTakingApp.Core.Attributes.ValidationAttributes;
 
@@ -10,11 +11,15 @@ public class RegisterDto
     [Required]
     [MaxLength(100)]
     public string Name { get; set; }=string.Empty;
-    
-    [MaxLength(500)]
-    [Url]
-    [DisplayName("Profile Image Url")]
-    public string? ProfileImageUrl { get; set; }
+
+    //[MaxLength(500)]
+    //[Url]
+    //[DisplayName("Profile Image Url")]
+    //public string? ProfileImageUrl { get; set; }
+
+    [Required]
+    [DataType(DataType.Upload)]
+    public IFormFile ImageFile { get; set; }
     
     public int? CountryId { get; set; }
     

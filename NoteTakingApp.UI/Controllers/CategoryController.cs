@@ -114,7 +114,7 @@ namespace NoteTakingApp.Controllers
 
             if (ModelState.IsValid == false)
             {
-                return View(categoryId);
+                return View(categoryDto);
             }
             try
             {

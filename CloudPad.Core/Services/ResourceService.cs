@@ -8,57 +8,9 @@ using NoteTakingApp.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services
 {
-    public class ResourceService(INoteRepository noteRepository, IResourceRepository resourceRepository
-        ) : IResourceService
+    public class ResourceService(INoteRepository noteRepository, IResourceRepository resourceRepository,
+       IUploadDocumentService  uploadDocumentService ) : IResourceService
     {
-        private static readonly HashSet<string> fileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            // Excel
-            ".xls", ".xlsx", ".xlsm", ".xlsb", ".xltx", ".xltm", ".csv", ".ods",
-
-            // PDF
-            ".pdf",
-
-            // Word
-            ".doc", ".docx", ".dot", ".dotx", ".docm", ".dotm", ".odt",
-
-            // Audio
-            ".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a", ".wma", ".aiff", ".alac", ".opus"
-        };
-
-        private async Task<string> UploadDocument(string uploadsDirectoryPath, IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                throw new ArgumentException("File is required", nameof(file));
-            }
-
-            var fileName = Path.GetFileNameWithoutExtension(file.FileName);
-            var extension = Path.GetExtension(file.FileName);
-
-            if (extension == null)
-            {
-                throw new ArgumentException("Invalid file type", nameof(file));
-            }
-
-            if (!fileExtensions.Contains(extension))
-            {
-                throw new ArgumentException("File type is not supported", nameof(file));
-            }
-
-            var uniqueFileName = fileName + "_" + Guid.NewGuid().ToString() + extension;
-
-            var filepath = Path.Combine(uploadsDirectoryPath, uniqueFileName);
-
-            using (var stream = new FileStream(filepath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var uploadsDirectory = Path.GetDirectoryName(filepath).Split(Path.DirectorySeparatorChar).LastOrDefault();
-
-            return Path.Combine(uploadsDirectory, uniqueFileName);
-        }
 
         public async Task<ResourceDto> CreateResourceDto(int userId, string uploadsDirectoryPath, CreateResourceDto resourceDto)
         {
@@ -91,7 +43,7 @@ namespace NoteTakingApp.Core.Services
                 throw new NoteNotFoundException($"Note with Id {resourceDto.NoteId} was not found");
             }
 
-            var filepath = await UploadDocument(uploadsDirectoryPath, resourceDto.File);
+            var filepath = await uploadDocumentService.Upload(uploadsDirectoryPath, resourceDto.File);
 
             var resource = new Resource()
             {

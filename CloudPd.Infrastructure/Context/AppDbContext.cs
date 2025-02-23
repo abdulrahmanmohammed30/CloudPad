@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Entities;
+using NoteTakingApp.Core.Entities.Domains;
 using NoteTakingApp.Core.Models;
 using NoteTakingApp.Infrastructure.Configurations;
 
@@ -16,7 +17,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Resource> Resources { get; set; }
+    
+    public DbSet<Language> Languages { get; set; }
 
+    public DbSet<UserSocialLink> UserSocialLinks { get; set; }
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
