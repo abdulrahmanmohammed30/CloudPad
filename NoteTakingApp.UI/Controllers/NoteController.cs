@@ -55,12 +55,17 @@ public class NoteController(INoteRetrieverService noteRetrieverService, INoteMan
     public async Task<IActionResult> Get(Guid id)
     {
         var note = await noteRetrieverService.GetByIdAsync(UserId, id);
-
+        
         if (note == null)
         {
             return NotFound($"Note with id {id} was not found");
         }
 
+        foreach (var resource in note.Resources)
+        {
+            resource.FilePath = Path.Combine("uploads", resource.FilePath);
+        }
+        
         HttpContext.Response.Cookies.Append("preferredLanguage", "en-US", new CookieOptions()
         {
             Expires = DateTime.Now.AddDays(1),

@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using NoteTakingApp.Core.Domains;
-using NoteTakingApp.Core.Models;
 
 namespace NoteTakingApp.Core.Entities.Domains;
 

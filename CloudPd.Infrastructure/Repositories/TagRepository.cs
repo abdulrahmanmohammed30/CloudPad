@@ -34,14 +34,14 @@ public class TagRepository(AppDbContext context) : ITagRepository
             .AnyAsync(t => t.UserId == userId && t.Name == tagName);
     }
 
-    public async Task<Tag> CreateAsync(int userId, Tag tag)
+    public async Task<Tag> CreateAsync(Tag tag)
     {
         context.Tags.Add(tag);
         await context.SaveChangesAsync();
         return tag;
     }
 
-    public async Task<Tag> UpdateAsync(int userId, Tag tag)
+    public async Task<Tag> UpdateAsync(Tag tag)
     {
         context.Tags.Update(tag);
         await context.SaveChangesAsync();
@@ -59,32 +59,34 @@ public class TagRepository(AppDbContext context) : ITagRepository
         if (existingTags.Count != tagIds.Count)
             throw new TagMismatchException("Some tags do not exist.");
 
-        note.Tags.RemoveAll(nt => tagIds.All(t => t != nt.TagId));
+        note!.Tags.RemoveAll(nt => tagIds.All(t => t != nt.TagId));
 
         foreach (var tag in existingTags)
-        {
             if (note.Tags.All(n => n.TagId != tag.TagId))
-            {
                 note.Tags.Add(tag);
-            }
-        }
 
         await context.SaveChangesAsync();
         return note.Tags.ToList();
     }
 
-    public async Task<bool> DeleteAsync(int userId, int tagId)
+    public async Task DeleteAsync(int userId, int tagId)
     {
         var existingTag = await GetByIdAsync(userId, tagId);
-        existingTag.IsDeleted = true;
+        existingTag!.IsDeleted = true;
         context.Update(existingTag);
-        return true;
+        await context.SaveChangesAsync();
     }
 
     public async Task<Tag?> GetByNameAsync(int userId, string name)
     {
         return await context.Tags
-                   .Where(t => t.UserId == userId && t.Name == name)
-                   .FirstOrDefaultAsync();
+            .Where(t => t.UserId == userId && t.Name == name)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task DeleteAllAsync(int userId)
+    {
+        await context.Tags
+            .Where(t => t.UserId == userId).ExecuteDeleteAsync();
     }
 }

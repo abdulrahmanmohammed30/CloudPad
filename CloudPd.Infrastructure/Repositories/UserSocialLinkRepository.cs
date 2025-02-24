@@ -14,10 +14,10 @@ public class UserSocialLinkRepository(AppDbContext context):IUserSocialLinkRepos
         return userSocialLink;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int userId, int socialLinkId)
     {
         var rows = await context.UserSocialLinks
-            .Where(l=>l.UserSocialLinkId == id)
+            .Where( l=>l.UserId == userId && l.UserSocialLinkId == socialLinkId)
             .ExecuteDeleteAsync();
         return rows > 0;
     }

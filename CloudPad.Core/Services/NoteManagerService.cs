@@ -27,33 +27,30 @@ public class NoteManagerService(
             Title = note.Title,
             Content = note.Content,
         };
+        
 
-        CategoryDto? categoryDto = null;
-        int? categoryId = null;
+        Category? category = null;
+
         if (note.CategoryId.HasValue)
         {
-            var categoryNoteTask = categoryService.FindCategoryIdByGuidAsync(userId, note.CategoryId.Value);
-            var categoryDtoTask = categoryService.GetByIdAsync(userId, note.CategoryId.Value);
-            await Task.WhenAll(categoryNoteTask, categoryDtoTask);
-            categoryId = await categoryNoteTask;
-            categoryDto = await categoryDtoTask;
+            category = await categoryRepository.GetByIdAsync(userId, note.CategoryId.Value);
         }
 
         newNote.Title = note.Title;
         newNote.Content = note.Content;
         newNote.IsFavorite = note.IsFavorite;
         newNote.UpdatedAt = DateTime.Now;
-        newNote.CategoryId = categoryId;
+        newNote.Category = category;
         newNote.UserId = userId;
         newNote.CreatedAt = DateTime.UtcNow;
         newNote.UpdatedAt = DateTime.UtcNow;
 
-        NoteDto notesDto = (await noteRepository.AddAsync(userId, newNote)).ToDto();
+        var notesDto = (await noteRepository.CreateAsync(newNote)).ToDto();
 
-        var tagsDto = await tagService.UpdateNoteTagsAsync(userId, notesDto.Id, note.Tags);
+        var tagsDto = await tagService.UpdateNoteTagsAsync(userId, notesDto.Id, note.Tags ?? []);
 
         notesDto.Tags = tagsDto;
-        notesDto.Category = categoryDto;
+        notesDto.Category = category?.ToDto();
 
         // Todo: Add resources 
         return notesDto;

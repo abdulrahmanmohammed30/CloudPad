@@ -5,34 +5,34 @@ using NoteTakingApp.Infrastructure.Context;
 
 namespace NoteTakingApp.Infrastructure.Repositories
 {
-    public class ResourceRepository(AppDbContext context): IResourceRepository
+    public class ResourceRepository(AppDbContext context) : IResourceRepository
     {
-        public async Task<Resource> CreateAsync(Guid noteId, Resource resource)
+        public async Task<Resource> CreateAsync(Resource resource)
         {
             context.Resources.Add(resource);
-
             await context.SaveChangesAsync();
             return resource;
         }
 
-        public async Task<List<Resource>> GetAllAsync(Guid noteId)
+        public async Task<List<Resource>> GetAllAsync(int userId, Guid noteId)
         {
-            return await context.Resources.Where(r=>r.Note.NoteGuid == noteId)
+            return await context.Resources.Where(r => r.Note.NoteGuid == noteId && r.Note.UserId == userId)
                 .ToListAsync();
         }
 
-        public async Task<bool> DeleteAsync(Guid resourceId)
+        public async Task DeleteAsync(int userId, Guid noteId, Guid resourceId)
         {
-            var existingResource = await GetByIdAsync(resourceId);
-            existingResource.IsDeleted = true;
+            var existingResource = await GetByIdAsync(userId, noteId, resourceId);
+            existingResource!.IsDeleted = true;
             context.Update(existingResource);
             await context.SaveChangesAsync();
-            return true;
         }
 
-        public async Task<Resource?> GetByIdAsync(Guid resourceId)
+        public async Task<Resource?> GetByIdAsync(int userId, Guid noteId, Guid resourceId)
         {
-            return await context.Resources.FirstOrDefaultAsync(r => r.ResourceId == resourceId);
+            return await context.Resources
+                .Where(r => r.ResourceId == resourceId && r.Note.NoteGuid == noteId && r.Note.UserId == userId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Resource> UpdateAsync(Resource resource)
@@ -42,9 +42,10 @@ namespace NoteTakingApp.Infrastructure.Repositories
             return resource;
         }
 
-        public async Task<bool> ExistsAsync(Guid resourceId)
+        public async Task<bool> ExistsAsync(int userId, Guid noteId, Guid resourceId)
         {
-            return await context.Resources.AnyAsync(r=>r.ResourceId == resourceId);
+            return await context.Resources.AnyAsync(r =>
+                r.ResourceId == resourceId && r.Note.NoteGuid == noteId && r.Note.UserId == userId);
         }
     }
 }

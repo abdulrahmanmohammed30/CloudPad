@@ -32,8 +32,8 @@ public class UserSocialLinkService(IUserSocialLinkRepository userSocialLinkRepos
         return (await userSocialLinkRepository.CreateAsync(userSocialLink)).ToDto();
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int userId, int socialLinkId)
     {
-         return await userSocialLinkRepository.DeleteAsync(id);
+         return await userSocialLinkRepository.DeleteAsync(userId, socialLinkId);
     }
 }

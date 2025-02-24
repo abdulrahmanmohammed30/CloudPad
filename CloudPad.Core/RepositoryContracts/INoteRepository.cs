@@ -30,10 +30,10 @@ namespace NoteTakingApp.Core.RepositoryContracts
         Task<IEnumerable<Note>> SortAsync(int userId, NoteSortableColumn noteSortableColumn, bool sortDescending = true,
             int pageNumber = 0, int pageSize = 20);
 
-        Task<Note> AddAsync(int userId, Note note);
+        Task<Note> CreateAsync(Note note);
         Task<Note> UpdateAsync(Note note);
         Task<Note?> RestoreAsync(int userId, Guid noteId);
-        Task<bool> DeleteAsync(int userId, Guid noteId);
+        Task DeleteAsync(int userId, Guid noteId);
         Task<bool> ExistsAsync(int userId, Guid noteId);
         Task<IEnumerable<Note>> FilterAsync(int userId, string title, string content, string tag, string category, bool isFavorite,
             bool isPinned, bool isArchived, int pageNumber, int pageSize);

@@ -5,5 +5,5 @@ namespace NoteTakingApp.Core.RepositoryContracts;
 public interface IUserSocialLinkRepository
 {
     Task<UserSocialLink> CreateAsync(UserSocialLink userSocialLink);
-    Task<bool> DeleteAsync(int id);
+    Task<bool> DeleteAsync(int userId, int socialLinkId);
 }

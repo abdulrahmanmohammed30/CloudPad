@@ -17,6 +17,8 @@ public interface ITagService
 
     Task<bool> DeleteAsync(int userId, int tagId);
     Task<TagDto?> GetByNameAsync(int userId, string name);
+
+    Task DeleteAllAsync(int userId);
 }
 
 

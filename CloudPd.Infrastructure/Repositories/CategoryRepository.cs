@@ -15,6 +15,7 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
             .Where(c => c.UserId == userId && c.CategoryGuid == categoryId)
             .FirstOrDefaultAsync();
     }
+    
 
     public async Task<List<Category>> GetAllAsync(int userId)
     {

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
 using NoteTakingApp.Core.Configurations;
-using NoteTakingApp.Core.Models;
+using NoteTakingApp.Core.Entities;
 
 namespace NoteTakingApp.Infrastructure.Configurations;
 

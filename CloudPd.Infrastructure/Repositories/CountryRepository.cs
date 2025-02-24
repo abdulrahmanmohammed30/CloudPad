@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NoteTakingApp.Core.Models;
+using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.RepositoryContracts;
 using NoteTakingApp.Infrastructure.Context;
 

@@ -4,7 +4,6 @@ using Microsoft.Identity.Client;
 using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Entities;
 using NoteTakingApp.Core.Entities.Domains;
-using NoteTakingApp.Core.Models;
 using NoteTakingApp.Infrastructure.Configurations;
 
 namespace NoteTakingApp.Infrastructure.Context;

@@ -20,11 +20,15 @@ namespace NoteTakingApp.Controllers
         UserManager<ApplicationUser> userManager) : Controller
     {
         public int UserId => HttpContext.GetUserId()!.Value;
+        private string UserIdentifier=> User.Claims.First(c=>c.Type == "userIdentifier").Value;
+        private string UploadsDirectoryPath => Path.Combine(webHostEnvironment.WebRootPath, $"uploads/{UserIdentifier}");
 
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             var user = await userService.GetUserByIdAsync(UserId);
+            if (string.IsNullOrEmpty(user.ProfileImageUrl) == false)
+                user.ProfileImageUrl = Path.Combine("uploads", user.ProfileImageUrl);
             return View(user);
         }
 
@@ -102,7 +106,7 @@ namespace NoteTakingApp.Controllers
             }
             else
             {
-                if (await userSocialLinkService.DeleteAsync(id) == false)
+                if (await userSocialLinkService.DeleteAsync(UserId, id) == false)
                 {
                     TempData["Error"] = "Failed to delete link";
                 }
@@ -112,11 +116,9 @@ namespace NoteTakingApp.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> ChangeProfileImage(IFormFile? ProfileImage)
+        public async Task<IActionResult> ChangeProfileImage(IFormFile? profileImage)
         {
-            ProfileImage = null;
-            
-            if (ProfileImage == null || ProfileImage.Length == 0)
+            if (profileImage == null || profileImage.Length == 0)
             {
                 TempData["Error"] = "file is empty";
             }
@@ -125,10 +127,10 @@ namespace NoteTakingApp.Controllers
                 try
                 {
                     var profileImageUrl =
-                        await uploadImageService.Upload(Path.Combine(webHostEnvironment.WebRootPath, "uploads"), ProfileImage);
+                        await uploadImageService.Upload(UploadsDirectoryPath, profileImage);
 
                     var user = await userManager.FindByIdAsync(UserId.ToString());
-                    var oldProfileImageUrl = user.ProfileImageUrl;
+                    var oldProfileImageUrl = Path.Combine(UploadsDirectoryPath, user.ProfileImageUrl);
 
                     user.ProfileImageUrl = profileImageUrl;
 

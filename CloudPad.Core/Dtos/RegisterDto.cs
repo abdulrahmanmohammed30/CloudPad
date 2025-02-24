@@ -19,7 +19,7 @@ public class RegisterDto
 
     [Required]
     [DataType(DataType.Upload)]
-    public IFormFile ImageFile { get; set; }
+    public IFormFile? ImageFile { get; set; }
     
     public int? CountryId { get; set; }
     
@@ -40,7 +40,7 @@ public class RegisterDto
     public string UserName { get; set; } = string.Empty;
     
     [Required]
-    [PasswordComplexity]
+    //[PasswordComplexity]
     [DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;
 

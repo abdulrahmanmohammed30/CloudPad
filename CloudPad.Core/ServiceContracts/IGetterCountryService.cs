@@ -1,5 +1,4 @@
 ﻿using NoteTakingApp.Core.DTO;
-using NoteTakingApp.Core.Models;
 
 namespace NoteTakingApp.Core.ServiceContracts;
 

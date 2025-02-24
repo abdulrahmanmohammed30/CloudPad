@@ -30,6 +30,14 @@ public class TagService(ITagRepository tagRepository,
         }) ?? throw new InvalidOperationException();
     }
 
+    public async Task DeleteAllAsync(int userId)
+    {
+        cache.Remove($"tags/{userId}");
+
+         await tagRepository.DeleteAllAsync(userId);
+    }
+
+
     public async Task<bool> ExistsAsync(int userId, int id)
     {
         return await tagRepository.ExistsAsync(userId, id);
@@ -67,7 +75,7 @@ public class TagService(ITagRepository tagRepository,
         var tag = tagDto.ToEntity();
         tag.UserId = userId;
 
-        var createdTag = await tagRepository.CreateAsync(userId, tag);
+        var createdTag = await tagRepository.CreateAsync(tag);
 
         cache.Remove($"tags/{userId}");
 
@@ -109,7 +117,7 @@ public class TagService(ITagRepository tagRepository,
         existingTag.Description = tagDto.Description;
         existingTag.UpdatedAt = DateTime.UtcNow;
 
-        var updatedTag = await tagRepository.UpdateAsync(userId, existingTag);
+        var updatedTag = await tagRepository.UpdateAsync(existingTag);
 
         cache.Remove($"tags/{userId}");
 
@@ -150,7 +158,7 @@ public class TagService(ITagRepository tagRepository,
         }
 
         tag.IsDeleted = true;
-        await tagRepository.UpdateAsync(userId, tag);
+        await tagRepository.UpdateAsync(tag);
 
         cache.Remove($"tags/{userId}");
 

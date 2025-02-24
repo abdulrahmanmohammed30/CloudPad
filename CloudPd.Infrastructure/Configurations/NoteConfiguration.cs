@@ -19,7 +19,7 @@ namespace NoteTakingApp.Infrastructure.Configurations
                 .HasMaxLength(150)
                 .IsRequired();
 
-            builder.Property(n=>n.Content)
+            builder.Property(n => n.Content)
                 .HasColumnType("NVARCHAR(MAX)")
                 .IsRequired(false);
 
@@ -29,9 +29,9 @@ namespace NoteTakingApp.Infrastructure.Configurations
                 .IsRequired();
 
             builder.Property(n => n.UpdatedAt)
-               .HasColumnType("DATETIME2")
-               .HasDefaultValueSql("SYSUTCDATETIME()")
-               .IsRequired();
+                .HasColumnType("DATETIME2")
+                .HasDefaultValueSql("SYSUTCDATETIME()")
+                .IsRequired();
 
             builder.HasOne<ApplicationUser>()
                 .WithMany(u => u.Notes)
@@ -41,8 +41,12 @@ namespace NoteTakingApp.Infrastructure.Configurations
 
             builder.HasMany(n => n.Tags)
                 .WithMany(t => t.Notes)
-                .UsingEntity("NoteTags");
-            
+                .UsingEntity<Dictionary<string, object>>(
+                    "NoteTags",
+                    j => j.HasOne<Tag>().WithMany().HasForeignKey("TagsTagId").OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<Note>().WithMany().HasForeignKey("NotesNoteId").OnDelete(DeleteBehavior.Cascade)
+                );
+
             builder.HasOne(n => n.Category)
                 .WithMany(c => c.Notes)
                 .HasForeignKey(n => n.CategoryId)
@@ -52,17 +56,17 @@ namespace NoteTakingApp.Infrastructure.Configurations
             builder.HasMany(n => n.Resources)
                 .WithOne(r => r.Note)
                 .HasForeignKey(r => r.NoteId)
-                 .IsRequired(false)
-                 .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(n=>n.NoteGuid)
-                   .HasDefaultValueSql("NEWSEQUENTIALID()")
-                   .IsRequired();
+            builder.Property(n => n.NoteGuid)
+                .HasDefaultValueSql("NEWSEQUENTIALID()")
+                .IsRequired();
 
             builder.HasIndex(n => n.NoteGuid).IsUnique();
 
             builder.Navigation(n => n.Tags).AutoInclude();
-            builder.Navigation(n=>n.Category).AutoInclude();
+            builder.Navigation(n => n.Category).AutoInclude();
 
             builder.HasQueryFilter(n => !n.IsDeleted);
         }

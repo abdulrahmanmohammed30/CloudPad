@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
 
-namespace NoteTakingApp.Core.Models;
+namespace NoteTakingApp.Core.Entities;
 
 public class Country
 {

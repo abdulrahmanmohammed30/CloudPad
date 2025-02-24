@@ -1,7 +1,6 @@
 ﻿using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Entities.Domains;
-using NoteTakingApp.Core.Models;
 
 namespace NoteTakingApp.Core.Mappers;
 

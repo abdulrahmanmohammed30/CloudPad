@@ -1,4 +1,4 @@
-﻿using NoteTakingApp.Core.Models;
+﻿using NoteTakingApp.Core.Entities;
 
 namespace NoteTakingApp.Core.RepositoryContracts;
 

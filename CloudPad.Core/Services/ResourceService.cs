@@ -57,24 +57,24 @@ namespace NoteTakingApp.Core.Services
                 Note = note
         };
 
-            var createdResource = await resourceRepository.CreateAsync(resourceDto.NoteId, resource);
+            var createdResource = await resourceRepository.CreateAsync(resource);
 
             return createdResource.ToDto();
         }
 
-        public async Task<List<ResourceDto>> GetAllResources(Guid noteId)
+        public async Task<List<ResourceDto>> GetAllResources(int userId, Guid noteId)
         {
-            return (await resourceRepository.GetAllAsync(noteId)).ToDtoList();
+            return (await resourceRepository.GetAllAsync(userId, noteId)).ToDtoList();
         }
 
-        public async Task<bool> DeleteAsync(Guid resourceId)
+        public async Task DeleteAsync(int userId, Guid noteId, Guid resourceId)
         {
             if (resourceId == Guid.Empty)
             {
                 throw new InvalidResourceIdException("Resource id is required");
             }
 
-            var resource = await resourceRepository.GetByIdAsync(resourceId);
+            var resource = await resourceRepository.GetByIdAsync(userId, noteId, resourceId);
 
             if (resource == null)
             {
@@ -83,12 +83,9 @@ namespace NoteTakingApp.Core.Services
 
             resource.IsDeleted = true;
             await resourceRepository.UpdateAsync(resource);
-
-
-            return true;
         }
 
-        public async Task<ResourceDto> UpdateAsync(int userId, UpdateResourceDto resourceDto)
+        public async Task<ResourceDto> UpdateAsync(int userId, Guid noteId, UpdateResourceDto resourceDto)
         {
 
             if (resourceDto == null) throw new ResourceArgumentNullException(nameof(resourceDto));
@@ -114,7 +111,7 @@ namespace NoteTakingApp.Core.Services
                 throw new NoteNotFoundException($"Note with Id {resourceDto.NoteId} was not found");
             }
 
-            var resource = await resourceRepository.GetByIdAsync(resourceDto.ResourceId);
+            var resource = await resourceRepository.GetByIdAsync(userId, noteId, resourceDto.ResourceId);
 
             if(resource == null)
             {
@@ -130,9 +127,9 @@ namespace NoteTakingApp.Core.Services
             return updatedResource.ToDto();
         }
 
-        public async Task<ResourceDto?> GetByIdAsync(Guid resourceId)
+        public async Task<ResourceDto?> GetByIdAsync(int userId, Guid noteId, Guid resourceId)
         {
-            return (await resourceRepository.GetByIdAsync(resourceId))?.ToDto();
+            return (await resourceRepository.GetByIdAsync(userId, noteId, resourceId))?.ToDto();
         }
     }
 }

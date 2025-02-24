@@ -9,11 +9,11 @@ namespace NoteTakingApp.Core.RepositoryContracts
 {
     public interface IResourceRepository
     {
-        Task<Resource> CreateAsync(Guid noteId, Resource resource);
-        Task<List<Resource>> GetAllAsync(Guid noteId);
-        Task<bool> DeleteAsync(Guid resourceId);
-        Task<Resource?> GetByIdAsync(Guid resourceId);
+        Task<Resource> CreateAsync(Resource resource);
+        Task<List<Resource>> GetAllAsync(int userId, Guid noteId);
+        Task DeleteAsync(int userId, Guid noteId, Guid resourceId);
+        Task<Resource?> GetByIdAsync(int userId, Guid noteId, Guid resourceId);
         public Task<Resource> UpdateAsync(Resource resource);
-        Task<bool> ExistsAsync(Guid resourceId);
+        Task<bool> ExistsAsync(int userId, Guid noteId, Guid resourceId);
     }
 }

@@ -14,14 +14,14 @@ namespace NoteTakingApp.Core.Services
             return (await userRepository.GetUsersAsync()).Select(c => c.ToDto()).OrderBy(c => c.Id).ToList();
         }
 
-        public async Task<ProfileDto> GetUserByIdAsync(int userId)
+        public async Task<ProfileDto?> GetUserByIdAsync(int userId)
         {
-            return (await userRepository.GetUserByIdAsync(userId)).ToProfileDto();
+            return (await userRepository.GetUserByIdAsync(userId))?.ToProfileDto();
         }
 
-        public async Task<ProfileDto> GetUserByNameAsync(string username)
+        public async Task<ProfileDto?> GetUserByNameAsync(string username)
         {
-            return (await userRepository.GetUserByNameAsync(username)).ToProfileDto();
+            return (await userRepository.GetUserByNameAsync(username))?.ToProfileDto();
         }
 
         public Task<bool> ExistsAsync(int userId)
@@ -53,5 +53,11 @@ namespace NoteTakingApp.Core.Services
             var profileDto = (await userRepository.UpdateAsync(user)).ToProfileDto();
             return profileDto;
         }
+
+        public async Task DeleteUserAsync(int userId)
+        {
+             await userRepository.DeleteUserAsync(userId);
+        }
+
     }
 }

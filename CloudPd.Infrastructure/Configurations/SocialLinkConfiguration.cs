@@ -18,6 +18,11 @@ public class SocialLinkConfiguration:IEntityTypeConfiguration<UserSocialLink>
         builder.Property(b=>b.Url)
             .HasColumnType("nvarchar(max)")
             .IsRequired();
+
+        builder.HasOne(s => s.User)
+            .WithMany(u => u.SocialLinks)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

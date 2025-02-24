@@ -1,5 +1,5 @@
 ﻿using NoteTakingApp.Core.DTO;
-using NoteTakingApp.Core.Models;
+using NoteTakingApp.Core.Entities;
 
 namespace NoteTakingApp.Core.Mappers;
 

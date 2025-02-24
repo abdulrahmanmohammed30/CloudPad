@@ -12,5 +12,7 @@ namespace NoteTakingApp.Core.RepositoryContracts
         Task<ApplicationUser?> GetUserByNameAsync(string username);
         Task<bool> ExistsAsync (int userId);
         Task<ApplicationUser> UpdateAsync(ApplicationUser user);
+        Task DeleteUserAsync(int userId);
+
     }
 }

@@ -21,6 +21,16 @@
                 <input asp-for="Password" type="password" class="form-control" required>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
+            
+            @if (ViewBag.Errors != null)
+            {
+                foreach (var error in ViewBag.Errors)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @error
+                    </div>
+                }
+            }
 
             @if(ViewBag?.EmailNotConfirmed == true)
             {

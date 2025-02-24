@@ -2,6 +2,7 @@
 using NoteTakingApp.Core.Domains;
 using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Entities.Domains;
+using NoteTakingApp.Core.Exceptions;
 using NoteTakingApp.Core.RepositoryContracts;
 using NoteTakingApp.Infrastructure.Context;
 
@@ -86,5 +87,32 @@ public class UserRepository(AppDbContext context) : IUserRepository
         context.Update(user);
         await context.SaveChangesAsync();
         return user;
+    }
+
+    public async Task DeleteUserAsync(int userId)
+    {
+        await using (var transaction = await context.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                var user = await context.Users.FirstOrDefaultAsync(u=>u.Id == userId);
+                if (user == null)
+                {
+                    throw new UserNotFoundException();
+                }
+
+                context.Tags.RemoveRange(context.Tags.Where(t => t.UserId == userId));
+                await context.SaveChangesAsync();
+                
+                context.Remove(user);
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+               await transaction.RollbackAsync();
+               throw;
+            }
+        }
     }
 }

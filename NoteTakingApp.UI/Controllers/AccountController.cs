@@ -9,8 +9,11 @@ using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Mappers;
 using NoteTakingApp.Core.ServiceContracts;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.Build.Framework;
 using NoteTakingApp.Core.Entities.Domains;
+using NoteTakingApp.Helpers;
 
 namespace NoteTakingApp.Controllers;
 
@@ -24,10 +27,23 @@ public class AccountController(
     IEmailService emailService,
     IUploadDocumentService uploadDocumentService,
     IWebHostEnvironment webHostEnvironment,
-    IUploadImageService uploadImageService)
+    IUploadImageService uploadImageService,
+    ITagService tagService,
+    IUserService userService
+    )
     : Controller
 {
     private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
+    private string UserIdentifier=> User.Claims.First(c=>c.Type == "userIdentifier").Value;
+
+    private string UploadsDirectoryPath => Path.Combine(webHostEnvironment.WebRootPath, $"uploads/{UserIdentifier}");
+
+    [HttpGet("")]
+    [Authorize]
+    public IActionResult Index()
+    {
+        return View();
+    }
 
 
     [HttpGet("register")]
@@ -61,18 +77,7 @@ public class AccountController(
         }
 
         ApplicationUser user = registerDto.ToEntity();
-
-    try
-        {
-            if (registerDto.ImageFile != null && registerDto.ImageFile.Length != 0)
-            {
-                user.ProfileImageUrl = await uploadImageService.Upload(Path.Combine(webHostEnvironment.WebRootPath, "uploads"), registerDto.ImageFile);
-            }
-        }catch(Exception ex)
-        {
-            ModelState.AddModelError("", ex.Message);
-            return View(registerDto);
-        }
+        
 
         // Create the user 
         var userIdentityResult = await userManager.CreateAsync(user, registerDto.Password);
@@ -89,21 +94,35 @@ public class AccountController(
             return View(registerDto);
         }
 
+        var userIdentifier = Guid.NewGuid().ToString();
+        var uploadsDirectoryPath = Path.Combine(webHostEnvironment.WebRootPath, $"uploads/{userIdentifier}");
+        await userManager.AddClaimAsync(user, new Claim("userIdentifier", userIdentifier ));
+        
+        Directory.CreateDirectory(uploadsDirectoryPath);
+
+        try
+        {
+            if (registerDto.ImageFile != null && registerDto.ImageFile.Length != 0)
+            {
+                user.ProfileImageUrl =
+                    await uploadImageService.Upload(uploadsDirectoryPath,
+                        registerDto.ImageFile);
+            }
+        }
+        catch (Exception ex)
+        {
+            // ModelState.AddModelError("", ex.Message);
+            // return View(registerDto);
+            // notify the user 
+        }
 
         // generate email confirmation token 
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var encodedToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(token))
-            .Replace("+", "-")  // Replace + with -
-            .Replace("/", "_")  // Replace / with _
-            .TrimEnd('=');      // Remove padding
-        var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
-        // var confirmationLink = $"{baseUrl}/account/confirmemail?userId={user.Id}&token={encodedToken}";
 
         var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);
-
-
-
-        await emailService.SendEmailAsync(user.Email!, "Confirm Your Email", $"Please confirm your email by clicking {confirmationLink}.");
+        
+        await emailService.SendEmailAsync(user.Email!, "Confirm Your Email",
+            $"Please confirm your email by clicking {confirmationLink}.");
 
         // The role "User" always exists, Migration folder contains some seeded roles
         // Assign a role to the user 
@@ -113,7 +132,7 @@ public class AccountController(
             // Todo: Log a warning message 
         }
 
-
+        
         ViewBag.userEmail = user.Email;
         return View("RegistrationSuccessful");
 
@@ -137,7 +156,7 @@ public class AccountController(
     // if manage to log in then go to notes page 
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto loginDto, string? ReturnUrl)
+    public async Task<IActionResult> Login(LoginDto loginDto, string? returnUrl)
     {
         if (ModelState.IsValid == false)
         {
@@ -147,12 +166,17 @@ public class AccountController(
 
         var user = await userManager.FindByNameAsync(loginDto.UserName);
 
+        if (user == null)
+        {
+            ViewBag.Errors = new List<string> { "Invalid username or password" };
+            return View(loginDto);
+        }
+        
         if (user.EmailConfirmed == false)
         {
             ModelState.AddModelError(string.Empty, "You must confirm your email before logging in.");
             ViewBag.EmailNotConfirmed = true;
             return View(loginDto);
-
         }
 
         var loginResult = await signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
@@ -162,14 +186,15 @@ public class AccountController(
             ModelState.AddModelError("", "Invalid username or password");
             return View(loginDto);
         }
-
-        if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-            return LocalRedirect(ReturnUrl);
+        
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return LocalRedirect(returnUrl);
 
         return RedirectToAction(nameof(NoteController.Index), "Note");
     }
 
     [HttpPost("signout")]
+    [Authorize]
     public async Task<IActionResult> Signout()
     {
         await signInManager.SignOutAsync();
@@ -194,16 +219,14 @@ public class AccountController(
     }
 
 
-
     [HttpGet("confirmEmail")]
     public async Task<IActionResult> ConfirmEmail(string userId, string token)
     {
-        var decodedToken = Encoding.UTF8.GetString(Convert.FromBase64String(
-            token.Replace("-", "+").Replace("_", "/") + new string('=', (4 - token.Length % 4) % 4)));
-        if (userId == null || token == null)
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
         {
             return BadRequest("Invalid email confirmation request");
         }
+
         var user = await userManager.FindByIdAsync(userId);
 
         if (user == null)
@@ -247,22 +270,41 @@ public class AccountController(
             ModelState.AddModelError(string.Empty, "You must confirm your email before logging in.");
             ViewBag.EmailNotConfirmed = true;
             return View(rorgetPasswordDto);
-
         }
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
 
         var confirmationLink = Url.Action("ResetPassword", "Account", new { userId = user.Id, token }, Request.Scheme);
 
-        await emailService.SendEmailAsync(rorgetPasswordDto.Email, "Reset your account pasword", $"Please confirm your email by clicking {confirmationLink}");
+        await emailService.SendEmailAsync(rorgetPasswordDto.Email, "Reset your account pasword",
+            $"Please confirm your email by clicking {confirmationLink}");
 
         ViewBag.Email = rorgetPasswordDto.Email;
         return View("ForgetPasswordConfirmation");
     }
 
     [HttpGet("reset-password")]
-    public IActionResult ResetPassword(string userId, string token)
+    public async Task<IActionResult> ResetPassword(string userId, string token)
     {
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+        {
+            return BadRequest("Invalid password reset request");
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound($"Unable to load user.");
+        }
+
+        var isValidToken = await userManager.VerifyUserTokenAsync(user,
+            userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token);
+
+        if (isValidToken == false)
+        {
+            return BadRequest("Invalid password reset request");
+        }
+
         var resetPasswordDto = new ResetPasswordDto()
         {
             UserId = userId,
@@ -293,10 +335,139 @@ public class AccountController(
             {
                 ModelState.AddModelError("", error.Description);
             }
+
             return View(resetPasswordDto);
         }
+
         return View("ResetPasswordConfirmation");
     }
+
+    [HttpGet("[action]")]
+    [Authorize]
+    public IActionResult ChangePassword()
+    {
+        return View(new ChangePasswordDto());
+    }
+
+    [HttpPost("[action]")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+    {
+        if (ModelState.IsValid == false)
+        {
+            return View(changePasswordDto);
+        }
+
+        var user = await userManager.FindByIdAsync(HttpContext.GetUserId()!.Value.ToString());
+        if (user == null)
+        {
+            return NotFound($"Unable to load user.");
+        }
+
+        var result =
+            await userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+
+        if (result.Succeeded == false)
+        {
+            TempData["Error"] = "Unable to change password";
+        }
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet("[action]")]
+    [Authorize]
+    public IActionResult ChangeEmail()
+    {
+        return View(new UpdateEmailDto());
+    }
+
+    [HttpPost("[action]")]
+    [Authorize]
+    public async Task<IActionResult> ChangeEmail(UpdateEmailDto updateEmailDto)
+    {
+        if (ModelState.IsValid == false)
+        {
+            return View(updateEmailDto);
+        }
+
+        var user = await userManager.FindByIdAsync(HttpContext.GetUserId()!.Value.ToString());
+        if (user == null)
+        {
+            return NotFound($"Unable to load user.");
+        }
+
+        var token = await userManager.GenerateChangeEmailTokenAsync(user, updateEmailDto.Email);
+        var confirmChangeToken = Url.Action("ConfirmEmailChange", "Account",
+            new { UserId = user.Id, Email = updateEmailDto.Email, token }, Request.Scheme);
+
+        await emailService.SendEmailAsync(updateEmailDto.Email, "Confirm Update Email"
+            , $"Please confirm your email by clicking {confirmChangeToken}");
+
+        ViewBag.userEmail = user.Email;
+
+        TempData["Notification"] = "Email change request has been sent to your email address.";
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet("[action]")]
+    [Authorize]
+    public async Task<IActionResult> ConfirmEmailChange(ConfirmEmailChangeDto confirmEmailChangeDto)
+    {
+        if (ModelState.IsValid == false)
+        {
+            return BadRequest("Invalid data");
+        }
+
+        var user = await userManager.FindByIdAsync(HttpContext.GetUserId()!.Value.ToString());
+        if (user == null)
+        {
+            return NotFound($"Unable to load user.");
+        }
+
+        var result = await userManager.ChangeEmailAsync(user, confirmEmailChangeDto.Email, confirmEmailChangeDto.Token);
+        if (result.Succeeded == false)
+        {
+            return BadRequest("Email confirmation failed.");
+        }
+
+        TempData["Notification"] = "Email has been updated successfully.";
+
+        return RedirectToAction("Index");
+    }
+
+    [HttpGet("[action]")]
+    [Authorize]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        try
+        {
+            var user = await userManager.FindByIdAsync(HttpContext.GetUserId()!.Value.ToString());
+            if (user == null)
+            {
+                return NotFound($"Unable to load user.");
+            }
+
+            await userService.DeleteUserAsync(user.Id);
+            if (Directory.Exists(UploadsDirectoryPath))
+            {
+                Directory.Delete(UploadsDirectoryPath, true);
+            }
+            // await tagService.DeleteAllAsync(user.Id);
+            // var result = await userManager.DeleteAsync(user);
+            // if (result.Succeeded == false)
+            // {
+            //     throw new InvalidOperationException("Unexpected error occurred deleting user.");
+            // }
+
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Unable to delete account";
+            return RedirectToAction("Index");
+        }
+    }
 }
-
-
