@@ -54,7 +54,6 @@ public class AccountController(
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
         ViewBag.Countries = await getterCountryService.GetAllCountries();
-
         if (!ModelState.IsValid)
         {
             // Todo: Log errors  

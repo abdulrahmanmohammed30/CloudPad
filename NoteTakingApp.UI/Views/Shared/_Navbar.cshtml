@@ -1,4 +1,4 @@
-﻿@if (ViewContext.HttpContext.Request.Path != "/")
+﻿@if (User.Identity.IsAuthenticated && ViewContext.HttpContext.Request.Path != "/")
 {
 
     <!-- Main Navbar -->

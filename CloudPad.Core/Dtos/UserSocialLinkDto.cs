@@ -1,4 +1,6 @@
-﻿namespace NoteTakingApp.Core.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NoteTakingApp.Core.Dtos;
 
 public class UserSocialLinkDto
 {

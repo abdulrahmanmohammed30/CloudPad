@@ -52,10 +52,15 @@ builder.Services.AddScoped<IUserValidationService, UserValidationService>();
 builder.Services.AddScoped<EnsureUserIdExistsFilter>();
 builder.Services.AddScoped<IUploadDocumentService, UploadDocumentService>();
 builder.Services.AddScoped<IUploadImageService, UploadImageService>();
+builder.Services.AddScoped<IUserSocialLinkRepository, UserSocialLinkRepository>();
+builder.Services.AddScoped<IUserSocialLinkService, UserSocialLinkService>();
 
 builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
 
 builder.Services.AddScoped<IResourceService, ResourceService>();
+
+builder.Services.AddScoped<ILanguageRepository, LanguageRepository>();
+builder.Services.AddScoped<ILanguageGetterService, LanguageGetterService>();
 
 builder.Services.AddScoped<NoteExceptionFilter>();
 builder.Services.AddScoped<CategoryExceptionFilter>();

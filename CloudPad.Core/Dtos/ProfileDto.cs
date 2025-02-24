@@ -15,9 +15,10 @@ public class ProfileDto
     public string? Bio { get; set; }
     public int? PreferredLanguageId { get; set; }
     public string? PreferredLanguageName { get; set; }
-    public List<UserSocialLinkDto> SocialLinks { get; set; } 
+    public List<UserSocialLinkDto>? SocialLinks { get; set; } 
     public int NotesCount { get; set; }
     public int CategoriesCount { get; set; }
     public int TagsCount { get; set; }
 
 }
+

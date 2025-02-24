@@ -1,4 +1,5 @@
 ﻿using NoteTakingApp.Core.Domains;
+using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Entities.Domains;
 
 
@@ -10,5 +11,6 @@ namespace NoteTakingApp.Core.RepositoryContracts
         Task<ApplicationUser?> GetUserByIdAsync(int userId);
         Task<ApplicationUser?> GetUserByNameAsync(string username);
         Task<bool> ExistsAsync (int userId);
+        Task<ApplicationUser> UpdateAsync(ApplicationUser user);
     }
 }

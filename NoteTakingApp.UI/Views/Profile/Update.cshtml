@@ -1,0 +1,80 @@
+﻿@using NoteTakingApp.Core.DTO
+@using Org.BouncyCastle.Crypto.Engines
+@model NoteTakingApp.Core.Dtos.UpdateProfileDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    var d = Model;
+    ViewData["Title"] = "Update Profile";
+    var countries = (ViewBag.Countries as List<CountryDto>).Select(c=> new SelectListItem()
+    {
+        Text = c.Name,
+        Value = c.Id.ToString(), 
+        Selected = Model.CountryId == c.Id
+    });
+
+    var languages = (ViewBag.Languages as List<LanguageDto>).Select(l => new SelectListItem()
+    {
+        Text = l.Name,
+        Value = l.LanguageId.ToString()
+    });
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header text-white" style="background-color:#0c8195;">
+                    <h3 class="mb-0">Update Profile</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Update" asp-controller="Profile" method="post" class="needs-validation" novalidate>
+                        <input asp-for="Id" type="hidden" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter your name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label"></label>
+                            <textarea asp-for="Bio" class="form-control" rows="4" placeholder="Tell us about yourself"></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CountryId" class="form-label">Country</label>
+                            <select asp-for="CountryId" class="form-select form-control" asp-items="@countries">
+                                <option value="">Select a country</option>
+                            </select>
+                            <span asp-validation-for="CountryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PreferredLanguageId" class="form-label">Preferred Language</label>
+                            <select asp-for="PreferredLanguageId" class="form-select form-control" asp-items="@languages">
+                                <option value="">Select a language</option>
+                            </select>
+                            <span asp-validation-for="PreferredLanguageId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BirthDate" class="form-label"></label>
+                            <input asp-for="BirthDate" type="date" class="form-control" />
+                            <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

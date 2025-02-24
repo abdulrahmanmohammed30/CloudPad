@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NoteTakingApp.Core.Domains;
+using NoteTakingApp.Core.Dtos;
 using NoteTakingApp.Core.Entities.Domains;
 using NoteTakingApp.Core.RepositoryContracts;
 using NoteTakingApp.Infrastructure.Context;
@@ -78,5 +79,12 @@ public class UserRepository(AppDbContext context) : IUserRepository
     public async Task<bool> ExistsAsync(int userId)
     {
         return await context.EnrichedUsers.AnyAsync(u => u.Id == userId);
+    }
+
+    public async Task<ApplicationUser> UpdateAsync(ApplicationUser user)
+    {
+        context.Update(user);
+        await context.SaveChangesAsync();
+        return user;
     }
 }

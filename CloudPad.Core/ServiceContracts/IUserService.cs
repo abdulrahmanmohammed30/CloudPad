@@ -9,5 +9,7 @@ namespace NoteTakingApp.Core.ServiceContracts
         Task<bool> ExistsAsync(int userId);
         Task<ProfileDto> GetUserByIdAsync(int userId);
         Task<ProfileDto> GetUserByNameAsync(string username);
+
+        Task<ProfileDto> UpdateProfileAsync(UpdateProfileDto profile);
     }
 }
