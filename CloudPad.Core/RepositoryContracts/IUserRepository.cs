@@ -1,9 +1,9 @@
-﻿using NoteTakingApp.Core.Domains;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities.Domains;
+﻿using CloudPad.Core.Domains;
+using CloudPad.Core.Entities.Domains;
+using CloudPad.Core.Dtos;
 
 
-namespace NoteTakingApp.Core.RepositoryContracts
+namespace CloudPad.Core.RepositoryContracts
 {
     public interface IUserRepository
     {

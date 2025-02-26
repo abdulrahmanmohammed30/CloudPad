@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.Enums;
+﻿namespace CloudPad.Core.Enums;
 
 public enum NoteSearchableColumn
 {

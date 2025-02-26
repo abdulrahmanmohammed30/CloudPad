@@ -1,8 +1,8 @@
-﻿using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
-using NoteTakingApp.Core.Mappers;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Entities;
+using CloudPad.Core.Mappers;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 

@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.Attributes.Enums;
+﻿namespace CloudPad.Core.Attributes.Enums;
 
 public enum UserRole
 {

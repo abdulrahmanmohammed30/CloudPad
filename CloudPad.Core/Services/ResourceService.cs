@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
-using NoteTakingApp.Core.Exceptions;
-using NoteTakingApp.Core.Mappers;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Entities;
+using CloudPad.Core.Exceptions;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
+using Microsoft.AspNetCore.Http;
+using CloudPad.Core.Mappers;
 
-namespace NoteTakingApp.Core.Services
+namespace CloudPad.Core.Services
 {
     public class ResourceService(INoteRepository noteRepository, IResourceRepository resourceRepository,
        IUploadDocumentService  uploadDocumentService ) : IResourceService

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NoteTakingApp.Core.Dtos;
+namespace CloudPad.Core.Dtos;
 
 public class ChangePasswordDto
 {

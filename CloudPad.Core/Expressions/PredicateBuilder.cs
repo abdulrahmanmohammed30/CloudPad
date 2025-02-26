@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace NoteTakingApp.Core.Expressions;
+namespace CloudPad.Core.Expressions;
 
 public static class PredicateBuilder
 {

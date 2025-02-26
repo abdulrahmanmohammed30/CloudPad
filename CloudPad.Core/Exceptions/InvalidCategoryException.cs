@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NoteTakingApp.Core.Exceptions
+namespace CloudPad.Core.Exceptions
 {
     public class InvalidCategoryException:Exception
     {

@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Exceptions;
-using NoteTakingApp.Core.Mappers;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Exceptions;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
+using Microsoft.Extensions.Caching.Memory;
+using CloudPad.Core.Mappers;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class CategoryService(ICategoryRepository categoryRepository, IMemoryCache cache, IUserValidationService userValidationService) : ICategoryService
 {

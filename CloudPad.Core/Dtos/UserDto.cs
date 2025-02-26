@@ -1,6 +1,6 @@
-﻿using NoteTakingApp.Core.Attributes.Enums;
+﻿using CloudPad.Core.Attributes.Enums;
 
-namespace NoteTakingApp.Core.Dtos;
+namespace CloudPad.Core.Dtos;
 
 public class UserDto
 {

@@ -1,7 +1,7 @@
-﻿using NoteTakingApp.Core.Entities;
-using NoteTakingApp.Core.Enums;
+﻿using CloudPad.Core.Entities;
+using CloudPad.Core.Enums;
 
-namespace NoteTakingApp.Core.RepositoryContracts
+namespace CloudPad.Core.RepositoryContracts
 {
     public interface INoteRepository
     {

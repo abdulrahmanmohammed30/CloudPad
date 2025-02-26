@@ -1,7 +1,7 @@
-﻿using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Entities;
 
-namespace NoteTakingApp.Core.ServiceContracts
+namespace CloudPad.Core.ServiceContracts
 {
     public interface IResourceService
     {

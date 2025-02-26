@@ -1,0 +1,74 @@
+﻿@model List<NoteDto>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CloudPad Notes Export</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .table th { background-color: #f8f9fa; font-weight: bold; }
+        .note-container { page-break-after: always; padding: 20px; border-bottom: 2px solid #ddd; }
+        .note-title { font-size: 22px; font-weight: bold; color: #007bff; }
+        .note-content { margin-top: 10px; font-size: 16px; }
+        .note-tags { font-style: italic; color: #666; }
+        .resources img { max-width: 100%; height: auto; display: block; margin-top: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .footer { text-align: center; font-size: 12px; margin-top: 20px; color: #666; }
+        .page-number { text-align: center; font-size: 12px; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    @* <h1 class="text-center text-primary my-4">📜 CloudPad Notes Export</h1> *@
+
+    @foreach (var note in Model)
+    {
+    <div class="note-container">
+        <h2 class="note-title">@note.Title</h2>
+
+        <table class="table table-bordered">
+            <tr>
+                <th>Content</th>
+                <td>@Html.Raw(note.Content)</td>
+            </tr>
+            <tr>
+                <th>Tags</th>
+                <td>@string.Join(", ", note.Tags.Select(t => t.Name))</td>
+            </tr>
+            <tr>
+                <th>Category</th>
+                <td>@(note.Category != null ? note.Category.Name : "No Category")</td>
+            </tr>
+        </table>
+
+        @if (note.Resources.Any())
+        {
+        <h4 class="text-secondary">Attached Images</h4>
+        <div class="row">
+            @foreach (var resource in note.Resources)
+            {
+            <div class="col-md-4 text-center">
+                <strong>@resource.DisplayName</strong>
+                @if (!string.IsNullOrEmpty(resource.Description))
+                {
+                <p>@resource.Description</p>
+                }
+                <img src="@resource.FilePath" class="img-fluid rounded shadow-sm" alt="@resource.DisplayName" />
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+
+    <div class="page-number">
+        Page <span class="page"></span>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
-﻿using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class NoteValidatorService(INoteRepository noteRepository):INoteValidatorService
 {

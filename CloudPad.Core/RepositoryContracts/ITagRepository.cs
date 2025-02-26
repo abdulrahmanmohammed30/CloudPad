@@ -1,7 +1,7 @@
-﻿using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
+﻿using CloudPad.Core.Entities;
+using CloudPad.Core.Dtos;
 
-namespace NoteTakingApp.Core.RepositoryContracts;
+namespace CloudPad.Core.RepositoryContracts;
 
 public interface ITagRepository
 {

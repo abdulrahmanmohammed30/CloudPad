@@ -1,8 +1,8 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using NoteTakingApp.Core.Configurations;
-using NoteTakingApp.Core.ServiceContracts;
+using CloudPad.Core.Configurations;
+using CloudPad.Core.ServiceContracts;
 
 public class EmailService : IEmailService
 {

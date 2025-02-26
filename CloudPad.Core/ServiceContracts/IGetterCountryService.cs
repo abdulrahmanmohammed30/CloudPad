@@ -1,6 +1,6 @@
-﻿using NoteTakingApp.Core.DTO;
+﻿using CloudPad.Core.DTO;
 
-namespace NoteTakingApp.Core.ServiceContracts;
+namespace CloudPad.Core.ServiceContracts;
 
 public interface IGetterCountryService
 {

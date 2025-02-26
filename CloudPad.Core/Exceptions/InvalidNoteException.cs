@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace NoteTakingApp.Core.Exceptions
+namespace CloudPad.Core.Exceptions
 {
     internal class InvalidNoteException : Exception
     {

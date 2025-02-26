@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 
 
-namespace NoteTakingApp.Core.ServiceContracts
+namespace CloudPad.Core.ServiceContracts
 {
     public interface IUploadDocumentService
     {

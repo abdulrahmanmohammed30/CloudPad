@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using NoteTakingApp.Core.DTO;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
+using Microsoft.Extensions.Caching.Memory;
+using CloudPad.Core.DTO;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class LanguageGetterService(ILanguageRepository languageRepository, IMemoryCache cache) : ILanguageGetterService
 {

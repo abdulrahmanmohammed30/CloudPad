@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace NoteTakingApp.Core.Dtos;
+namespace CloudPad.Core.Dtos;
 
 public class CreateResourceDto
 {

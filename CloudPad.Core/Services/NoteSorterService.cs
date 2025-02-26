@@ -1,11 +1,11 @@
-﻿using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Enums;
-using NoteTakingApp.Core.Exceptions;
-using NoteTakingApp.Core.Mappers;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Enums;
+using CloudPad.Core.Exceptions;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
+using CloudPad.Core.Mappers;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class NoteSorterService(INoteRepository noteRepository, IUserValidationService userValidationService)
 :INoteSorterService

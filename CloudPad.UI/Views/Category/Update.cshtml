@@ -1,0 +1,60 @@
+﻿@model CloudPad.Core.Dtos.UpdateCategoryDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Update Category";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header text-center text-white" style="background-color:#0c8195; ">
+                    <h4 style="color:white;">Update Category</h4>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Update" asp-controller="Category" method="post">
+                        <input type="hidden" asp-for="CategoryId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Category Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter category name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter description (optional)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsFavorite" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsFavorite" class="form-check-label">Mark as Favorite</label>
+                        </div>
+
+                        @if (ViewBag.Errors != null)
+                        {
+                            foreach (var error in ViewBag.Errors)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @error.ErrorMessage
+                                </div>
+                            }
+                        }
+
+                        <div class="d-flex align-items-center" style="display:flex;align-items:center;gap:1;">
+                            <button type="submit" class="btn btn-success mr-3">Update</button>
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

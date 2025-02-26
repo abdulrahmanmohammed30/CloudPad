@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace NoteTakingApp.Core.Dtos;
+namespace CloudPad.Core.Dtos;
 
 public class UserSocialLinkDto
 {

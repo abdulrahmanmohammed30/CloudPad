@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.Dtos;
+﻿namespace CloudPad.Core.Dtos;
 
 public class TagDto
 {

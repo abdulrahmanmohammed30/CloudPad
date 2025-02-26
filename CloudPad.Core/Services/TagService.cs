@@ -1,20 +1,21 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
-using NoteTakingApp.Core.Exceptions;
-using NoteTakingApp.Core.Mappers;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Exceptions;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
+using Microsoft.Extensions.Caching.Memory;
+using CloudPad.Core.Entities;
+using CloudPad.Core.Mappers;
+using Microsoft.AspNetCore.Http;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class TagService(ITagRepository tagRepository,
-    IUserValidationService userValidationService, IMemoryCache cache) : ITagService
+    IUserValidationService userValidationService, IMemoryCache cache, IHttpContextAccessor httpContextAccessor) : ITagService
 {
     public async Task<TagDto?> GetByIdAsync(int userId, int id)
     {
         await userValidationService.EnsureUserValidation(userId);
-
+        
         var tag = await tagRepository.GetByIdAsync(userId, id);
         return tag?.ToDto();
     }

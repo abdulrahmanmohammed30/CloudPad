@@ -1,6 +1,6 @@
-﻿using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.ServiceContracts;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class UserValidationService(IUserService userService) :IUserValidationService
 {

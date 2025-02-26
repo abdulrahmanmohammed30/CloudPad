@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.Attributes.ValidationAttributes;
+﻿namespace CloudPad.Core.Attributes.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 

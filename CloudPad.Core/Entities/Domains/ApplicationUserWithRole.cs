@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.Domains;
+﻿namespace CloudPad.Core.Domains;
 
 public class ApplicationUserWithRole
 {

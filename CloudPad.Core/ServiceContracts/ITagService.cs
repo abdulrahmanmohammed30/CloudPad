@@ -1,6 +1,7 @@
-﻿using NoteTakingApp.Core.Dtos;
+﻿using CloudPad.Core.Dtos;
+using Microsoft.AspNetCore.Http;
 
-namespace NoteTakingApp.Core.ServiceContracts;
+namespace CloudPad.Core.ServiceContracts;
 
 public interface ITagService
 {

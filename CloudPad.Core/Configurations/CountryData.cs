@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.Configurations;
+﻿namespace CloudPad.Core.Configurations;
 
 public class CountryData
 {

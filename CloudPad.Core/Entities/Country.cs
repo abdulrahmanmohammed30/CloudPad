@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NoteTakingApp.Core.Entities;
+namespace CloudPad.Core.Entities;
 
 public class Country
 {

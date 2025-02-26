@@ -1,7 +1,7 @@
-﻿using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Entities;
 
-namespace NoteTakingApp.Core.Mappers;
+namespace CloudPad.Core.Mappers;
 
 public static class TagMapper {
     public static TagDto ToDto(this Tag tag)

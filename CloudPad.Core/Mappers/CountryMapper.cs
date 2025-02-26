@@ -1,7 +1,7 @@
-﻿using NoteTakingApp.Core.DTO;
-using NoteTakingApp.Core.Entities;
+﻿using CloudPad.Core.DTO;
+using CloudPad.Core.Entities;
 
-namespace NoteTakingApp.Core.Mappers;
+namespace CloudPad.Core.Mappers;
 
 public static class CountryMapper
 {

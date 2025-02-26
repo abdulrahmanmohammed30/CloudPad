@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.ServiceContracts;
+﻿namespace CloudPad.Core.ServiceContracts;
 
 public interface INoteValidatorService
 {

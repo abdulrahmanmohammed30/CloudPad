@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.DTO;
+﻿namespace CloudPad.Core.DTO;
 
 public class CountryDto
 {

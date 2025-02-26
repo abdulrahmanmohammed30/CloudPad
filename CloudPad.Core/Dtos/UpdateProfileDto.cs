@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using NoteTakingApp.Core.Attributes.ValidationAttributes;
+using CloudPad.Core.Attributes.ValidationAttributes;
 
-namespace NoteTakingApp.Core.Dtos;
+namespace CloudPad.Core.Dtos;
 
 public class UpdateProfileDto
 {

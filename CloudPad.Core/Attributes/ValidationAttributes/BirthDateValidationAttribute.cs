@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NoteTakingApp.Core.Attributes.ValidationAttributes;
+namespace CloudPad.Core.Attributes.ValidationAttributes;
 
 public class BirthDateValidationAttribute : ValidationAttribute
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace NoteTakingApp.Core.Domains;
+namespace CloudPad.Core.Domains;
 
 public class ApplicationRole: IdentityRole<int>
 {

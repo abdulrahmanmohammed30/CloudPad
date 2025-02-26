@@ -1,6 +1,6 @@
-﻿using NoteTakingApp.Core.Entities.Domains;
+﻿using CloudPad.Core.Entities.Domains;
 
-namespace NoteTakingApp.Core.Entities;
+namespace CloudPad.Core.Entities;
 
 public class UserSocialLink
 {

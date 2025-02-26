@@ -1,0 +1,188 @@
+﻿@model CloudPad.Core.Dtos.ProfileDto
+
+
+
+@{
+    ViewData["Title"] = "Profile";
+}
+<div class="container py-5">
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+
+
+    <div>
+        <div class="row">
+            <!-- Profile Image -->
+
+
+            <div class="col-md-4 text-center mb-3">
+                <div class="position-relative d-inline-block">
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <img src="/@Model.ProfileImageUrl" alt="Profile Picture"
+                             class="img-fluid rounded-circle shadow-lg"
+                             style="width: 250px; height: 250px; object-fit: cover; border: 4px solid #007bff;"/>
+                    }
+                    else
+                    {
+                        <img src="https://placehold.co/200x200" alt="No Profile Picture"
+                             class="img-fluid rounded-circle shadow-lg"
+                             style="border: 4px solid #ddd;"/>
+                    }
+
+                    <!-- Upload Icon -->
+                    <label for="profileImageUpload"
+                           class="position-absolute bottom-0 end-0 bg-primary text-white p-2 rounded-circle"
+                           style="cursor: pointer; transform: translate(25%, -25%);">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                </div>
+
+                <!-- File Upload Form -->
+                <form asp-action="ChangeProfileImage" method="post" enctype="multipart/form-data" class="mt-3">
+                    <input type="file" name="ProfileImage" id="profileImageUpload" class="d-none" accept="image/*"
+                           onchange="this.form.submit()"/>
+                </form>
+            </div>
+
+            <!-- Basic Info -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="card-title">@Model.Name</h2>
+                            <div class="text-end mt-3">
+                                <button class="btn btn-outline-primary"
+                                        onclick="window.location.href='/profile/update'">
+                                    Update <i class="bi bi-pencil-square"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="card-text mb-1">
+                            <strong>Email:</strong> @Model.Email
+                        </p>
+                        @if (!string.IsNullOrEmpty(Model.Username))
+                        {
+                            <p class="card-tex4t mb-1"><strong>Username:</strong> @Model.Username</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Role))
+                        {
+                            <p class="card-text mb-1"><strong>Role:</strong> @Model.Role</p>
+                        }
+                        <p class="card-text mb-1">
+                            <strong>Member Since:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                        </p>
+                        @if (!string.IsNullOrEmpty(Model.CountryName))
+                        {
+                            <p class="card-text mb-1"><strong>Country:</strong> @Model.CountryName</p>
+                        }
+                        @if (Model.BirthDate.HasValue)
+                        {
+                            <p class="card-text mb-1"><strong>Birth
+                                    Date:</strong> @Model.BirthDate.Value.ToString("MMMM dd, yyyy")</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Bio))
+                        {
+                            <p class="card-text mb-1"><strong>Bio:</strong> @Model.Bio</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.PreferredLanguageName))
+                        {
+                            <p class="card-text mb-1"><strong>Preferred Language:</strong> @Model.PreferredLanguageName
+                            </p>
+                        }
+
+                        <!-- Stats -->
+                        <div class="mt-3">
+                            <div class="d-flex flex-wrap gap-3">
+                            <span class="badge bg-primary">
+                                Notes: @Model.NotesCount
+                            </span>
+                                <span class="badge bg-info text-dark">
+                                Categories: @Model.CategoriesCount
+                            </span>
+                                <span class="badge bg-secondary">
+                                Tags: @Model.TagsCount
+                            </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Links Section -->
+        @* <div class="row mt-4"> *@
+        @*     <div class="col-12"> *@
+        @*         <div class="card shadow-sm"> *@
+        @*             <div class="card-body"> *@
+        @*                 <h4>Social Links</h4> *@
+        @*                 @if (Model.SocialLinks != null && Model.SocialLinks.Any()) *@
+        @*                 { *@
+        @*                     <ul class="list-group list-group-flush"> *@
+        @*                         @foreach(var link in Model.SocialLinks) *@
+        @*                         { *@
+        @*                             <li class="list-group-item"> *@
+        @*                                 <a href="@link.UserSocialLinkUrl" target="_blank" class="text-decoration-none"> *@
+        @*                                     @link.UserSocialLinkUrl *@
+        @*                                 </a> *@
+        @*                             </li> *@
+        @*                         } *@
+        @*                     </ul> *@
+        @*                 } *@
+        @*                 else *@
+        @*                 { *@
+        @*                     <p class="text-muted">No social links available.</p> *@
+        @*                 } *@
+        @*             </div> *@
+        @*         </div> *@
+        @*     </div> *@
+        @*  </div> *@
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4>Social Links</h4>
+                        @if (Model.SocialLinks != null && Model.SocialLinks.Any())
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var link in Model.SocialLinks)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <a href="@link.UserSocialLinkUrl" target="_blank" class="text-decoration-none">
+                                            @link.UserSocialLinkUrl
+                                        </a>
+                                        <form asp-action="DeleteLink" method="post">
+                                            <input type="hidden" name="id" value="@link.UserSocialLinkId"/>
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No social links available.</p>
+                        }
+
+                        <!-- Add Link Button -->
+                        <form asp-action="AddLink" method="post" class="mt-3">
+                            <div class="input-group">
+                                <input hidden="hidden" name="UserId" value="@Model.Id"/>
+                                <input type="text" name="UserSocialLinkUrl" class="form-control"
+                                       placeholder="Enter new link" required/>
+                                <button type="submit" class="btn btn-primary">Add Link</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

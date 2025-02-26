@@ -1,8 +1,8 @@
-﻿using NoteTakingApp.Core.Domains;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities.Domains;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Entities.Domains;
+using CloudPad.Core.Domains;
 
-namespace NoteTakingApp.Core.Mappers;
+namespace CloudPad.Core.Mappers;
 
 public static class ProfileMapper
 {

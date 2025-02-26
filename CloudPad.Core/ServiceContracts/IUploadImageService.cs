@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NoteTakingApp.Core.ServiceContracts
+namespace CloudPad.Core.ServiceContracts
 {
     public interface IUploadImageService
     {

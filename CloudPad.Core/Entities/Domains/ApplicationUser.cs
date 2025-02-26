@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CloudPad.Core.Domains;
 using Microsoft.AspNetCore.Identity;
-using NoteTakingApp.Core.Domains;
 
-namespace NoteTakingApp.Core.Entities.Domains;
+namespace CloudPad.Core.Entities.Domains;
 
 public class ApplicationUser : IdentityUser<int>
 {

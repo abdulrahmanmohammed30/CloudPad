@@ -1,38 +1,43 @@
-﻿using Newtonsoft.Json.Linq;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Enums;
-using NoteTakingApp.Core.Exceptions;
-using NoteTakingApp.Core.Mappers;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using System.ComponentModel.DataAnnotations;
+using CloudPad.Core.Dtos;
+using CloudPad.Core.Enums;
+using CloudPad.Core.Exceptions;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
+using Newtonsoft.Json.Linq;
+using CloudPad.Core.Mappers;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class NoteFilterService(INoteRepository noteRepository,
     IUserValidationService userValidationService)
     :INoteFilterService
 {
-    public async Task<IEnumerable<NoteDto>> SearchAsync(int userId, string searchTerm, int pageNumber = 0,
-        int pageSize = 20)
+    private const int PageNumber = 0;
+    private const int PageSize = 15;
+    public async Task<IEnumerable<NoteDto>> SearchAsync(int userId, string searchTerm, int pageNumber = PageNumber,
+        int pageSize = PageSize)
     {
         await userValidationService.EnsureUserValidation(userId);
-
+        
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             return (await noteRepository.GetAllAsync(userId, pageNumber, pageSize))
                 .Select(n => n.ToDto());
         }
 
+        if (pageNumber < 0) pageNumber = 0;
+        if (pageSize < 0) pageSize = 15;
+        
         return (await noteRepository.SearchAsync(userId, searchTerm, pageNumber, pageSize))
             .ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber = 0,
-        int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber = PageNumber,
+        int pageSize = PageSize)
     {
         await userValidationService.EnsureUserValidation(userId);
-
-
+        
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             return (await noteRepository.GetAllAsync(userId, pageNumber, pageSize))
@@ -43,8 +48,8 @@ public class NoteFilterService(INoteRepository noteRepository,
             .ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> SearchByContentAsync(int userId, string searchTerm, int pageNumber = 0,
-        int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> SearchByContentAsync(int userId, string searchTerm, int pageNumber = PageNumber,
+        int pageSize = PageSize)
     {
         await userValidationService.EnsureUserValidation(userId);
 
@@ -58,8 +63,8 @@ public class NoteFilterService(INoteRepository noteRepository,
             .ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> FilterAsync(int userId, string column, string value, int pageNumber = 0,
-        int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> FilterAsync(int userId, string column, string value, int pageNumber = PageNumber,
+        int pageSize = PageSize)
     {
         await userValidationService.EnsureUserValidation(userId);
 
@@ -82,7 +87,7 @@ public class NoteFilterService(INoteRepository noteRepository,
     }
 
     public async Task<IEnumerable<NoteDto>> FilterAsync(int userId, string title="", string content="", string tag = "", string category = "",
-        bool IsFavorite = false, bool IsPinned = false, bool IsArchived = false, int pageNumber = 0, int pageSize = 20)
+        bool IsFavorite = false, bool IsPinned = false, bool IsArchived = false, int pageNumber = PageNumber, int pageSize = PageSize)
     {
         await userValidationService.EnsureUserValidation(userId);
 
@@ -92,4 +97,28 @@ public class NoteFilterService(INoteRepository noteRepository,
     .ToDtoList();
 
     }
+}
+
+class SearchRequest
+{
+    [Required]
+    [Range(1, int.MaxValue)] 
+    public int UserId { get; set; }
+
+    public string SearchTerm { get; set; } = string.Empty;
+
+    [Range(1, int.MaxValue)]
+    public int PageNumber { get; set; } = 0;
+    
+    [Range(1, int.MaxValue)] 
+    public int PageSize { get; set; } = 20;
+
+    public SearchFields SearchFields { get; set; } 
+}
+
+enum SearchFields
+{
+    Title = 1,
+    Content = 2,
+    All = Title | Content
 }

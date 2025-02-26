@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using NoteTakingApp.Core.DTO;
-using NoteTakingApp.Core.Mappers;
-using NoteTakingApp.Core.RepositoryContracts;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.DTO;
+using CloudPad.Core.RepositoryContracts;
+using CloudPad.Core.ServiceContracts;
+using Microsoft.Extensions.Caching.Memory;
+using CloudPad.Core.Mappers;
 
-namespace NoteTakingApp.Core.Services;
+namespace CloudPad.Core.Services;
 
 public class GetterCountryService : IGetterCountryService
 {

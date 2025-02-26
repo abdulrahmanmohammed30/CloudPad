@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using NoteTakingApp.Core.ServiceContracts;
+﻿using CloudPad.Core.ServiceContracts;
+using Microsoft.AspNetCore.Http;
 
 
-namespace NoteTakingApp.Core.Services
+namespace CloudPad.Core.Services
 {
     public class UploadDocumentService: IUploadDocumentService
     {

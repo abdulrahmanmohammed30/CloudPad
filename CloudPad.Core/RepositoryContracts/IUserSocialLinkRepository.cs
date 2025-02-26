@@ -1,6 +1,6 @@
-﻿using NoteTakingApp.Core.Entities;
+﻿using CloudPad.Core.Entities;
 
-namespace NoteTakingApp.Core.RepositoryContracts;
+namespace CloudPad.Core.RepositoryContracts;
 
 public interface IUserSocialLinkRepository
 {

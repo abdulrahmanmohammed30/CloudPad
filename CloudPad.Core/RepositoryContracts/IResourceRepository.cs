@@ -1,11 +1,11 @@
-﻿using NoteTakingApp.Core.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CloudPad.Core.Entities;
 
-namespace NoteTakingApp.Core.RepositoryContracts
+namespace CloudPad.Core.RepositoryContracts
 {
     public interface IResourceRepository
     {

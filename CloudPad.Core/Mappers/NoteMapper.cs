@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using NoteTakingApp.Core.Dtos;
-using NoteTakingApp.Core.Entities;
+﻿using CloudPad.Core.Dtos;
+using CloudPad.Core.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace NoteTakingApp.Core.Mappers;
+namespace CloudPad.Core.Mappers;
 
 public static class NoteMapper
 {

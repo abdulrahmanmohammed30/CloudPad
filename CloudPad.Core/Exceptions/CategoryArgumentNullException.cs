@@ -1,4 +1,4 @@
-﻿namespace NoteTakingApp.Core.Exceptions
+﻿namespace CloudPad.Core.Exceptions
 {
     public class CategoryArgumentNullException : Exception
     {
