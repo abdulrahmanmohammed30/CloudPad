@@ -34,6 +34,15 @@ public class UserSocialLinkService(IUserSocialLinkRepository userSocialLinkRepos
 
     public async Task<bool> DeleteAsync(int userId, int socialLinkId)
     {
+        if (userId <= 0)
+        {
+            throw new ArgumentException("Invalid user id");
+        }
+        
+        if (socialLinkId <= 0)
+        {
+            throw new ArgumentException("Invalid social Link Id");
+        }
          return await userSocialLinkRepository.DeleteAsync(userId, socialLinkId);
     }
 }

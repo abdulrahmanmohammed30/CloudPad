@@ -121,8 +121,12 @@ public class AccountController(
 
         var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);
         
-        await emailService.SendEmailAsync(user.Email!, "Confirm Your Email",
-            $"Please confirm your email by clicking {confirmationLink}.");
+        await emailService.SendEmailAsync(new EmailRequest()
+        {
+            To = user.Email,
+            Subject = "Confirm your email",
+            Body = $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>"   
+        });
 
         // The role "User" always exists, Migration folder contains some seeded roles
         // Assign a role to the user 
@@ -276,8 +280,12 @@ public class AccountController(
 
         var confirmationLink = Url.Action("ResetPassword", "Account", new { userId = user.Id, token }, Request.Scheme);
 
-        await emailService.SendEmailAsync(rorgetPasswordDto.Email, "Reset your account pasword",
-            $"Please confirm your email by clicking {confirmationLink}");
+        await emailService.SendEmailAsync(new EmailRequest()
+        {
+            To = user.Email,
+            Subject = "Confirm your email",
+            Body = $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>"   
+        });
 
         ViewBag.Email = rorgetPasswordDto.Email;
         return View("ForgetPasswordConfirmation");
@@ -401,8 +409,12 @@ public class AccountController(
         var confirmChangeToken = Url.Action("ConfirmEmailChange", "Account",
             new { UserId = user.Id, Email = updateEmailDto.Email, token }, Request.Scheme);
 
-        await emailService.SendEmailAsync(updateEmailDto.Email, "Confirm Update Email"
-            , $"Please confirm your email by clicking {confirmChangeToken}");
+        await emailService.SendEmailAsync(new EmailRequest()
+        {
+            To = user.Email,
+            Subject = "Confirm your email",
+            Body = $"Please confirm your email by clicking <a href='{confirmChangeToken}'>here</a>"   
+        });
 
         ViewBag.userEmail = user.Email;
 

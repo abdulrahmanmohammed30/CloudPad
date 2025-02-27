@@ -21,7 +21,9 @@ public class TagService(ITagRepository tagRepository,
     }
 
     public async Task<IEnumerable<TagDto>> GetAllAsync(int userId)
-    {
+    {      
+        await userValidationService.EnsureUserValidation(userId);
+
         return await cache.GetOrCreateAsync($"tags/{userId}", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
@@ -33,6 +35,8 @@ public class TagService(ITagRepository tagRepository,
 
     public async Task DeleteAllAsync(int userId)
     {
+        await userValidationService.EnsureUserValidation(userId);
+
         cache.Remove($"tags/{userId}");
 
          await tagRepository.DeleteAllAsync(userId);
@@ -40,12 +44,16 @@ public class TagService(ITagRepository tagRepository,
 
 
     public async Task<bool> ExistsAsync(int userId, int id)
-    {
+    {     
+        await userValidationService.EnsureUserValidation(userId);
+
         return await tagRepository.ExistsAsync(userId, id);
     }
 
     public async Task<bool> ExistsAsync(int userId, string name)
     {
+        await userValidationService.EnsureUserValidation(userId);
+
         return await tagRepository.ExistsAsync(userId, name);
     }
 

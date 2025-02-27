@@ -13,6 +13,9 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
     {
         await userValidationService.EnsureUserValidation(userId);
         
+        if(categoryId == Guid.Empty)
+            throw new InvalidCategoryIdException("Category id cannot be empty");
+        
         var category = await categoryRepository.GetByIdAsync(userId, categoryId);
         return category?.ToDto();
     }
@@ -21,6 +24,9 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
     {
         await userValidationService.EnsureUserValidation(userId);
 
+        if(string.IsNullOrWhiteSpace(categoryName))
+            throw new InvalidCategoryException($"{categoryName} is not a valid category name");
+        
         var category = await categoryRepository.GetByNameAsync(userId, categoryName);
         return category?.ToDto();
     }
@@ -28,6 +34,9 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
     public async Task<bool> ExistsAsync(int userId, string categoryName)
     {
         await userValidationService.EnsureUserValidation(userId);
+
+        if(string.IsNullOrWhiteSpace(categoryName))
+            throw new InvalidCategoryException($"{categoryName} is not a valid category name");
 
         return await categoryRepository.ExistsAsync(userId, categoryName);
     }
@@ -47,6 +56,9 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
     public async Task<bool> ExistsAsync(int userId, Guid categoryId)
     {
         await userValidationService.EnsureUserValidation(userId);
+
+        if(categoryId == Guid.Empty)
+            throw new InvalidCategoryIdException("Category id cannot be empty");
 
         return await categoryRepository.ExistsAsync(userId, categoryId);
     }
@@ -140,23 +152,24 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
     {
         await userValidationService.EnsureUserValidation(userId);
 
+        if(categoryId == Guid.Empty)
+            throw new InvalidCategoryIdException("Category id cannot be empty");
+
         return await categoryRepository.FindCategoryIdByGuidAsync(userId, categoryId);
     }
 
-    public async Task<bool> DeleteAsync(int userId, Guid id)
+    public async Task<bool> DeleteAsync(int userId, Guid categoryId)
     {
         await userValidationService.EnsureUserValidation(userId);
+        
+        if(categoryId == Guid.Empty)
+            throw new InvalidCategoryIdException("Category id cannot be empty");
 
-        if (id == Guid.Empty)
-        {
-            throw new InvalidCategoryException("Category id cannot be empty");
-        }
-
-        var category = await categoryRepository.GetByIdAsync(userId, id);
+        var category = await categoryRepository.GetByIdAsync(userId, categoryId);
 
         if (category == null)
         {
-            throw new CategoryNotFoundException($"Category with id {id} was not found");
+            throw new CategoryNotFoundException($"Category with id {categoryId} was not found");
         }
 
         category.IsDeleted = true;

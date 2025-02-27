@@ -31,6 +31,11 @@ namespace CloudPad.Core.Services
                 throw new ArgumentException("File is required", nameof(file));
             }
 
+            if (string.IsNullOrWhiteSpace(uploadsDirectoryPath))
+            {
+                throw new ArgumentNullException(nameof(uploadsDirectoryPath), "uploadsDirectoryPath cannot be null or empty");
+            }
+
             var fileName = Path.GetFileNameWithoutExtension(file.FileName);
             var extension = Path.GetExtension(file.FileName);
 

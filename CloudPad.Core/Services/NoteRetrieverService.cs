@@ -10,7 +10,9 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
     IUserValidationService userValidationService): INoteRetrieverService
 {
     private async Task ValidateCategoryAsync(int userId, Guid categoryId)
-    {
+    {   
+        await userValidationService.EnsureUserValidation(userId);
+
         if (categoryId == Guid.Empty)
         {
             throw new InvalidCategoryException("Category id cannot be empty");
@@ -24,6 +26,8 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
     
     private async Task ValidateTagAsync(int userId, int tagId)
     {
+        await userValidationService.EnsureUserValidation(userId);
+
         if (tagId <=0)
             throw new InvalidTagException("Tag id cannot be less than or equal 0");
 

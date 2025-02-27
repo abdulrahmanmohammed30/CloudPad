@@ -1,34 +1,40 @@
-﻿using MailKit.Net.Smtp;
+﻿using System.ComponentModel.DataAnnotations;
+using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using CloudPad.Core.Configurations;
+using CloudPad.Core.Dtos;
+using CloudPad.Core.Exceptions;
 using CloudPad.Core.ServiceContracts;
 
-public class EmailService : IEmailService
+public class EmailService(IOptions<SmtpSettings> smtpSettings) : IEmailService
 {
-    private readonly SmtpSettings _smtpSettings;
+    private readonly SmtpSettings _smtpSettings = smtpSettings.Value;
 
-    public EmailService(IOptions<SmtpSettings> smtpSettings)
+    public async Task SendEmailAsync(EmailRequest emailRequest)
     {
-        _smtpSettings = smtpSettings.Value;
-    }
+        var context = new ValidationContext(emailRequest);
+        var errors = new List<ValidationResult>();
 
-    public async Task SendEmailAsync(string to, string subject, string body, bool isBodyHtml = false)
-    {
+        if (Validator.TryValidateObject(emailRequest, context, errors, true) == false)
+        {
+            throw new InvalidateEmailRequestException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
+        }
+        
         var email = new MimeMessage();
         email.From.Add(new MailboxAddress(_smtpSettings.SenderName, _smtpSettings.SenderEmail));
-        email.To.Add(new MailboxAddress(to, to));
-        email.Subject = subject;
+        email.To.Add(new MailboxAddress(emailRequest.To, emailRequest.To));
+        email.Subject = emailRequest.Subject;
 
         var bodyBuilder = new BodyBuilder();
 
-        if (isBodyHtml)
+        if (emailRequest.IsBodyHtml)
         {
-            bodyBuilder.HtmlBody = body;
+            bodyBuilder.HtmlBody = emailRequest.Body;
         }
         else
         {
-            bodyBuilder.TextBody = body;
+            bodyBuilder.TextBody = emailRequest.Body;
         }
 
         email.Body = bodyBuilder.ToMessageBody();

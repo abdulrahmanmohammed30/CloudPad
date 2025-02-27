@@ -62,6 +62,11 @@ public class NoteController(
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id)
     {
+        if (id == Guid.Empty)
+        {
+            return BadRequest(new { message = $"Invalid note id {id}" });
+        }
+        
         var note = await noteRetrieverService.GetByIdAsync(UserId, id);
 
         if (note == null)
@@ -112,6 +117,11 @@ public class NoteController(
     [HttpGet("[action]/{id}")]
     public async Task<IActionResult> Update(Guid id)
     {
+        if (id == Guid.Empty)
+        {
+            return BadRequest(new { message = $"Invalid note id {id}" });
+        }
+        
         var existingNote = await noteRetrieverService.GetByIdAsync(UserId, id);
 
         if (existingNote == null)
@@ -164,11 +174,17 @@ public class NoteController(
     [HttpPost("[action]/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (id == Guid.Empty)
+        {
+            return BadRequest(new { message = $"Invalid note id {id}" });
+        }
+        
         try
         {
             if (await noteManagerService.DeleteAsync(UserId, id) == false)
             {
-                return BadRequest(new { message = $"Failed to delete note with id {id}" });
+                HttpContext.Response.StatusCode = 500;
+                return Json(new { message = $"Failed to delete note with id {id}" });
             }
 
             return RedirectToAction("Index");

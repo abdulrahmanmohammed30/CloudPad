@@ -16,16 +16,30 @@ namespace CloudPad.Core.Services
 
         public async Task<ProfileDto?> GetUserByIdAsync(int userId)
         {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("Invalid user id");
+            }
+            
             return (await userRepository.GetUserByIdAsync(userId))?.ToProfileDto();
         }
 
         public async Task<ProfileDto?> GetUserByNameAsync(string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Invalid username");
+            }
             return (await userRepository.GetUserByNameAsync(username))?.ToProfileDto();
         }
 
         public Task<bool> ExistsAsync(int userId)
         {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("Invalid user id");
+            }
+            
             return userRepository.ExistsAsync(userId);
         }
 
@@ -56,6 +70,11 @@ namespace CloudPad.Core.Services
 
         public async Task DeleteUserAsync(int userId)
         {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("Invalid user id");
+            }
+            
              await userRepository.DeleteUserAsync(userId);
         }
 

@@ -7,21 +7,18 @@ using CloudPad.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using CloudPad.Core.Expressions;
 
-
 namespace CloudPad.Infrastructure.Repositories;
 
 public class NoteRepository(AppDbContext context) : INoteRepository
 {
     public async Task<Note?> GetById(int userId, Guid noteId)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId && n.NoteGuid == noteId)
+        return await context.Notes.Where(n => n.UserId == userId && n.NoteGuid == noteId)
             .Include(n => n.Resources)
             .FirstOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<Note>> GetByCategoryAsync(int userId, Guid categoryGuid, int pageNumber = 0,
-        int pageSize = 20)
+    public async Task<IEnumerable<Note>> GetByCategoryAsync(int userId, Guid categoryGuid, int pageNumber, int pageSize)
     {
         return await context.Notes
             .Where(n => n.UserId == userId && n.Category != null && n.Category.CategoryGuid == categoryGuid)
@@ -30,53 +27,47 @@ public class NoteRepository(AppDbContext context) : INoteRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> GetByTagAsync(int userId, int tagId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<Note>> GetByTagAsync(int userId, int tagId, int pageNumber, int pageSize)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId && n.Tags.Any(t => t.TagId == tagId))
+        return await context.Notes.Where(n => n.UserId == userId && n.Tags.Any(t => t.TagId == tagId))
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> GetFavoritesAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<Note>> GetFavoritesAsync(int userId, int pageNumber, int pageSize)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId && n.IsFavorite)
+        return await context.Notes.Where(n => n.UserId == userId && n.IsFavorite)
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> GetPinnedAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<Note>> GetPinnedAsync(int userId, int pageNumber, int pageSize)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId && n.IsPinned)
+        return await context.Notes.Where(n => n.UserId == userId && n.IsPinned)
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> GetArchivedAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<Note>> GetArchivedAsync(int userId, int pageNumber, int pageSize)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId && n.IsArchived)
+        return await context.Notes.Where(n => n.UserId == userId && n.IsArchived)
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> GetAllAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<Note>> GetAllAsync(int userId, int pageNumber, int pageSize)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId)
+        return await context.Notes.Where(n => n.UserId == userId)
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> SearchAsync(int userId, string searchTerm, int pageNumber = 0,
-        int pageSize = 20)
+    public async Task<IEnumerable<Note>> SearchAsync(int userId, string searchTerm, int pageNumber, int pageSize)
     {
         return await context.Notes
             .Where(n => n.UserId == userId &&
@@ -86,28 +77,25 @@ public class NoteRepository(AppDbContext context) : INoteRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber = 0,
-        int pageSize = 20)
+    public async Task<IEnumerable<Note>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber, int pageSize)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId && n.Title.Contains(searchTerm))
+        return await context.Notes.Where(n => n.UserId == userId && n.Title.Contains(searchTerm))
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> SearchByContentAsync(int userId, string searchTerm, int pageNumber = 0,
-        int pageSize = 20)
+    public async Task<IEnumerable<Note>> SearchByContentAsync(int userId, string searchTerm, int pageNumber,
+        int pageSize)
     {
-        return await context.Notes
-            .Where(n => n.UserId == userId && n.Content != null && n.Content.Contains(searchTerm))
+        return await context.Notes.Where(n => n.UserId == userId && n.Content != null && n.Content.Contains(searchTerm))
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
     public async Task<IEnumerable<Note>> FilterAsync(int userId, NoteSearchableColumn searchableColumn, string value,
-        int pageNumber = 0, int pageSize = 20)
+        int pageNumber, int pageSize)
     {
         Expression<Func<Note, bool>> filter = n => n.UserId == userId;
 
@@ -115,29 +103,21 @@ public class NoteRepository(AppDbContext context) : INoteRepository
         {
             var parameter = Expression.Parameter(typeof(Note), "n");
             Expression property = Expression.Property(parameter, searchableColumn.ToString());
-            Expression condition = Expression.Call(
-                property,
+            Expression condition = Expression.Call(property,
                 typeof(string).GetMethod("Contains", new[] { typeof(string) })!,
-                Expression.Constant(value, typeof(string))
-            );
+                Expression.Constant(value, typeof(string)));
 
             var lambda = Expression.Lambda<Func<Note, bool>>(condition, parameter);
             filter = filter.And<Note>(lambda); // Using a helper method to combine expressions
         }
 
-        return await context.Notes
-            .Where(filter)
-            .Skip(pageNumber * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        return await context.Notes.Where(filter).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
-
-    public async Task<IEnumerable<Note>> SortAsync(int userId, NoteSortableColumn column, bool sortDescending = true,
-        int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<Note>> SortAsync(int userId, NoteSortableColumn column, bool sortDescending,
+        int pageNumber, int pageSize)
     {
-        var query = context.Notes
-            .Where(n => n.UserId == userId);
+        var query = context.Notes.Where(n => n.UserId == userId);
 
         query = column switch
         {
@@ -153,10 +133,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
             _ => query
         };
 
-        return await query
-            .Skip(pageNumber * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        return await query.Skip(pageNumber * pageSize).Take(pageSize).ToListAsync();
     }
 
     public async Task<Note> CreateAsync(Note note)
@@ -207,17 +184,16 @@ public class NoteRepository(AppDbContext context) : INoteRepository
 
     public async Task<bool> ExistsAsync(int userId, Guid noteId)
     {
-        return await context.Notes
-            .AnyAsync(n => n.UserId == userId && n.NoteGuid == noteId && !n.IsDeleted);
+        return await context.Notes.AnyAsync(n => n.UserId == userId && n.NoteGuid == noteId && !n.IsDeleted);
     }
-
 
     public async Task<IEnumerable<Note>> FilterAsync(int userId, string title, string content, string tag,
         string category, bool isFavorite, bool isPinned, bool isArchived, int pageNumber, int pageSize)
     {
         var query = context.Notes.Where(n =>
                 n.Title.Contains(title) && (n.Content == null || n.Content.Contains(content)) && n.UserId == userId)
-            .Skip(pageNumber * pageSize).Take(pageSize);
+            .Skip(pageNumber * pageSize)
+            .Take(pageSize);
 
         // if the content is not null, filter by content 
         if (!string.IsNullOrWhiteSpace(tag))
@@ -248,4 +224,3 @@ public class NoteRepository(AppDbContext context) : INoteRepository
         return await query.ToListAsync();
     }
 }
-

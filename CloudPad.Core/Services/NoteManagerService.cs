@@ -1,4 +1,5 @@
-﻿using CloudPad.Core.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+using CloudPad.Core.Dtos;
 using CloudPad.Core.Entities;
 using CloudPad.Core.Exceptions;
 using CloudPad.Core.RepositoryContracts;
@@ -8,7 +9,6 @@ using CloudPad.Core.Mappers;
 namespace CloudPad.Core.Services;
 
 public class NoteManagerService(
-    ICategoryService categoryService,
     ICategoryRepository categoryRepository,
     ITagRepository tagRepository,
     INoteRepository noteRepository,
@@ -20,7 +20,16 @@ public class NoteManagerService(
     public async Task<NoteDto> AddAsync(int userId, CreateNoteDto note)
     {
         await userValidationService.EnsureUserValidation(userId);
+        
+        var context = new ValidationContext(note);
+        var errors = new List<ValidationResult>();
 
+        if (Validator.TryValidateObject(note, context, errors, true) == false)
+        {
+            throw new InvalidCategoryException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
+        }
+        
+        
         var newNote = new Note()
         {
             UserId = userId,
@@ -60,8 +69,21 @@ public class NoteManagerService(
     {
         await userValidationService.EnsureUserValidation(userId);
 
-        Note? existingNote = await noteRepository.GetById(userId, note.NoteId);
+        var context = new ValidationContext(note);
+        var errors = new List<ValidationResult>();
 
+        if (Validator.TryValidateObject(note, context, errors, true) == false)
+        {
+            throw new InvalidCategoryException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
+        }
+        
+        if (note.NoteId == Guid.Empty)
+        {
+            throw new InvalidNoteIdException("NoteId cannot be empty");
+        }
+        
+        Note? existingNote = await noteRepository.GetById(userId, note.NoteId);
+        
         if (existingNote == null)
         {
             throw new NoteNotFoundException($"Note with with Id {userId} for user with Id {userId} was not found");
@@ -106,6 +128,12 @@ public class NoteManagerService(
     public async Task<NoteDto?> RestoreAsync(int userId, Guid noteId)
     {
         await userValidationService.EnsureUserValidation(userId);
+        
+        if (noteId == Guid.Empty)
+        {
+            throw new InvalidNoteIdException("NoteId cannot be empty");
+        }
+        
         var note = await noteRepository.RestoreAsync(userId, noteId);
         return note?.ToDto();
     }

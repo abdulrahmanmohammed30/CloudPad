@@ -9,15 +9,16 @@ namespace CloudPad.Core.Services
         private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
         public Task<string> Upload(string uploadsDirectoryPath, IFormFile file)
         {
-            if (uploadsDirectoryPath == null)
+            if (file == null || file.Length == 0)
             {
-                throw new ArgumentNullException(nameof(uploadsDirectoryPath));
+                throw new ArgumentException("File is required", nameof(file));
             }
 
-            if  (file == null)
+            if (string.IsNullOrWhiteSpace(uploadsDirectoryPath))
             {
-                throw new ArgumentNullException(nameof(file));
+                throw new ArgumentNullException(nameof(uploadsDirectoryPath), "uploadsDirectoryPath cannot be null or empty");
             }
+
 
             var extension = Path.GetExtension(file.FileName);
 
