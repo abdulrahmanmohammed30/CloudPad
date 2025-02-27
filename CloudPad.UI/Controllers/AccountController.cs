@@ -1,18 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using CloudPad.Core.Mappers;
-using System.Net;
 using System.Security.Claims;
-using System.Text;
 using CloudPad.Core.Attributes.Enums;
-using CloudPad.Core.Domains;
 using CloudPad.Core.Dtos;
 using CloudPad.Core.Entities.Domains;
 using CloudPad.Core.ServiceContracts;
-using Microsoft.Build.Framework;
 using CloudPad.Helpers;
 
 namespace CloudPad.Controllers;
@@ -23,17 +17,13 @@ public class AccountController(
     IGetterCountryService getterCountryService,
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
-    RoleManager<ApplicationRole> roleManager,
     IEmailService emailService,
-    IUploadDocumentService uploadDocumentService,
     IWebHostEnvironment webHostEnvironment,
     IUploadImageService uploadImageService,
-    ITagService tagService,
     IUserService userService
     )
     : Controller
 {
-    private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
     private string UserIdentifier=> User.Claims.First(c=>c.Type == "userIdentifier").Value;
 
     private string UploadsDirectoryPath => Path.Combine(webHostEnvironment.WebRootPath, $"uploads/{UserIdentifier}");
@@ -123,7 +113,7 @@ public class AccountController(
         
         await emailService.SendEmailAsync(new EmailRequest()
         {
-            To = user.Email,
+            To = user.Email!,
             Subject = "Confirm your email",
             Body = $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>"   
         });
@@ -282,7 +272,7 @@ public class AccountController(
 
         await emailService.SendEmailAsync(new EmailRequest()
         {
-            To = user.Email,
+            To = user.Email!,
             Subject = "Confirm your email",
             Body = $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>"   
         });
@@ -407,11 +397,11 @@ public class AccountController(
 
         var token = await userManager.GenerateChangeEmailTokenAsync(user, updateEmailDto.Email);
         var confirmChangeToken = Url.Action("ConfirmEmailChange", "Account",
-            new { UserId = user.Id, Email = updateEmailDto.Email, token }, Request.Scheme);
+            new { UserId = user.Id, updateEmailDto.Email, token }, Request.Scheme);
 
         await emailService.SendEmailAsync(new EmailRequest()
         {
-            To = user.Email,
+            To = user.Email!,
             Subject = "Confirm your email",
             Body = $"Please confirm your email by clicking <a href='{confirmChangeToken}'>here</a>"   
         });

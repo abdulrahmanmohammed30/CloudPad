@@ -1,5 +1,7 @@
-﻿using CloudPad.Core.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+using CloudPad.Core.Dtos;
 using CloudPad.Core.Entities;
+using CloudPad.Core.Exceptions;
 using CloudPad.Core.Mappers;
 using CloudPad.Core.RepositoryContracts;
 using CloudPad.Core.ServiceContracts;
@@ -10,20 +12,15 @@ public class UserSocialLinkService(IUserSocialLinkRepository userSocialLinkRepos
 {
     public async Task<UserSocialLinkDto> CreateAsync(CreateUserSocialLinkDto createUserSocialLinkDto)
     {
-        if (createUserSocialLinkDto == null)
+        var context = new ValidationContext(createUserSocialLinkDto);
+        var errors = new List<ValidationResult>();
+
+        if (Validator.TryValidateObject(createUserSocialLinkDto, context, errors, true) == false)
         {
-            throw new ArgumentNullException(nameof(createUserSocialLinkDto));
+            throw new InvalidateEmailRequestException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid social link data");
         }
 
-        if (createUserSocialLinkDto.UserId == 0)
-        {
-            throw new ArgumentException("User Id is required.", nameof(createUserSocialLinkDto.UserId));
-        }
-        
-        if (string.IsNullOrEmpty(createUserSocialLinkDto.UserSocialLinkUrl))
-        {
-            throw new ArgumentException("Link Url is required.", nameof(createUserSocialLinkDto.UserSocialLinkUrl));
-        }
+     
         var userSocialLink = new UserSocialLink()
         {
             UserId = createUserSocialLinkDto.UserId,

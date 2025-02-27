@@ -12,7 +12,7 @@ namespace CloudPad.Core.Services
        IUploadDocumentService  uploadDocumentService ) : IResourceService
     {
 
-        public async Task<ResourceDto> CreateResourceDto(int userId, string uploadsDirectoryPath, CreateResourceDto resourceDto)
+        public async Task<ResourceDto> CreateAsync(int userId, string uploadsDirectoryPath, CreateResourceDto resourceDto)
         {
             if (resourceDto == null) throw new ResourceArgumentNullException(nameof(resourceDto));
 

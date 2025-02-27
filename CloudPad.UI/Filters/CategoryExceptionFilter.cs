@@ -25,6 +25,7 @@ namespace CloudPad.Filters
 
             context.Result = context.Exception switch
             {
+                CategoryNotFoundException => new NotFoundObjectResult(response),
                 DuplicateCategoryNameException => new BadRequestObjectResult(response),
                 InvalidCategoryException => new BadRequestObjectResult(response),
                 _ => new ObjectResult(response) { StatusCode = 500 }

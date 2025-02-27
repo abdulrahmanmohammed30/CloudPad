@@ -5,17 +5,17 @@ using CloudPad.Core.Exceptions;
 
 namespace CloudPad.Filters
 {
-    public class NoteExceptionFilterFactoryAttribute : Attribute, IFilterFactory
+    public class TagExceptionFilterFactoryAttribute : Attribute, IFilterFactory
     {
         public bool IsReusable => true;
 
         public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
         {
-          return serviceProvider.GetRequiredService<NoteExceptionFilter>();
+          return serviceProvider.GetRequiredService<TagExceptionFilter>();
         }
     }
 
-    public class NoteExceptionFilter : IExceptionFilter
+    public class TagExceptionFilter : IExceptionFilter
     {
         public void OnException(ExceptionContext context)
         {
@@ -26,12 +26,8 @@ namespace CloudPad.Filters
             
             context.Result = context.Exception switch
             {
-                UserNotFoundException => new NotFoundObjectResult(response),
-                NoteNotFoundException => new NotFoundObjectResult(response),
-                CategoryNotFoundException => new NotFoundObjectResult(response),
-                TagNotFoundException => new NotFoundObjectResult(response), 
-                InvalidCategoryException => new BadRequestObjectResult(response),
-                InvalidTagException => new BadRequestObjectResult(response),
+                TagNotFoundException => new NotFoundObjectResult(response),
+                DuplicateTagNameException => new BadRequestObjectResult(response),
                 InvalidNoteIdException=> new BadRequestObjectResult(response),
                 _ => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.InternalServerError }
             };

@@ -26,7 +26,7 @@ public class NoteManagerService(
 
         if (Validator.TryValidateObject(note, context, errors, true) == false)
         {
-            throw new InvalidCategoryException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
+            throw new InvalidNoteException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
         }
         
         
@@ -74,7 +74,7 @@ public class NoteManagerService(
 
         if (Validator.TryValidateObject(note, context, errors, true) == false)
         {
-            throw new InvalidCategoryException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
+            throw new InvalidNoteException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
         }
         
         if (note.NoteId == Guid.Empty)

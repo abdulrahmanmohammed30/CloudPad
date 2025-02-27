@@ -1,3 +1,4 @@
+using CloudPad.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -72,6 +73,11 @@ builder.Services.AddScoped<INoteWordExportService, NoteWordExportService>();
 builder.Services.Configure<CountrySettings>(builder.Configuration.GetSection("CountrySettings"));
 builder.Services.Configure<LanguageSettings>(builder.Configuration.GetSection("LanguageSettings"));
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
+builder.Services.AddScoped<ResourceExceptionFilter>();
+builder.Services.AddScoped<TagExceptionFilter>();
+builder.Services.AddScoped<NoteExceptionFilter>();
+
 
 
 builder.Services.AddAuthorization(options =>

@@ -3,14 +3,13 @@ using CloudPad.Core.Exceptions;
 using CloudPad.Core.RepositoryContracts;
 using CloudPad.Core.ServiceContracts;
 using Microsoft.Extensions.Caching.Memory;
-using CloudPad.Core.Entities;
 using CloudPad.Core.Mappers;
 using Microsoft.AspNetCore.Http;
 
 namespace CloudPad.Core.Services;
 
 public class TagService(ITagRepository tagRepository,
-    IUserValidationService userValidationService, IMemoryCache cache, IHttpContextAccessor httpContextAccessor) : ITagService
+    IUserValidationService userValidationService, IMemoryCache cache) : ITagService
 {
     public async Task<TagDto?> GetByIdAsync(int userId, int id)
     {

@@ -9,8 +9,8 @@ using CloudPad.Helpers;
 namespace CloudPad.Controllers
 {
     [Route("[controller]")]
-    [EnsureUserIdExistsFilterFactory]
     [Authorize]
+    [TagExceptionFilterFactory]
     public class TagController(ITagService tagService) : Controller
     {
         private int UserId => HttpContext.GetUserId()!.Value;
@@ -48,7 +48,6 @@ namespace CloudPad.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-
             var tags = await tagService.GetAllAsync(UserId);
             return View(tags);
         }
@@ -67,15 +66,8 @@ namespace CloudPad.Controllers
                 return View(createTagDto);
             }
 
-            try
-            {
-                var tagDto = await tagService.CreateAsync(UserId, createTagDto);
-                return RedirectToAction("Index");
-            }
-            catch (DuplicateTagNameException ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await tagService.CreateAsync(UserId, createTagDto);
+            return RedirectToAction("Index");
         }
 
         [HttpGet("[action]/{id}")]
@@ -116,24 +108,10 @@ namespace CloudPad.Controllers
                 return BadRequest("tag id is not valid");
             }
 
-            try
-            {
-                var updatedTag = await tagService.UpdateAsync(UserId, updateTagDto);
-                return RedirectToAction("Index");
-            }
 
-            catch (TagNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-
-            catch (DuplicateTagNameException ex)
-            {
-                ModelState.AddModelError("Name", ex.Message);
-                return View(updateTagDto);
-            }
+            var updatedTag = await tagService.UpdateAsync(UserId, updateTagDto);
+            return RedirectToAction("Index");
         }
-
 
 
         [HttpPost("[action]/{id}")]
@@ -144,15 +122,8 @@ namespace CloudPad.Controllers
                 return BadRequest("Tag Id is not valid");
             }
 
-            try
-            {
-                await tagService.DeleteAsync(UserId, id);
-                return RedirectToAction("Index");
-            }
-            catch (TagNotFoundException ex)
-            {
-                return NotFound(new { error = ex.Message });
-            }
+            await tagService.DeleteAsync(UserId, id);
+            return RedirectToAction("Index");
         }
     }
 }

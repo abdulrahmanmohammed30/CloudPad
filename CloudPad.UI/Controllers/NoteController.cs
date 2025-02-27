@@ -1,11 +1,8 @@
 ﻿using CloudPad.Core.Dtos;
-using CloudPad.Core.Exceptions;
 using CloudPad.Core.ServiceContracts;
 using CloudPad.Filters;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using CloudPad.Core.Entities.Domains;
 using CloudPad.Helpers;
 using Rotativa.AspNetCore;
 
@@ -13,7 +10,7 @@ namespace CloudPad.Controllers;
 
 [Route("[controller]")]
 [Authorize]
-[EnsureUserIdExistsFilterFactory]
+[NoteExceptionFilterFactory]
 public class NoteController(
     INoteRetrieverService noteRetrieverService,
     INoteManagerService noteManagerService,
@@ -21,9 +18,8 @@ public class NoteController(
     ICategoryService categoryService,
     INoteFilterService noteFilterService,
     INoteExcelExportService excelExportService,
-    IWebHostEnvironment webHostEnvironment,
     INoteWordExportService wordExportService
-    ) : Controller
+) : Controller
 {
     private int UserId => HttpContext.GetUserId()!.Value;
 
@@ -35,7 +31,7 @@ public class NoteController(
     {
         var notes = await noteFilterService.FilterAsync(UserId, title, content, tag, category, isFavorite, isPinned,
             isArchived, page, size);
-        
+
         ViewBag.Categories = await categoryService.GetAllAsync(UserId);
         ViewBag.Tags = await tagService.GetAllAsync(UserId);
 
@@ -43,6 +39,7 @@ public class NoteController(
     }
 
     #region Thinking
+
     // all user categories should be cached: select, cache categories 
     // all user tags should be cached: multi-select, cache tags 
     // ways to handle boolean types 
@@ -66,7 +63,7 @@ public class NoteController(
         {
             return BadRequest(new { message = $"Invalid note id {id}" });
         }
-        
+
         var note = await noteRetrieverService.GetByIdAsync(UserId, id);
 
         if (note == null)
@@ -110,7 +107,7 @@ public class NoteController(
         }
 
         noteDto.Tags = noteDto.Tags == null ? [] : noteDto.Tags;
-        var note = await noteManagerService.AddAsync(UserId, noteDto);
+        await noteManagerService.AddAsync(UserId, noteDto);
         return RedirectToAction("Index");
     }
 
@@ -121,7 +118,7 @@ public class NoteController(
         {
             return BadRequest(new { message = $"Invalid note id {id}" });
         }
-        
+
         var existingNote = await noteRetrieverService.GetByIdAsync(UserId, id);
 
         if (existingNote == null)
@@ -150,25 +147,23 @@ public class NoteController(
     [HttpPost("[action]")]
     public async Task<IActionResult> UpdateNote(UpdateNoteDto noteDto)
     {
+        if (noteDto.NoteId == Guid.Empty)
+        {
+            return BadRequest(new { message = $"Invalid note id {noteDto.NoteId}" });
+        }
+
         if (ModelState.IsValid == false)
         {
             // Categories and Tags are cached on the server 
             ViewBag.Categories = await categoryService.GetAllAsync(UserId);
             ViewBag.Tags = await tagService.GetAllAsync(UserId);
-            return View(noteDto);
+            return View("Update");
         }
 
-        try
-        {
-            noteDto.Tags = noteDto.Tags == null ? [] : noteDto.Tags;
-            var updatedNote = await noteManagerService.UpdateAsync(UserId, noteDto);
-            return RedirectToAction("Index");
-        }
 
-        catch (NoteNotFoundException ex)
-        {
-            return NotFound(new { error = ex.Message });
-        }
+        noteDto.Tags = noteDto.Tags ?? [];
+        await noteManagerService.UpdateAsync(UserId, noteDto);
+        return RedirectToAction("Index");
     }
 
     [HttpPost("[action]/{id}")]
@@ -178,61 +173,41 @@ public class NoteController(
         {
             return BadRequest(new { message = $"Invalid note id {id}" });
         }
-        
-        try
-        {
-            if (await noteManagerService.DeleteAsync(UserId, id) == false)
-            {
-                HttpContext.Response.StatusCode = 500;
-                return Json(new { message = $"Failed to delete note with id {id}" });
-            }
 
-            return RedirectToAction("Index");
-        }
-        catch (NoteNotFoundException ex)
+
+        if (await noteManagerService.DeleteAsync(UserId, id) == false)
         {
-            return NotFound(new { message = ex.Message });
+            HttpContext.Response.StatusCode = 500;
+            return Json(new { message = $"Failed to delete note with id {id}" });
         }
+
+        return RedirectToAction("Index");
     }
 
     [HttpGet("export/excel")]
     public async Task<IActionResult> ExportToExcel()
     {
         var notes = await noteRetrieverService.GetAllAsync(UserId);
-        var stream =  excelExportService.GenerateAsync(notes.ToList());
+        var stream = excelExportService.GenerateAsync(notes.ToList());
         return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Notes.xlsx");
-        // var fileStream = new FileStream(Path.Combine(webHostEnvironment.WebRootPath, "Meeting in _General_-20240807_105507-Meeting Recording.mp4"), FileMode.Open,
-        //     FileAccess.Read);
-        // return PhysicalFile(Path.Combine(webHostEnvironment.WebRootPath, "Meeting in _General_-20240807_105507-Meeting Recording.mp4"), "application/mp4");
-
-        // if (System.IO.File.Exists(Path.Combine(webHostEnvironment.WebRootPath,
-        //         "Meeting in _General_-20240807_105507-Meeting Recording.mp4")))
-        //     return PhysicalFile(
-        //         Path.Combine(webHostEnvironment.WebRootPath,
-        //             "Meeting in _General_-20240807_105507-Meeting Recording.mp4"),
-        //         "application/mp4", "video.mp4", enableRangeProcessing:true);
-        // else return Content("File doesn't exist");
     }
-    
+
     [HttpGet("export/pdf")]
     public async Task<IActionResult> ExportToPdf()
     {
         var notes = await noteRetrieverService.GetAllAsync(UserId);
-        // var file =   notePdfService.GenerateAsync(notes.ToList());
-        // return File(file, "application/pdf", "Notes.pdf");
         return new ViewAsPdf("ExportPdf", notes)
         {
             FileName = "notes.pdf",
             PageSize = Rotativa.AspNetCore.Options.Size.A4
         };
     }
-    
+
     [HttpGet("export/word")]
     public async Task<IActionResult> ExportToWord()
     {
         var notes = await noteRetrieverService.GetAllAsync(UserId);
-        var stream =  wordExportService.GenerateAsync(notes.ToList());
+        var stream = wordExportService.GenerateAsync(notes.ToList());
         return File(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Notes.docx");
     }
-
 }

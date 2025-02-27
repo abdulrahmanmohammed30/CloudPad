@@ -9,12 +9,12 @@ using CloudPad.Helpers;
 namespace CloudPad.Controllers
 {
     [Route("[controller]")]
-    [EnsureUserIdExistsFilterFactory]
     [CategoryExceptionFilterFactory]
     [Authorize]
     public class CategoryController(ICategoryService categoryService) : Controller
     {
         private int UserId => HttpContext.GetUserId()!.Value;
+
         [HttpGet("[action]")]
         public async Task<IActionResult> ValidateCategoryName(string name)
         {
@@ -66,7 +66,7 @@ namespace CloudPad.Controllers
                 return View(createCategoryDto);
             }
 
-            var categoryDto = await categoryService.CreateAsync(UserId, createCategoryDto);
+            await categoryService.CreateAsync(UserId, createCategoryDto);
             return RedirectToAction("Index");
         }
 
@@ -107,25 +107,15 @@ namespace CloudPad.Controllers
                 return BadRequest(new { message = "Category id is invalid" });
             }
 
-            if (categoryDto == null)
-            {
-                return BadRequest(new { message = "Category is null" });
-            }
-
             if (ModelState.IsValid == false)
             {
                 return View(categoryDto);
             }
+
             try
             {
-                var updatedCategory = await categoryService.UpdateAsync(UserId, categoryDto);
+                await categoryService.UpdateAsync(UserId, categoryDto);
                 return RedirectToAction("Index");
-
-            }
-
-            catch (CategoryNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
             }
 
             catch (InvalidCategoryException ex)
@@ -155,19 +145,12 @@ namespace CloudPad.Controllers
                 return BadRequest(new { message = "Category id is invalid" });
             }
 
-            try
+            if (await categoryService.DeleteAsync(UserId, id) == false)
             {
-                if (await categoryService.DeleteAsync(UserId, id) == false)
-                {
-                    return BadRequest(new { Rmessage = $"Failed to delete category with id {id}" });
-                }
-                return RedirectToAction("Index");
+                return BadRequest(new { Rmessage = $"Failed to delete category with id {id}" });
             }
-            catch (CategoryNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
+
+            return RedirectToAction("Index");
         }
     }
 }
-

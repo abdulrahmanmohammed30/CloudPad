@@ -5,7 +5,7 @@ namespace CloudPad.Core.ServiceContracts
 {
     public interface IResourceService
     {
-        Task<ResourceDto> CreateResourceDto(int userId, string uploadsDirectoryPath, CreateResourceDto resourceDto);
+        Task<ResourceDto> CreateAsync(int userId, string uploadsDirectoryPath, CreateResourceDto resourceDto);
 
         Task<List<ResourceDto>> GetAllResources(int userId, Guid resourceId);
 

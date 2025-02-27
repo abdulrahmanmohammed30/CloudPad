@@ -1,5 +1,6 @@
 ﻿using CloudPad.Core.Dtos;
 using CloudPad.Core.Entities.Domains;
+using CloudPad.Core.Exceptions;
 using CloudPad.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +27,14 @@ namespace CloudPad.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
+            
             var user = await userService.GetUserByIdAsync(UserId);
+
+            if (user == null)
+            {
+                return NotFound("failed to load profile data");
+            }
+            
             if (string.IsNullOrEmpty(user.ProfileImageUrl) == false)
                 user.ProfileImageUrl = Path.Combine("uploads", user.ProfileImageUrl);
             return View(user);
@@ -36,6 +44,12 @@ namespace CloudPad.Controllers
         public async Task<IActionResult> Update()
         {
             var user = await userService.GetUserByIdAsync(UserId);
+            
+            if (user == null)
+            {
+                return NotFound("failed to load profile data");
+            }
+            
             var updateProfileDto = new UpdateProfileDto()
             {
                 Id = user.Id,
@@ -64,10 +78,10 @@ namespace CloudPad.Controllers
 
             try
             {
-                var user = await userService.UpdateProfileAsync(updateProfileDto);
+                await userService.UpdateProfileAsync(updateProfileDto);
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+            catch (UserNotFoundException ex)
             {
                 ModelState.AddModelError("", ex.Message);
                 return View(updateProfileDto);

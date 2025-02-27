@@ -29,7 +29,7 @@ public class AdminController(
     /*// attempt to maintain the same page*/
 
     [HttpGet("assign-role")]
-    public async Task<IActionResult> AssignRole(string? username, string? role, int page = 1, int pageSize = 10)
+    public async Task<IActionResult> AssignRole(string? username, string? role, int page = 1, int pageSize = 15)
     {
         if (username == null || role == null)
         {
@@ -65,7 +65,7 @@ public class AdminController(
 
     // attempt to maintain the same page 
     [HttpGet("delete")]
-    public async Task<IActionResult> DeleteUser(string? username, int? page = 1, int? pageSize = 10)
+    public async Task<IActionResult> DeleteUser(string? username, int page = 1, int pageSize = 15)
     {
         if (username == null)
         {
