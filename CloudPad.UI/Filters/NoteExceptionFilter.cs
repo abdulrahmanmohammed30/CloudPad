@@ -21,7 +21,7 @@ namespace CloudPad.Filters
         {
             var response = new
             {
-                 context.Exception.Message
+                Message= context.Exception.InnerException != null? context.Exception.InnerException.Message:context.Exception.Message
             };
             
             context.Result = context.Exception switch
@@ -33,7 +33,7 @@ namespace CloudPad.Filters
                 InvalidCategoryException => new BadRequestObjectResult(response),
                 InvalidTagException => new BadRequestObjectResult(response),
                 InvalidNoteIdException=> new BadRequestObjectResult(response),
-                _ => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.InternalServerError }
+               _ => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.InternalServerError }
             };
 
             context.ExceptionHandled = true;

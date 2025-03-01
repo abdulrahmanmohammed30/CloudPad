@@ -7,7 +7,6 @@ using CloudPad.Core.Exceptions;
 
 namespace CloudPad.Infrastructure.Repositories;
 
-
 public class CategoryRepository(AppDbContext context) : ICategoryRepository
 {
     public async Task<Category?> GetByIdAsync(int userId, Guid categoryId)
@@ -16,7 +15,7 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
             .Where(c => c.UserId == userId && c.CategoryGuid == categoryId)
             .FirstOrDefaultAsync();
     }
-    
+
 
     public async Task<List<Category>> GetAllAsync(int userId)
     {
@@ -42,7 +41,7 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
     {
         await context.Categories.AddAsync(category);
         await context.SaveChangesAsync();
-        
+
         return category;
     }
 
@@ -50,7 +49,7 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
     {
         context.Update(category);
         await context.SaveChangesAsync();
-        
+
         return category;
     }
 
@@ -65,8 +64,8 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
         var existingCategory = await GetByIdAsync(userId, categoryGuid);
         existingCategory.IsDeleted = true;
         context.Update(existingCategory);
-        await context.SaveChangesAsync();
-        return true;
+        int rows = await context.SaveChangesAsync();
+        return rows > 0;
     }
 
     public async Task<bool> ExistsAsync(int userId, Guid categoryGuid)
@@ -78,6 +77,6 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
     public async Task<Category?> GetByNameAsync(int userId, string categoryName)
     {
         return await context.Categories
-             .FirstOrDefaultAsync(c => c.UserId == userId && c.Name == categoryName);
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Name == categoryName);
     }
 }

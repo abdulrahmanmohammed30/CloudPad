@@ -3,7 +3,6 @@ using CloudPad.Core.Entities;
 using CloudPad.Core.Exceptions;
 using CloudPad.Core.RepositoryContracts;
 using CloudPad.Core.ServiceContracts;
-using Microsoft.AspNetCore.Http;
 using CloudPad.Core.Mappers;
 
 namespace CloudPad.Core.Services
@@ -54,12 +53,19 @@ namespace CloudPad.Core.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 NoteId = note.NoteId, 
-                Note = note
         };
+            resource.Note = null;
+            ///try
+            //{
+                var createdResource = await resourceRepository.CreateAsync(resource);
 
-            var createdResource = await resourceRepository.CreateAsync(resource);
-
-            return createdResource.ToDto();
+                return createdResource.ToDto();
+           // }
+        //    catch (Exception ex)
+          //  {
+                //throw new ResourceCreationFailedException("Resource creation failed", ex);
+            //    throw;
+            //}
         }
 
         public async Task<List<ResourceDto>> GetAllResources(int userId, Guid noteId)
@@ -82,6 +88,7 @@ namespace CloudPad.Core.Services
             }
 
             resource.IsDeleted = true;
+            resource.Note = null;
             await resourceRepository.UpdateAsync(resource);
         }
 
@@ -121,6 +128,8 @@ namespace CloudPad.Core.Services
             resource.DisplayName = resourceDto.DisplayName;
             resource.Description = resourceDto.Description;
             resource.UpdatedAt = DateTime.UtcNow;
+
+            resource.Note = null;
 
             var updatedResource = await resourceRepository.UpdateAsync(resource);
 

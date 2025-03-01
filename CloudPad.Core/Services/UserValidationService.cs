@@ -6,7 +6,7 @@ public class UserValidationService(IUserService userService) :IUserValidationSer
 {
     public async Task EnsureUserValidation(int userId)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
+        //ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
     }
 }
 

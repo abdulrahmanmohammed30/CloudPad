@@ -115,7 +115,7 @@ public class AccountController(
         {
             To = user.Email!,
             Subject = "Confirm your email",
-            Body = $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>"   
+            Body = $"Please confirm your email by clicking {confirmationLink}"   
         });
 
         // The role "User" always exists, Migration folder contains some seeded roles
@@ -231,7 +231,7 @@ public class AccountController(
         var result = await userManager.ConfirmEmailAsync(user, token);
 
         if (result.Succeeded)
-        {
+        {   
             return View("EmailConfirmed"); // Success message
         }
 
@@ -274,7 +274,7 @@ public class AccountController(
         {
             To = user.Email!,
             Subject = "Confirm your email",
-            Body = $"Please confirm your email by clicking <a href='{confirmationLink}'>here</a>"   
+            Body = $"Please confirm your email by clicking {confirmationLink}"   
         });
 
         ViewBag.Email = rorgetPasswordDto.Email;
@@ -403,7 +403,7 @@ public class AccountController(
         {
             To = user.Email!,
             Subject = "Confirm your email",
-            Body = $"Please confirm your email by clicking <a href='{confirmChangeToken}'>here</a>"   
+            Body = $"Please confirm your email by clicking {confirmChangeToken}"   
         });
 
         ViewBag.userEmail = user.Email;

@@ -63,6 +63,8 @@ namespace CloudPad.Core.Services
             user.PreferredLanguageId = profile.PreferredLanguageId;
             user.BirthDate = profile.BirthDate;
             user.CountryId = profile.CountryId;
+            user.Country = null;
+            user.PreferredLanguage = null;
 
             var profileDto = (await userRepository.UpdateAsync(user)).ToProfileDto();
             return profileDto;

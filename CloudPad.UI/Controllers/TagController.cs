@@ -1,10 +1,13 @@
-﻿using CloudPad.Core.Dtos;
+﻿using System.Linq.Expressions;
+using CloudPad.Core.Dtos;
 using CloudPad.Core.Exceptions;
 using CloudPad.Core.ServiceContracts;
 using CloudPad.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CloudPad.Helpers;
+using DocumentFormat.OpenXml.InkML;
+using NoteTakingApp.Model_Binders;
 
 namespace CloudPad.Controllers
 {
@@ -28,7 +31,7 @@ namespace CloudPad.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ValidateExistingTagName(string name, int tagId)
+        public async Task<IActionResult> ValidateExistingTagName(string name, int id)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -42,7 +45,7 @@ namespace CloudPad.Controllers
                 return Json(true);
             }
 
-            return Json(tag.Id == tagId);
+            return Json(tag.Id == id);
         }
 
         [HttpGet("")]
@@ -58,6 +61,12 @@ namespace CloudPad.Controllers
             return View(new CreateTagDto());
         }
 
+        [HttpGet("create-tag")]
+        public IActionResult CreateTag([ModelBinder(BinderType=typeof(CreateTagDtoModelBinderV2))] CreateTagDto tag)
+        {
+                return Json(tag);
+        }
+        
         [HttpPost("[action]")]
         public async Task<IActionResult> Create(CreateTagDto createTagDto)
         {

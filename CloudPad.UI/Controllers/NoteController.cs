@@ -106,7 +106,7 @@ public class NoteController(
             return View(noteDto);
         }
 
-        noteDto.Tags = noteDto.Tags == null ? [] : noteDto.Tags;
+        noteDto.Tags = noteDto.Tags ?? [];
         await noteManagerService.AddAsync(UserId, noteDto);
         return RedirectToAction("Index");
     }
@@ -137,7 +137,8 @@ public class NoteController(
             IsFavorite = existingNote.IsFavorite,
             IsPinned = existingNote.IsPinned,
         };
-
+        
+        
         ViewBag.Categories = await categoryService.GetAllAsync(UserId);
         ViewBag.Tags = await tagService.GetAllAsync(UserId);
 

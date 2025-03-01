@@ -11,7 +11,6 @@ namespace CloudPad.Core.Dtos
         public string To { get; set; } = string.Empty;
         
         [Required]
-        [EmailAddress]
         public string Subject { get; set; } = string.Empty;
         
         [Required]

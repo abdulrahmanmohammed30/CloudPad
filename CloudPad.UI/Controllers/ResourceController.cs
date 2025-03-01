@@ -8,7 +8,7 @@ namespace CloudPad.Controllers
 {
     [Authorize]
     [Route("[controller]")]
-    [ResourceExceptionFilterAttributeFactory]
+  //  [ResourceExceptionFilterAttributeFactory]
     public class ResourceController(
         INoteValidatorService noteValidatorService,
         IResourceService resourceService,
@@ -29,7 +29,7 @@ namespace CloudPad.Controllers
                 return BadRequest("Invalid note id exception");
             }
 
-            if (await noteValidatorService.ExistsAsync(UserId, noteId))
+            if (await noteValidatorService.ExistsAsync(UserId, noteId) == false)
             {
                 return NotFound($"Note with id {noteId} was not found");
             }
@@ -40,20 +40,22 @@ namespace CloudPad.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> CreateResource(CreateResourceDto resourceDto)
         {
-            if (resourceDto.NoteId == Guid.Empty)
-            {
-                throw new InvalidResourceException("Note id is required");
-            }
-            
             if (!ModelState.IsValid)
             {
                 return View("Create");
             }
 
- 
-                await resourceService.CreateAsync(UserId, UploadedDirectoryPath, resourceDto);
-                return RedirectToAction("Get", "Note", new { id = resourceDto.NoteId });
-
+            if (resourceDto.NoteId == Guid.Empty)
+            {
+                throw new InvalidResourceException("Note id is required");
+            }
+            
+            if (await noteValidatorService.ExistsAsync(UserId, resourceDto.NoteId) == false)
+            {
+                return NotFound($"Note with id {resourceDto.NoteId} was not found");
+            }
+            await resourceService.CreateAsync(UserId, UploadedDirectoryPath, resourceDto);
+            return RedirectToAction("Get", "Note", new { id = resourceDto.NoteId });
         }
 
         [HttpGet("[action]/{noteId}/{resourceId}")]
@@ -85,7 +87,6 @@ namespace CloudPad.Controllers
                 NoteId = noteId,
                 Size = resource.Size
             };
-
             return View(updateResourceDto);
         }
 
@@ -109,20 +110,19 @@ namespace CloudPad.Controllers
             }
 
 
-               await resourceService.UpdateAsync(UserId, noteId, updateResourceDto);
-                return RedirectToAction("Get", "Note", new { id = noteId });
-   
+            await resourceService.UpdateAsync(UserId, noteId, updateResourceDto);
+            return RedirectToAction("Get", "Note", new { id = noteId });
         }
 
 
         [HttpGet("{noteId}")]
         public async Task<IActionResult> GetAllResources(Guid noteId)
-        {  
+        {
             if (noteId == Guid.Empty)
             {
                 return BadRequest("node id is invalid");
             }
-            
+
             var resources = await resourceService.GetAllResources(UserId, noteId);
             return Json(resources);
         }

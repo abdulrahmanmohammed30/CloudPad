@@ -21,7 +21,7 @@ namespace CloudPad.Filters
         {
             var response = new
             {
-                 context.Exception.Message
+                Message= context.Exception.InnerException != null? context.Exception.InnerException.Message:context.Exception.Message
             };
             
             context.Result = context.Exception switch

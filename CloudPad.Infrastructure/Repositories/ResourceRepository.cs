@@ -10,6 +10,7 @@ namespace CloudPad.Infrastructure.Repositories
         public async Task<Resource> CreateAsync(Resource resource)
         {
             context.Resources.Add(resource);
+            var d = context.ChangeTracker.DebugView.ShortView;
             await context.SaveChangesAsync();
             return resource;
         }

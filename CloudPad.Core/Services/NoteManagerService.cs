@@ -19,7 +19,7 @@ public class NoteManagerService(
 {
     public async Task<NoteDto> AddAsync(int userId, CreateNoteDto note)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        //await userValidationService.EnsureUserValidation(userId);
         
         var context = new ValidationContext(note);
         var errors = new List<ValidationResult>();
@@ -99,13 +99,11 @@ public class NoteManagerService(
             existingNote.CategoryId = null;
         } else if(note.CategoryId != existingNote.Category?.CategoryGuid) {
             existingNote.Category = await categoryRepository.GetByIdAsync(userId, note.CategoryId.Value);
-
+            
             if (existingNote.Category == null)
             {
                 throw new CategoryNotFoundException($"Category {note.CategoryId} assigned to note {note.NoteId} was not found");            
             }
-
-            existingNote.CategoryId = existingNote.Category.CategoryId;
         }
 
         existingNote.Title = note.Title;
@@ -115,6 +113,7 @@ public class NoteManagerService(
         existingNote.IsPinned = note.IsPinned;
         existingNote.UpdatedAt = DateTime.Now;
         existingNote.UpdatedAt = DateTime.UtcNow;
+        //existingNote.Category = null;
 
         var noteDto = (await noteRepository.UpdateAsync(existingNote)).ToDto();
 

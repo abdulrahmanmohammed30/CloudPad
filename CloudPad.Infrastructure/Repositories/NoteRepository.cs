@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using CloudPad.Core.Entities;
 using CloudPad.Core.Enums;
 using CloudPad.Core.RepositoryContracts;
@@ -22,7 +21,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     {
         return await context.Notes
             .Where(n => n.UserId == userId && n.Category != null && n.Category.CategoryGuid == categoryGuid)
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -30,7 +29,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     public async Task<IEnumerable<Note>> GetByTagAsync(int userId, int tagId, int pageNumber, int pageSize)
     {
         return await context.Notes.Where(n => n.UserId == userId && n.Tags.Any(t => t.TagId == tagId))
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -38,7 +37,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     public async Task<IEnumerable<Note>> GetFavoritesAsync(int userId, int pageNumber, int pageSize)
     {
         return await context.Notes.Where(n => n.UserId == userId && n.IsFavorite)
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -46,7 +45,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     public async Task<IEnumerable<Note>> GetPinnedAsync(int userId, int pageNumber, int pageSize)
     {
         return await context.Notes.Where(n => n.UserId == userId && n.IsPinned)
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -54,7 +53,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     public async Task<IEnumerable<Note>> GetArchivedAsync(int userId, int pageNumber, int pageSize)
     {
         return await context.Notes.Where(n => n.UserId == userId && n.IsArchived)
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -62,7 +61,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     public async Task<IEnumerable<Note>> GetAllAsync(int userId, int pageNumber, int pageSize)
     {
         return await context.Notes.Where(n => n.UserId == userId)
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -72,7 +71,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
         return await context.Notes
             .Where(n => n.UserId == userId &&
                         (n.Title.Contains(searchTerm) || (n.Content != null && n.Content.Contains(searchTerm))))
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -80,16 +79,16 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     public async Task<IEnumerable<Note>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber, int pageSize)
     {
         return await context.Notes.Where(n => n.UserId == userId && n.Title.Contains(searchTerm))
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Note>> SearchByContentAsync(int userId, string searchTerm, int pageNumber,
+    public async Task<IEnumerable<Note>> SearchByContentAsync(int userId, string searchTerm, int pageNumber ,
         int pageSize)
     {
         return await context.Notes.Where(n => n.UserId == userId && n.Content != null && n.Content.Contains(searchTerm))
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
@@ -108,14 +107,14 @@ public class NoteRepository(AppDbContext context) : INoteRepository
                 Expression.Constant(value, typeof(string)));
 
             var lambda = Expression.Lambda<Func<Note, bool>>(condition, parameter);
-            filter = filter.And<Note>(lambda); // Using a helper method to combine expressions
+            filter = filter.And(lambda); // Using a helper method to combine expressions
         }
 
-        return await context.Notes.Where(filter).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        return await context.Notes.Where(filter).Skip(((pageNumber - 1) - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
     public async Task<IEnumerable<Note>> SortAsync(int userId, NoteSortableColumn column, bool sortDescending,
-        int pageNumber, int pageSize)
+        int pageNumber , int pageSize)
     {
         var query = context.Notes.Where(n => n.UserId == userId);
 
@@ -133,7 +132,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
             _ => query
         };
 
-        return await query.Skip(pageNumber * pageSize).Take(pageSize).ToListAsync();
+        return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
     public async Task<Note> CreateAsync(Note note)
@@ -145,6 +144,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
 
     public async Task<Note> UpdateAsync(Note note)
     {
+       //context.Entry(note.Category).State = EntityState.Unchanged;
         context.Notes.Update(note);
         await context.SaveChangesAsync();
         return note;
@@ -161,18 +161,6 @@ public class NoteRepository(AppDbContext context) : INoteRepository
 
         return note;
     }
-
-    //public async Task<bool> DeleteAsync(int userId, Guid noteId)
-    //{
-    //    var note = await GetById(userId, noteId);
-    //    if (note != null)
-    //    {
-    //        note.IsDeleted = true;
-    //        await _context.SaveChangesAsync();
-    //        return true;
-    //    }
-    //    return false;
-    //}
 
     public async Task DeleteAsync(int userId, Guid noteId)
     {
@@ -192,7 +180,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
     {
         var query = context.Notes.Where(n =>
                 n.Title.Contains(title) && (n.Content == null || n.Content.Contains(content)) && n.UserId == userId)
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize);
 
         // if the content is not null, filter by content 

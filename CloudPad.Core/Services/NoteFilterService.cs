@@ -85,7 +85,7 @@ public class NoteFilterService(INoteRepository noteRepository, IUserValidationSe
         string tag = "", string category = "", bool isFavorite = false, bool isPinned = false, bool isArchived = false,
         int pageNumber = PageNumber, int pageSize = PageSize)
     {
-        await userValidationService.EnsureUserValidation(userId);
+       // await userValidationService.EnsureUserValidation(userId);
         (pageNumber, pageSize) = NormalizePaginationParameters(pageNumber, pageSize);
         
 

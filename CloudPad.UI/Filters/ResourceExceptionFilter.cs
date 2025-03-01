@@ -21,14 +21,14 @@ public class ResourceExceptionFilter:IExceptionFilter
     {
         var response = new
         {
-            context.Exception.Message
+           Message= context.Exception.InnerException != null? context.Exception.InnerException.Message:context.Exception.Message
         };
 
         context.Result = context.Exception switch
         {
             NoteNotFoundException  => new NotFoundObjectResult(response),
             ResourceNotFoundException  => new NotFoundObjectResult(response),
-
+            
             _ => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.InternalServerError }
         };
         context.ExceptionHandled=true;
