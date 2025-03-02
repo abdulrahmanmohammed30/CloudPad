@@ -4,28 +4,35 @@
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">Tags Management</h2>
     
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-4">Tags Management</h2>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Tag
+        </a>
+    </div>
+
     <table class="table-striped table-bordered table">
         <thead class="table-dark">
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th class="text-center">Actions</th>
-            </tr>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th class="text-center">Actions</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var tag in Model)
-            {
-                <tr>
-                    <td>@tag.Name</td>
-                    <td>@(string.IsNullOrEmpty(tag.Description) ? "No description" : tag.Description)</td>
-                    <td class="text-center">
-                        <a asp-action="Update" asp-route-id="@tag.Id" class="btn btn-warning btn-sm">Edit</a>
-                        <button class="btn btn-danger btn-sm" onclick="confirmDelete('@tag.Id')">Delete</button>
-                    </td>
-                </tr>
-            }
+        @foreach (var tag in Model)
+        {
+            <tr>
+                <td>@tag.Name</td>
+                <td>@(string.IsNullOrEmpty(tag.Description) ? "No description" : tag.Description)</td>
+                <td class="text-center">
+                    <a asp-action="Update" asp-route-id="@tag.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('@tag.Id')">Delete</button>
+                </td>
+            </tr>
+        }
         </tbody>
     </table>
 </div>

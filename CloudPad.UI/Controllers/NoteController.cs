@@ -188,7 +188,7 @@ public class NoteController(
     [HttpGet("export/excel")]
     public async Task<IActionResult> ExportToExcel()
     {
-        var notes = await noteRetrieverService.GetAllAsync(UserId);
+        var notes = await noteRetrieverService.GetAllAsync(UserId,1,30);
         var stream = excelExportService.GenerateAsync(notes.ToList());
         return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Notes.xlsx");
     }
@@ -196,7 +196,7 @@ public class NoteController(
     [HttpGet("export/pdf")]
     public async Task<IActionResult> ExportToPdf()
     {
-        var notes = await noteRetrieverService.GetAllAsync(UserId);
+        var notes = await noteRetrieverService.GetAllAsync(UserId,1,30);
         return new ViewAsPdf("ExportPdf", notes)
         {
             FileName = "notes.pdf",
@@ -207,7 +207,7 @@ public class NoteController(
     [HttpGet("export/word")]
     public async Task<IActionResult> ExportToWord()
     {
-        var notes = await noteRetrieverService.GetAllAsync(UserId);
+        var notes = await noteRetrieverService.GetAllAsync(UserId,1,30);
         var stream = wordExportService.GenerateAsync(notes.ToList());
         return File(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Notes.docx");
     }

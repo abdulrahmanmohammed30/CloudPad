@@ -16,8 +16,7 @@ public class RegisterDto
     //[Url]
     //[DisplayName("Profile Image Url")]
     //public string? ProfileImageUrl { get; set; }
-
-    [Required]
+    
     [DataType(DataType.Upload)]
     public IFormFile? ImageFile { get; set; }
     
