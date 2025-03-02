@@ -44,7 +44,7 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
         return note;
     }
 
-    public async Task<IEnumerable<NoteDto>> GetByCategoryAsync(int userId, Guid categoryId, int pageNumber = 0,
+    public async Task<IEnumerable<NoteDto>> GetByCategoryAsync(int userId, Guid categoryId, int pageNumber = 1,
         int pageSize = 20)
     {
         Task.WaitAll(userValidationService.EnsureUserValidation(userId), ValidateCategoryAsync(userId, categoryId));
@@ -54,7 +54,7 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
         return notes.ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> GetByTagAsync(int userId, int tagId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> GetByTagAsync(int userId, int tagId, int pageNumber = 1, int pageSize = 20)
     {
         Task.WaitAll(userValidationService.EnsureUserValidation(userId), 
             ValidateTagAsync(userId, tagId));
@@ -64,7 +64,7 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
         return notes.ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> GetFavoritesAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> GetFavoritesAsync(int userId, int pageNumber = 1, int pageSize = 20)
     {
         await userValidationService.EnsureUserValidation(userId);
 
@@ -72,7 +72,7 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
         return notes.ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> GetPinnedAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> GetPinnedAsync(int userId, int pageNumber = 1, int pageSize = 20)
     {
         await userValidationService.EnsureUserValidation(userId);
 
@@ -80,7 +80,7 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
         return notes.ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> GetArchivedAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> GetArchivedAsync(int userId, int pageNumber = 1, int pageSize = 20)
     {
         await userValidationService.EnsureUserValidation(userId);
 
@@ -88,7 +88,7 @@ public class NoteRetrieverService(INoteRepository noteRepository, ICategoryServi
         return notes.ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> GetAllAsync(int userId, int pageNumber = 0, int pageSize = 20)
+    public async Task<IEnumerable<NoteDto>> GetAllAsync(int userId, int pageNumber = 1, int pageSize = 20)
     {
         await userValidationService.EnsureUserValidation(userId);
 
