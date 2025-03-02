@@ -15,6 +15,11 @@ GlobalFontSettings.UseWindowsFontsUnderWindows = true;
 
 builder.Services.ConfigureServices(builder.Configuration);
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 var app = builder.Build();
 
 RotativaConfiguration.Setup(app.Environment.WebRootPath);
