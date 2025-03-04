@@ -7,7 +7,7 @@ namespace CloudPad.Core.Services
     public class UploadImageService(IUploadDocumentService uploadDocumentService) : IUploadImageService
     {
         private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-        public Task<string> Upload(string uploadsDirectoryPath, IFormFile file)
+        public Task<string> UploadAsync(string uploadsDirectoryPath, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
@@ -32,7 +32,7 @@ namespace CloudPad.Core.Services
                 throw new InvalidOperationException("Only image files are allowed");
             }
 
-            return uploadDocumentService.Upload(uploadsDirectoryPath, file);
+            return uploadDocumentService.UploadAsync(uploadsDirectoryPath, file);
         }
     }
 }

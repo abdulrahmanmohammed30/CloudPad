@@ -14,8 +14,8 @@ namespace CloudPad.Controllers;
 public class NoteController(
     INoteRetrieverService noteRetrieverService,
     INoteManagerService noteManagerService,
-    ITagService tagService,
-    ICategoryService categoryService,
+    ITagRetrieverService tagRetrieverService,
+    ICategoryRetrieverService categoryRetrieverService,
     INoteFilterService noteFilterService,
     INoteExcelExportService excelExportService,
     INoteWordExportService wordExportService
@@ -32,8 +32,8 @@ public class NoteController(
         var notes = await noteFilterService.FilterAsync(UserId, title, content, tag, category, isFavorite, isPinned,
             isArchived, page, size);
 
-        ViewBag.Categories = await categoryService.GetAllAsync(UserId);
-        ViewBag.Tags = await tagService.GetAllAsync(UserId);
+        ViewBag.Categories = await categoryRetrieverService.GetAllAsync(UserId);
+        ViewBag.Tags = await tagRetrieverService.GetAllAsync(UserId);
 
         return View(notes);
     }
@@ -90,8 +90,8 @@ public class NoteController(
     [HttpGet("[action]")]
     public async Task<IActionResult> Create()
     {
-        ViewBag.Categories = await categoryService.GetAllAsync(UserId);
-        ViewBag.Tags = await tagService.GetAllAsync(UserId);
+        ViewBag.Categories = await categoryRetrieverService.GetAllAsync(UserId);
+        ViewBag.Tags = await tagRetrieverService.GetAllAsync(UserId);
         return View(new CreateNoteDto());
     }
 
@@ -101,8 +101,8 @@ public class NoteController(
         if (ModelState.IsValid == false)
         {
             // Categories and Tags are cached on the server 
-            ViewBag.Categories = await categoryService.GetAllAsync(UserId);
-            ViewBag.Tags = await tagService.GetAllAsync(UserId);
+            ViewBag.Categories = await categoryRetrieverService.GetAllAsync(UserId);
+            ViewBag.Tags = await tagRetrieverService.GetAllAsync(UserId);
             return View(noteDto);
         }
 
@@ -139,8 +139,8 @@ public class NoteController(
         };
         
         
-        ViewBag.Categories = await categoryService.GetAllAsync(UserId);
-        ViewBag.Tags = await tagService.GetAllAsync(UserId);
+        ViewBag.Categories = await categoryRetrieverService.GetAllAsync(UserId);
+        ViewBag.Tags = await tagRetrieverService.GetAllAsync(UserId);
 
         return View(note);
     }
@@ -156,8 +156,8 @@ public class NoteController(
         if (ModelState.IsValid == false)
         {
             // Categories and Tags are cached on the server 
-            ViewBag.Categories = await categoryService.GetAllAsync(UserId);
-            ViewBag.Tags = await tagService.GetAllAsync(UserId);
+            ViewBag.Categories = await categoryRetrieverService.GetAllAsync(UserId);
+            ViewBag.Tags = await tagRetrieverService.GetAllAsync(UserId);
             return View("Update");
         }
 
@@ -175,8 +175,11 @@ public class NoteController(
             return BadRequest(new { message = $"Invalid note id {id}" });
         }
 
-
-        if (await noteManagerService.DeleteAsync(UserId, id) == false)
+        try
+        {
+            await noteManagerService.DeleteAsync(UserId, id);
+        }
+        catch(Exception)
         {
             HttpContext.Response.StatusCode = 500;
             return Json(new { message = $"Failed to delete note with id {id}" });

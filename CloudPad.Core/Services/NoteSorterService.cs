@@ -8,7 +8,7 @@ using CloudPad.Core.Mappers;
 
 namespace CloudPad.Core.Services;
 
-public class NoteSorterService(INoteRepository noteRepository, IUserValidationService userValidationService)
+public class NoteSorterService(INoteRepository noteRepository, IUserValidatorService userValidatorService)
 :INoteSorterService
 {
    private static (int pageNumber, int pageSize) NormalizePaginationParameters(int pageNumber, int pageSize)
@@ -23,8 +23,9 @@ public class NoteSorterService(INoteRepository noteRepository, IUserValidationSe
         int pageSize = 20)
     
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
         (pageNumber, pageSize  ) = NormalizePaginationParameters(pageNumber, pageSize);
+        
         
         if (string.IsNullOrWhiteSpace(column))
         {

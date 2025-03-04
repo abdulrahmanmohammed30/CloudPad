@@ -7,6 +7,11 @@ public class NoteValidatorService(INoteRepository noteRepository):INoteValidator
 {
     public async Task<bool> ExistsAsync(int userId, Guid noteId)
     {
+        if (userId <= 0 || noteId == Guid.Empty)
+        {
+            return false;
+        }
+        
         return await noteRepository.ExistsAsync(userId, noteId);
     }
 }

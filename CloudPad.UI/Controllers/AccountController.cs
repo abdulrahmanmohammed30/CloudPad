@@ -44,7 +44,7 @@ public class AccountController(
             return RedirectToAction("Index", "Note");
         }
 
-        ViewBag.Countries = await getterCountryService.GetAllCountries();
+        ViewBag.Countries = await getterCountryService.GetAllCountriesAsync();
         return View(new RegisterDto());
     }
 
@@ -59,7 +59,7 @@ public class AccountController(
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
-        ViewBag.Countries = await getterCountryService.GetAllCountries();
+        ViewBag.Countries = await getterCountryService.GetAllCountriesAsync();
         if (!ModelState.IsValid)
         {
             // Todo: Log errors  
@@ -95,7 +95,7 @@ public class AccountController(
             if (registerDto.ImageFile != null && registerDto.ImageFile.Length != 0)
             {
                 user.ProfileImageUrl =
-                    await uploadImageService.Upload(uploadsDirectoryPath,
+                    await uploadImageService.UploadAsync(uploadsDirectoryPath,
                         registerDto.ImageFile);
             }
         }

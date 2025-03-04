@@ -1,64 +1,27 @@
 ﻿using CloudPad.Core.Dtos;
 using CloudPad.Core.Exceptions;
+using CloudPad.Core.Mappers;
 using CloudPad.Core.RepositoryContracts;
 using CloudPad.Core.ServiceContracts;
 using Microsoft.Extensions.Caching.Memory;
-using CloudPad.Core.Mappers;
-using Microsoft.AspNetCore.Http;
 
-namespace CloudPad.Core.Services;
+namespace NoteTakingApp.Core.Services;
 
-public class TagService(ITagRepository tagRepository,
-    IUserValidationService userValidationService, IMemoryCache cache) : ITagService
+public class TagManagerService(ITagRepository tagRepository, IUserValidatorService userValidatorService, IMemoryCache cache
+, ITagValidatorService tagValidatorService) : ITagManagerService
 {
-    public async Task<TagDto?> GetByIdAsync(int userId, int id)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-        
-        var tag = await tagRepository.GetByIdAsync(userId, id);
-        return tag?.ToDto();
-    }
-
-    public async Task<IEnumerable<TagDto>> GetAllAsync(int userId)
-    {      
-        await userValidationService.EnsureUserValidation(userId);
-
-        return await cache.GetOrCreateAsync($"tags/{userId}", async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-            await userValidationService.EnsureUserValidation(userId);
-            var tags = await tagRepository.GetAllAsync(userId);
-            return tags.ToDtoList();
-        }) ?? throw new InvalidOperationException();
-    }
-
     public async Task DeleteAllAsync(int userId)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         cache.Remove($"tags/{userId}");
 
-         await tagRepository.DeleteAllAsync(userId);
-    }
-
-
-    public async Task<bool> ExistsAsync(int userId, int id)
-    {     
-        await userValidationService.EnsureUserValidation(userId);
-
-        return await tagRepository.ExistsAsync(userId, id);
-    }
-
-    public async Task<bool> ExistsAsync(int userId, string name)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-
-        return await tagRepository.ExistsAsync(userId, name);
+        await tagRepository.DeleteAllAsync(userId);
     }
 
     public async Task<TagDto> CreateAsync(int userId, CreateTagDto tagDto)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         if (tagDto == null)
         {
@@ -75,7 +38,7 @@ public class TagService(ITagRepository tagRepository,
             throw new InvalidTagException("Tag description cannot be more than 500 characters");
         }
 
-        if (await ExistsAsync(userId, tagDto.Name))
+        if (await tagValidatorService.ExistsAsync(userId, tagDto.Name))
         {
             throw new DuplicateTagNameException("Tag name already exists");
         }
@@ -92,7 +55,7 @@ public class TagService(ITagRepository tagRepository,
 
     public async Task<TagDto> UpdateAsync(int userId, UpdateTagDto tagDto)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         if (tagDto == null)
         {
@@ -116,7 +79,7 @@ public class TagService(ITagRepository tagRepository,
             throw new TagNotFoundException("Tag not found.");
         }
 
-        if (existingTag.Name != tagDto.Name && await ExistsAsync(userId, tagDto.Name))
+        if (existingTag.Name != tagDto.Name && await tagValidatorService.ExistsAsync(userId, tagDto.Name))
         {
             throw new DuplicateTagNameException("Tag name already exists");
         }
@@ -135,15 +98,12 @@ public class TagService(ITagRepository tagRepository,
     [Obsolete("This method is deprecated.")]
     public async Task<List<TagDto>> UpdateNoteTagsAsync(int userId, Guid noteId, List<int> tagIds)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         if (noteId == Guid.Empty)
         {
-            throw new TagArgumentNullException("Tag id is invalid");
+            throw new NoteArgumentNullException("Tag id is invalid");
         }
-
-        if (tagIds == null)
-            tagIds = [];
 
         var tags = await tagRepository.UpdateNoteTagsAsync(userId, noteId, tagIds);
         return tags.ToDtoList();
@@ -151,7 +111,7 @@ public class TagService(ITagRepository tagRepository,
 
     public async Task<bool> DeleteAsync(int userId, int tagId)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         if (tagId <= 0)
         {
@@ -171,14 +131,5 @@ public class TagService(ITagRepository tagRepository,
         cache.Remove($"tags/{userId}");
 
         return true;
-    }
-
-    public async Task<TagDto?> GetByNameAsync(int userId, string name)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-
-        var tag = await tagRepository.GetByNameAsync(userId, name);
-        return tag?.ToDto();
-
     }
 }

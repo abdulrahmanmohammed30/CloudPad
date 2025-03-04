@@ -60,7 +60,7 @@ namespace CloudPad.Controllers
                 BirthDate = user.BirthDate
             };
 
-            ViewBag.Countries = await countryService.GetAllCountries();
+            ViewBag.Countries = await countryService.GetAllCountriesAsync();
             ViewBag.Languages = await languageGetterService.GetAllAsync();
             return View(updateProfileDto);
         }
@@ -68,7 +68,7 @@ namespace CloudPad.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Update(UpdateProfileDto updateProfileDto)
         {
-            ViewBag.Countries = await countryService.GetAllCountries();
+            ViewBag.Countries = await countryService.GetAllCountriesAsync();
             ViewBag.Languages = await languageGetterService.GetAllAsync();
 
             if (!ModelState.IsValid)
@@ -141,7 +141,7 @@ namespace CloudPad.Controllers
                 try
                 {
                     var profileImageUrl =
-                        await uploadImageService.Upload(UploadsDirectoryPath, profileImage);
+                        await uploadImageService.UploadAsync(UploadsDirectoryPath, profileImage);
 
                     var user = await userManager.FindByIdAsync(UserId.ToString());
                     var oldProfileImageUrl = Path.Combine(UploadsDirectoryPath, user.ProfileImageUrl);

@@ -20,7 +20,7 @@ namespace CloudPad.Core.Services
             {
                 throw new ArgumentException("Invalid user id");
             }
-            
+
             return (await userRepository.GetUserByIdAsync(userId))?.ToProfileDto();
         }
 
@@ -30,6 +30,7 @@ namespace CloudPad.Core.Services
             {
                 throw new ArgumentException("Invalid username");
             }
+
             return (await userRepository.GetUserByNameAsync(username))?.ToProfileDto();
         }
 
@@ -39,7 +40,7 @@ namespace CloudPad.Core.Services
             {
                 throw new ArgumentException("Invalid user id");
             }
-            
+
             return userRepository.ExistsAsync(userId);
         }
 
@@ -57,7 +58,7 @@ namespace CloudPad.Core.Services
             {
                 throw new UserNotFoundException($"User with id {profile.Id} was not found");
             }
-            
+
             user.Name = profile.Name;
             user.Bio = profile.Bio;
             user.PreferredLanguageId = profile.PreferredLanguageId;
@@ -76,9 +77,8 @@ namespace CloudPad.Core.Services
             {
                 throw new ArgumentException("Invalid user id");
             }
-            
-             await userRepository.DeleteUserAsync(userId);
-        }
 
+            await userRepository.DeleteUserAsync(userId);
+        }
     }
 }

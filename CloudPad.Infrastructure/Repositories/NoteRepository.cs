@@ -10,7 +10,7 @@ namespace CloudPad.Infrastructure.Repositories;
 
 public class NoteRepository(AppDbContext context) : INoteRepository
 {
-    public async Task<Note?> GetById(int userId, Guid noteId)
+    public async Task<Note?> GetByIdAsync(int userId, Guid noteId)
     {
         return await context.Notes.Where(n => n.UserId == userId && n.NoteGuid == noteId)
             .Include(n => n.Resources)
@@ -152,7 +152,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
 
     public async Task<Note?> RestoreAsync(int userId, Guid noteId)
     {
-        var note = await GetById(userId, noteId);
+        var note = await GetByIdAsync(userId, noteId);
         if (note != null)
         {
             note.IsDeleted = false;
@@ -164,7 +164,7 @@ public class NoteRepository(AppDbContext context) : INoteRepository
 
     public async Task DeleteAsync(int userId, Guid noteId)
     {
-        var note = await GetById(userId, noteId);
+        var note = await GetByIdAsync(userId, noteId);
         note!.IsDeleted = true;
         context.Notes.Update(note);
         await context.SaveChangesAsync();

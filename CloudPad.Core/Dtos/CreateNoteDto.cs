@@ -4,6 +4,7 @@ namespace CloudPad.Core.Dtos;
 
 public class CreateNoteDto
 {   
+    [Required]
     [MaxLength(150)]
     public string Title { get; set; } = string.Empty;
     
@@ -12,6 +13,6 @@ public class CreateNoteDto
     public List<int>? Tags { get; set; }
     public Guid? CategoryId { get; set; }
 
-    public bool IsFavorite { get; set; } = false;
+    public bool IsFavorite { get; set; }
 }
 

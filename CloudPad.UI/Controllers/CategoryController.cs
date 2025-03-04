@@ -11,7 +11,9 @@ namespace CloudPad.Controllers
     [Route("[controller]")]
     [CategoryExceptionFilterFactory]
     [Authorize]
-    public class CategoryController(ICategoryService categoryService) : Controller
+    public class CategoryController(ICategoryRetrieverService categoryRetrieverService,
+        ICategoryManagerService categoryManagerService, 
+        ICategoryValidatorService categoryValidatorService) : Controller
     {
         private int UserId => HttpContext.GetUserId()!.Value;
 
@@ -23,7 +25,7 @@ namespace CloudPad.Controllers
                 return Json(true);
             }
 
-            var doesNoteExist = await categoryService.ExistsAsync(UserId, name);
+            var doesNoteExist = await categoryValidatorService.ExistsAsync(UserId, name);
             return Json(!doesNoteExist);
         }
 
@@ -35,7 +37,7 @@ namespace CloudPad.Controllers
                 return Json(true);
             }
 
-            var category = await categoryService.GetByNameAsync(UserId, name);
+            var category = await categoryRetrieverService.GetByNameAsync(UserId, name);
 
             if (category == null)
             {
@@ -48,7 +50,7 @@ namespace CloudPad.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            var categories = await categoryService.GetAllAsync(UserId);
+            var categories = await categoryRetrieverService.GetAllAsync(UserId);
             return View(categories);
         }
 
@@ -66,7 +68,7 @@ namespace CloudPad.Controllers
                 return View(createCategoryDto);
             }
 
-            await categoryService.CreateAsync(UserId, createCategoryDto);
+            await categoryManagerService.CreateAsync(UserId, createCategoryDto);
             return RedirectToAction("Index");
         }
 
@@ -81,7 +83,7 @@ namespace CloudPad.Controllers
                 return BadRequest(new { message = "Category id is invalid" });
             }
 
-            var category = await categoryService.GetByIdAsync(UserId, id);
+            var category = await categoryRetrieverService.GetByIdAsync(UserId, id);
 
             if (category == null)
             {
@@ -114,7 +116,7 @@ namespace CloudPad.Controllers
 
             try
             {
-                await categoryService.UpdateAsync(UserId, categoryDto);
+                await categoryManagerService.UpdateAsync(UserId, categoryDto);
                 return RedirectToAction("Index");
             }
 
@@ -145,7 +147,7 @@ namespace CloudPad.Controllers
                 return BadRequest(new { message = "Category id is invalid" });
             }
 
-            if (await categoryService.DeleteAsync(UserId, id) == false)
+            if (await categoryManagerService.DeleteAsync(UserId, id) == false)
             {
                 return BadRequest(new { Rmessage = $"Failed to delete category with id {id}" });
             }

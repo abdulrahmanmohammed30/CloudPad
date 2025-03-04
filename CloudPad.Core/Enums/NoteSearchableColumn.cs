@@ -3,6 +3,8 @@
 public enum NoteSearchableColumn
 {
     Title,
-    CreatedAt,
-    UpdatedAt
-}
+    Content,
+    IsFavorite,
+    IsPinned,
+    IsArchived
+} 

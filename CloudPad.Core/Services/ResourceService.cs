@@ -7,11 +7,13 @@ using CloudPad.Core.Mappers;
 
 namespace CloudPad.Core.Services
 {
-    public class ResourceService(INoteRepository noteRepository, IResourceRepository resourceRepository,
-       IUploadDocumentService  uploadDocumentService ) : IResourceService
+    public class ResourceService(
+        INoteRepository noteRepository,
+        IResourceRepository resourceRepository,
+        IUploadDocumentService uploadDocumentService) : IResourceService
     {
-
-        public async Task<ResourceDto> CreateAsync(int userId, string uploadsDirectoryPath, CreateResourceDto resourceDto)
+        public async Task<ResourceDto> CreateAsync(int userId, string uploadsDirectoryPath,
+            CreateResourceDto resourceDto)
         {
             if (resourceDto == null) throw new ResourceArgumentNullException(nameof(resourceDto));
 
@@ -36,13 +38,13 @@ namespace CloudPad.Core.Services
             }
 
             // make sure noteid exists first 
-            var note = await noteRepository.GetById(userId, resourceDto.NoteId);
+            var note = await noteRepository.GetByIdAsync(userId, resourceDto.NoteId);
             if (note == null)
             {
                 throw new NoteNotFoundException($"Note with Id {resourceDto.NoteId} was not found");
             }
 
-            var filepath = await uploadDocumentService.Upload(uploadsDirectoryPath, resourceDto.File);
+            var filepath = await uploadDocumentService.UploadAsync(uploadsDirectoryPath, resourceDto.File);
 
             var resource = new Resource()
             {
@@ -52,20 +54,13 @@ namespace CloudPad.Core.Services
                 Size = resourceDto.File.Length,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                NoteId = note.NoteId, 
-        };
+                NoteId = note.NoteId,
+            };
             resource.Note = null;
-            ///try
-            //{
-                var createdResource = await resourceRepository.CreateAsync(resource);
 
-                return createdResource.ToDto();
-           // }
-        //    catch (Exception ex)
-          //  {
-                //throw new ResourceCreationFailedException("Resource creation failed", ex);
-            //    throw;
-            //}
+            var createdResource = await resourceRepository.CreateAsync(resource);
+
+            return createdResource.ToDto();
         }
 
         public async Task<List<ResourceDto>> GetAllResources(int userId, Guid noteId)
@@ -94,7 +89,6 @@ namespace CloudPad.Core.Services
 
         public async Task<ResourceDto> UpdateAsync(int userId, Guid noteId, UpdateResourceDto resourceDto)
         {
-
             if (resourceDto == null) throw new ResourceArgumentNullException(nameof(resourceDto));
 
             if (resourceDto.DisplayName != null && resourceDto.DisplayName.Length > 255)
@@ -120,7 +114,7 @@ namespace CloudPad.Core.Services
 
             var resource = await resourceRepository.GetByIdAsync(userId, noteId, resourceDto.ResourceId);
 
-            if(resource == null)
+            if (resource == null)
             {
                 throw new ResourceNotFoundException($"Resource with Id {resourceDto.ResourceId} was not found");
             }

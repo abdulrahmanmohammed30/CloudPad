@@ -12,16 +12,16 @@ public class CountryController(IGetterCountryService getterCountryService) : Con
     {
         if (id.HasValue)
         {
-            var country= await getterCountryService.GetCountryById(id.Value);
+            var country= await getterCountryService.GetCountryByIdAsync(id.Value);
             return country != null? Ok( country) : NotFound(new { message = "Country was not found." });
         }
 
         if (!string.IsNullOrEmpty(name))
         {
-            var country= await getterCountryService.GetCountryByName(name);
+            var country= await getterCountryService.GetCountryByNameAsync(name);
             return country != null? Ok( country) : NotFound(new { message = "Country was not found." });
         }
         
-        return Ok(await getterCountryService.GetAllCountries());
+        return Ok(await getterCountryService.GetAllCountriesAsync());
     }
 }
