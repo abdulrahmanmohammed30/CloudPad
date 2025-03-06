@@ -6,10 +6,13 @@ using CloudPad.Core.Exceptions;
 using CloudPad.Core.RepositoryContracts;
 using CloudPad.Core.ServiceContracts;
 using CloudPad.Core.Mappers;
+using NoteTakingApp.Core.Enums;
 
 namespace CloudPad.Core.Services;
 
-public class NoteFilterService(INoteRepository noteRepository, IUserValidationService userValidationService)
+public class NoteFilterService(
+    INoteRepository noteRepository,
+    IUserValidatorService userValidatorService)
     : INoteFilterService
 {
     private const int PageNumber = 1;
@@ -21,13 +24,15 @@ public class NoteFilterService(INoteRepository noteRepository, IUserValidationSe
         int normalizedPageSize = pageSize <= 0 ? PageSize : pageSize;
         return (normalizedPageNumber, normalizedPageSize);
     }
-    
-    public async Task<IEnumerable<NoteDto>> SearchAsync(int userId, string searchTerm, SearchFields searchFields,
+
+    public async Task<IEnumerable<NoteDto>> SearchAsync(int userId,  
+        string searchTerm,
+        SearchFields searchFields,
         int pageNumber = PageNumber,
         int pageSize = PageSize)
     {
-        await userValidationService.EnsureUserValidation(userId);
-         (pageNumber, pageSize) = NormalizePaginationParameters(pageNumber, pageSize);
+        await userValidatorService.EnsureUserValidationAsync(userId);
+        (pageNumber, pageSize) = NormalizePaginationParameters(pageNumber, pageSize);
 
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -37,22 +42,38 @@ public class NoteFilterService(INoteRepository noteRepository, IUserValidationSe
         return (await noteRepository.SearchAsync(userId, searchTerm, pageNumber, pageSize)).ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber = PageNumber,
+    public async Task<IEnumerable<NoteDto>> SearchByTitleAsync(int userId, string searchTerm,
+        int pageNumber = PageNumber,
         int pageSize = PageSize)
     {
         return await SearchAsync(userId, searchTerm, SearchFields.Title, pageNumber, pageSize);
     }
 
-    public async Task<IEnumerable<NoteDto>> SearchByContentAsync(int userId, string searchTerm, int pageNumber = PageNumber,
+    public async Task<IEnumerable<NoteDto>> SearchByContentAsync(int userId, string searchTerm,
+        int pageNumber = PageNumber,
         int pageSize = PageSize)
     {
         return await SearchAsync(userId, searchTerm, SearchFields.Content, pageNumber, pageSize);
     }
 
-    public async Task<IEnumerable<NoteDto>> FilterByAsync(int userId, string column, string value, int pageNumber = PageNumber,
+    private bool CanConvert(Type type, string value)
+    {
+        try
+        {
+            _ = Convert.ChangeType(value, type);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<IEnumerable<NoteDto>> FilterByAsync(int userId, string column, string value,
+        int pageNumber = PageNumber,
         int pageSize = PageSize)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
         
         (pageNumber, pageSize) = NormalizePaginationParameters(pageNumber, pageSize);
 
@@ -65,40 +86,38 @@ public class NoteFilterService(INoteRepository noteRepository, IUserValidationSe
         if (!isSearchableColumn)
         {
             throw new InvalidSearchColumnException("column is not searchable");
-        }   
-
-        if (!typeof(Note).GetProperty(searchableColumn.ToString()).PropertyType.IsAssignableFrom(value.GetType()))
-        {
-            throw new InvalidSearchValueException($"value {value} is not assignable to column {column}");
         }
-        
+
         if (string.IsNullOrWhiteSpace(value))
         {
             return (await noteRepository.GetAllAsync(userId, pageNumber, pageSize)).Select(n => n.ToDto());
         }
 
+        var type = typeof(Note).GetProperty(searchableColumn.ToString()).PropertyType;
+        type = Nullable.GetUnderlyingType(type) ?? type;
+        if (CanConvert(type, value) == false)
+        {
+            throw new InvalidSearchValueException($"value {value} is not assignable to column {column}");
+        }
 
-        return (await noteRepository.FilterAsync(userId, (NoteSearchableColumn)searchableColumn, value, pageNumber, pageSize)).ToDtoList();
+
+        return (await noteRepository.FilterAsync(userId, (NoteSearchableColumn)searchableColumn, value, pageNumber,
+            pageSize)).ToDtoList();
     }
 
-    public async Task<IEnumerable<NoteDto>> FilterAsync(int userId, string title = "", string content = "",
-        string tag = "", string category = "", bool isFavorite = false, bool isPinned = false, bool isArchived = false,
+    public async Task<IEnumerable<NoteDto>> FilterAsync(int userId, 
+        string title = "", string content = "",
+        string tag = "", string category = "",
+        bool isFavorite = false, bool isPinned = false,
+        bool isArchived = false,
         int pageNumber = PageNumber, int pageSize = PageSize)
     {
-       // await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
+
         (pageNumber, pageSize) = NormalizePaginationParameters(pageNumber, pageSize);
-        
+
 
         return (await noteRepository.FilterAsync(userId, title, content, tag, category, isFavorite, isPinned,
             isArchived, pageNumber, pageSize)).ToDtoList();
     }
-}
-
-
-
-public enum SearchFields
-{
-    Title = 1,
-    Content = 2,
-    All = Title | Content
 }

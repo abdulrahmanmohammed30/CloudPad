@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CloudPad.Controllers;
 
-public class CountryController(IGetterCountryService getterCountryService) : Controller
+public class CountryController(ICountryRetrieverService countryRetrieverService) : Controller
 {
     [HttpGet("/countries")]
     [AllowAnonymous]
@@ -12,16 +12,16 @@ public class CountryController(IGetterCountryService getterCountryService) : Con
     {
         if (id.HasValue)
         {
-            var country= await getterCountryService.GetCountryById(id.Value);
+            var country= await countryRetrieverService.GetCountryByIdAsync(id.Value);
             return country != null? Ok( country) : NotFound(new { message = "Country was not found." });
         }
 
         if (!string.IsNullOrEmpty(name))
         {
-            var country= await getterCountryService.GetCountryByName(name);
+            var country= await countryRetrieverService.GetCountryByNameAsync(name);
             return country != null? Ok( country) : NotFound(new { message = "Country was not found." });
         }
         
-        return Ok(await getterCountryService.GetAllCountries());
+        return Ok(await countryRetrieverService.GetAllCountriesAsync());
     }
 }

@@ -33,6 +33,7 @@ namespace CloudPad.Filters
                 InvalidCategoryException => new BadRequestObjectResult(response),
                 InvalidTagException => new BadRequestObjectResult(response),
                 InvalidNoteIdException=> new BadRequestObjectResult(response),
+                TagMismatchException => new BadRequestObjectResult(response),
                _ => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.InternalServerError }
             };
 

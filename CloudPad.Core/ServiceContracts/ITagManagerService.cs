@@ -1,29 +1,15 @@
 ﻿using CloudPad.Core.Dtos;
-using Microsoft.AspNetCore.Http;
 
 namespace CloudPad.Core.ServiceContracts;
 
-public interface ITagService
+public interface ITagManagerService
 {
-    Task<TagDto?> GetByIdAsync(int userId, int id);
-    Task<IEnumerable<TagDto>> GetAllAsync(int userId);
-    
-    Task<bool> ExistsAsync(int userId, int id);
-    Task<bool> ExistsAsync(int userId, string name);
-
     Task<TagDto> CreateAsync(int userId, CreateTagDto tag);
     Task<TagDto> UpdateAsync(int userId, UpdateTagDto tag);
-
     Task<List<TagDto>> UpdateNoteTagsAsync(int userId, Guid noteId, List<int> noteIds);
-
     Task<bool> DeleteAsync(int userId, int tagId);
-    Task<TagDto?> GetByNameAsync(int userId, string name);
-
     Task DeleteAllAsync(int userId);
 }
-
-
-
 
 // Get all tags from database, compare tags and perform insertion and deletion 
 // The tags method should be added to the tags service 

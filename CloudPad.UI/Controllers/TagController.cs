@@ -14,7 +14,9 @@ namespace CloudPad.Controllers
     [Route("[controller]")]
     [Authorize]
     [TagExceptionFilterFactory]
-    public class TagController(ITagService tagService) : Controller
+    public class TagController(ITagRetrieverService tagRetrieverService, 
+        ITagValidatorService tagValidatorService, 
+        ITagManagerService tagManagerService) : Controller
     {
         private int UserId => HttpContext.GetUserId()!.Value;
 
@@ -26,7 +28,7 @@ namespace CloudPad.Controllers
                 return Json(true);
             }
 
-            var doesTagWithSameNameExist = await tagService.ExistsAsync(UserId, name);
+            var doesTagWithSameNameExist = await tagValidatorService.ExistsAsync(UserId, name);
             return Json(!doesTagWithSameNameExist);
         }
 
@@ -38,7 +40,7 @@ namespace CloudPad.Controllers
                 return Json(true);
             }
 
-            var tag = await tagService.GetByNameAsync(UserId, name);
+            var tag = await tagRetrieverService.GetByNameAsync(UserId, name);
 
             if (tag == null)
             {
@@ -51,7 +53,7 @@ namespace CloudPad.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            var tags = await tagService.GetAllAsync(UserId);
+            var tags = await tagRetrieverService.GetAllAsync(UserId);
             return View(tags);
         }
 
@@ -75,7 +77,7 @@ namespace CloudPad.Controllers
                 return View(createTagDto);
             }
 
-            await tagService.CreateAsync(UserId, createTagDto);
+            await tagManagerService.CreateAsync(UserId, createTagDto);
             return RedirectToAction("Index");
         }
 
@@ -87,7 +89,7 @@ namespace CloudPad.Controllers
                 return BadRequest("Tag Id is not valid");
             }
 
-            var tag = await tagService.GetByIdAsync(UserId, id);
+            var tag = await tagRetrieverService.GetByIdAsync(UserId, id);
 
             if (tag == null)
             {
@@ -118,7 +120,7 @@ namespace CloudPad.Controllers
             }
 
 
-            var updatedTag = await tagService.UpdateAsync(UserId, updateTagDto);
+            var updatedTag = await tagManagerService.UpdateAsync(UserId, updateTagDto);
             return RedirectToAction("Index");
         }
 
@@ -131,7 +133,7 @@ namespace CloudPad.Controllers
                 return BadRequest("Tag Id is not valid");
             }
 
-            await tagService.DeleteAsync(UserId, id);
+            await tagManagerService.DeleteAsync(UserId, id);
             return RedirectToAction("Index");
         }
     }

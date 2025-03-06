@@ -13,8 +13,8 @@ namespace CloudPad.Controllers
     [Authorize]
     public class ProfileController(
         IUserService userService,
-        IGetterCountryService countryService,
-        ILanguageGetterService languageGetterService,
+        ICountryRetrieverService service,
+        ILanguageRetrieverService languageRetrieverService,
         IUserSocialLinkService userSocialLinkService,
         IUploadImageService uploadImageService,
         IWebHostEnvironment webHostEnvironment,
@@ -60,16 +60,16 @@ namespace CloudPad.Controllers
                 BirthDate = user.BirthDate
             };
 
-            ViewBag.Countries = await countryService.GetAllCountries();
-            ViewBag.Languages = await languageGetterService.GetAllAsync();
+            ViewBag.Countries = await service.GetAllCountriesAsync();
+            ViewBag.Languages = await languageRetrieverService.GetAllAsync();
             return View(updateProfileDto);
         }
 
         [HttpPost("[action]")]
         public async Task<IActionResult> Update(UpdateProfileDto updateProfileDto)
         {
-            ViewBag.Countries = await countryService.GetAllCountries();
-            ViewBag.Languages = await languageGetterService.GetAllAsync();
+            ViewBag.Countries = await service.GetAllCountriesAsync();
+            ViewBag.Languages = await languageRetrieverService.GetAllAsync();
 
             if (!ModelState.IsValid)
             {
@@ -141,7 +141,7 @@ namespace CloudPad.Controllers
                 try
                 {
                     var profileImageUrl =
-                        await uploadImageService.Upload(UploadsDirectoryPath, profileImage);
+                        await uploadImageService.UploadAsync(UploadsDirectoryPath, profileImage);
 
                     var user = await userManager.FindByIdAsync(UserId.ToString());
                     var oldProfileImageUrl = Path.Combine(UploadsDirectoryPath, user.ProfileImageUrl);

@@ -1,6 +1,5 @@
 ﻿using CloudPad.Core.Dtos;
 using CloudPad.Core.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace CloudPad.Core.Mappers;
 
@@ -21,7 +20,7 @@ public static class NoteMapper
             Resources = note.Resources.Select(r => r.ToDto()).ToList()
         };
     }
-    
+
     public static List<NoteDto> ToDtoList(this IEnumerable<Note> notes)
     {
         return notes.Select(n => n.ToDto()).ToList();
@@ -41,6 +40,26 @@ public static class NoteMapper
             Resources = noteDto.Resources.Select(r => r.ToEntity()).ToList()
         };
     }
-    
-    
+
+    public static Note ToEntity(this CreateNoteDto createNoteDto)
+    {
+        return new Note()
+        {
+            Title = createNoteDto.Title,
+            Content = createNoteDto.Content,
+            IsFavorite = createNoteDto.IsFavorite,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static NoteDto ToDto(this CreateNoteDto createNoteDto)
+    {
+        return new NoteDto()
+        {
+            Title = createNoteDto.Title,
+            Content = createNoteDto.Content,
+            IsFavorite = createNoteDto.IsFavorite,
+        };
+    }
 }

@@ -4,6 +4,7 @@ namespace CloudPad.Core.Dtos;
 
 public class UpdateNoteDto
 {
+    [Required]
     public Guid NoteId { get; set; }
         
     [Required(AllowEmptyStrings = false)]

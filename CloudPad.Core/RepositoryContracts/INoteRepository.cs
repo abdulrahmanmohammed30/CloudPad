@@ -5,7 +5,7 @@ namespace CloudPad.Core.RepositoryContracts
 {
     public interface INoteRepository
     {
-        Task<Note?> GetById(int userId, Guid noteId);
+        Task<Note?> GetByIdAsync(int userId, Guid noteId);
 
         Task<IEnumerable<Note>> GetByCategoryAsync(int userId, Guid categoryGuid, int pageNumber = 0,
             int pageSize = 20);

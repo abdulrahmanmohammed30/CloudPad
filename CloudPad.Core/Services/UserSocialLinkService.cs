@@ -8,7 +8,7 @@ using CloudPad.Core.ServiceContracts;
 
 namespace NoteTakingApp.Core.Services;
 
-public class UserSocialLinkService(IUserSocialLinkRepository userSocialLinkRepository):IUserSocialLinkService
+public class UserSocialLinkService(IUserSocialLinkRepository userSocialLinkRepository) : IUserSocialLinkService
 {
     public async Task<UserSocialLinkDto> CreateAsync(CreateUserSocialLinkDto createUserSocialLinkDto)
     {
@@ -17,10 +17,11 @@ public class UserSocialLinkService(IUserSocialLinkRepository userSocialLinkRepos
 
         if (Validator.TryValidateObject(createUserSocialLinkDto, context, errors, true) == false)
         {
-            throw new InvalidateEmailRequestException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid social link data");
+            throw new InvalidateEmailRequestException(errors.FirstOrDefault()?.ErrorMessage ??
+                                                      "Invalid social link data");
         }
 
-     
+
         var userSocialLink = new UserSocialLink()
         {
             UserId = createUserSocialLinkDto.UserId,
@@ -35,11 +36,12 @@ public class UserSocialLinkService(IUserSocialLinkRepository userSocialLinkRepos
         {
             throw new ArgumentException("Invalid user id");
         }
-        
+
         if (socialLinkId <= 0)
         {
             throw new ArgumentException("Invalid social Link Id");
         }
-         return await userSocialLinkRepository.DeleteAsync(userId, socialLinkId);
+
+        return await userSocialLinkRepository.DeleteAsync(userId, socialLinkId);
     }
 }

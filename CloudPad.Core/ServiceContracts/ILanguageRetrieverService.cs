@@ -2,7 +2,7 @@
 
 namespace CloudPad.Core.ServiceContracts;
 
-public interface ILanguageGetterService
+public interface ILanguageRetrieverService
 {
     Task<List<LanguageDto>> GetAllAsync();
 }

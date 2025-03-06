@@ -6,7 +6,7 @@ using CloudPad.Core.DTO;
 
 namespace CloudPad.Core.Services;
 
-public class LanguageGetterService(ILanguageRepository languageRepository, IMemoryCache cache) : ILanguageGetterService
+public class LanguageRetrieverService(ILanguageRepository languageRepository, IMemoryCache cache) : ILanguageRetrieverService
 {
     public async Task<List<LanguageDto>> GetAllAsync()
     {

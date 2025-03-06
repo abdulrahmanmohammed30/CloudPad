@@ -10,117 +10,119 @@ namespace CloudPad.Core.Services;
 
 public class NoteManagerService(
     ICategoryRepository categoryRepository,
-    ITagRepository tagRepository,
     INoteRepository noteRepository,
-    ITagService tagService,
-    IUserValidationService userValidationService
+    ITagManagerService tagManagerService,
+    IUserValidatorService userValidatorService
 )
     : INoteManagerService
 {
-    public async Task<NoteDto> AddAsync(int userId, CreateNoteDto note)
+    public async Task<NoteDto> AddAsync(int userId, CreateNoteDto createNoteDto)
     {
-        //await userValidationService.EnsureUserValidation(userId);
-        
-        var context = new ValidationContext(note);
+        await userValidatorService.EnsureUserValidationAsync(userId);
+
+        var context = new ValidationContext(createNoteDto);
         var errors = new List<ValidationResult>();
 
-        if (Validator.TryValidateObject(note, context, errors, true) == false)
+        if (Validator.TryValidateObject(createNoteDto, context, errors, true) == false)
         {
-            throw new InvalidNoteException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
+            throw new InvalidCreateNoteException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid note data");
         }
-        
-        
+
+
         var newNote = new Note()
         {
             UserId = userId,
-            Title = note.Title,
-            Content = note.Content,
+            Title = createNoteDto.Title,
+            Content = createNoteDto.Content,
         };
-        
+
 
         Category? category = null;
 
-        if (note.CategoryId.HasValue)
+        if (createNoteDto.CategoryId.HasValue && createNoteDto.CategoryId != Guid.Empty)
         {
-            category = await categoryRepository.GetByIdAsync(userId, note.CategoryId.Value);
-            
+            category = await categoryRepository.GetByIdAsync(userId, createNoteDto.CategoryId.Value);
+
             if (category == null)
             {
-                throw new CategoryNotFoundException($"Category {note.CategoryId} assigned to note was not found");            
+                throw new CategoryNotFoundException(
+                    $"Category {createNoteDto.CategoryId} assigned to note was not found");
             }
-            
+
             newNote.CategoryId = category.CategoryId;
         }
 
-        newNote.Title = note.Title;
-        newNote.Content = note.Content;
-        newNote.IsFavorite = note.IsFavorite;
-        newNote.UpdatedAt = DateTime.Now;
+        newNote.Title = createNoteDto.Title;
+        newNote.Content = createNoteDto.Content;
+        newNote.IsFavorite = createNoteDto.IsFavorite;
         newNote.UserId = userId;
         newNote.CreatedAt = DateTime.UtcNow;
         newNote.UpdatedAt = DateTime.UtcNow;
         newNote.Category = null;
 
-        var notesDto = (await noteRepository.CreateAsync(newNote)).ToDto();
+        var noteDto = (await noteRepository.CreateAsync(newNote)).ToDto();
 
-        var tagsDto = await tagService.UpdateNoteTagsAsync(userId, notesDto.Id, note.Tags ?? []);
 
-        notesDto.Tags = tagsDto;
-        notesDto.Category = category?.ToDto();
+        var tagsDto = await tagManagerService.UpdateNoteTagsAsync(userId, noteDto.Id, createNoteDto.Tags ?? []);
+
+        noteDto.Tags = tagsDto;
+        noteDto.Category = category?.ToDto();
 
         // Todo: Add resources 
-        return notesDto;
+        return noteDto;
     }
 
-    public async Task<NoteDto> UpdateAsync(int userId, UpdateNoteDto note)
+    public async Task<NoteDto> UpdateAsync(int userId, UpdateNoteDto updateNoteDto)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
-        var context = new ValidationContext(note);
+        var context = new ValidationContext(updateNoteDto);
         var errors = new List<ValidationResult>();
 
-        if (Validator.TryValidateObject(note, context, errors, true) == false)
+        if (Validator.TryValidateObject(updateNoteDto, context, errors, true) == false)
         {
-            throw new InvalidNoteException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid email request");
+            throw new InvalidUpdateNoteException(errors.FirstOrDefault()?.ErrorMessage ?? "Invalid note data");
         }
-        
-        if (note.NoteId == Guid.Empty)
+
+        if (updateNoteDto.NoteId == Guid.Empty)
         {
-            throw new InvalidNoteIdException("NoteId cannot be empty");
+            throw new InvalidNoteIdException("Note id is invalid");
         }
-        
-        Note? existingNote = await noteRepository.GetById(userId, note.NoteId);
-        
+
+        Note? existingNote = await noteRepository.GetByIdAsync(userId, updateNoteDto.NoteId);
+
         if (existingNote == null)
         {
             throw new NoteNotFoundException($"Note with with Id {userId} for user with Id {userId} was not found");
         }
 
         // note category was not changed 
-        // note category chagned to null 
+        // note category changed to null 
         // note category changed to a new category 
         Category? category = null;
-        if (note.CategoryId == null)
+        if (updateNoteDto.CategoryId == null)
         {
             existingNote.Category = null;
             existingNote.CategoryId = null;
-        } else if(note.CategoryId != existingNote.Category?.CategoryGuid) {
-            category = await categoryRepository.GetByIdAsync(userId, note.CategoryId.Value);
+        }
+        else if (updateNoteDto.CategoryId != existingNote.Category?.CategoryGuid)
+        {
+            category = await categoryRepository.GetByIdAsync(userId, updateNoteDto.CategoryId.Value);
 
             if (category == null)
             {
-                throw new CategoryNotFoundException($"Category {note.CategoryId} assigned to note {note.NoteId} was not found");            
+                throw new CategoryNotFoundException(
+                    $"Category {updateNoteDto.CategoryId} assigned to note {updateNoteDto.NoteId} was not found");
             }
-            
-            existingNote.CategoryId = category.CategoryId;
 
+            existingNote.CategoryId = category.CategoryId;
         }
 
-        existingNote.Title = note.Title;
-        existingNote.Content = note.Content;
-        existingNote.IsArchived = note.IsArchived;
-        existingNote.IsFavorite = note.IsFavorite;
-        existingNote.IsPinned = note.IsPinned;
+        existingNote.Title = updateNoteDto.Title;
+        existingNote.Content = updateNoteDto.Content;
+        existingNote.IsFavorite = updateNoteDto.IsFavorite;
+        existingNote.IsPinned = updateNoteDto.IsPinned;
+        existingNote.IsArchived = updateNoteDto.IsArchived;
         existingNote.UpdatedAt = DateTime.Now;
         existingNote.UpdatedAt = DateTime.UtcNow;
         existingNote.Category = null;
@@ -129,38 +131,41 @@ public class NoteManagerService(
 
         var updatedNote = await noteRepository.UpdateAsync(existingNote);
         var noteDto = updatedNote.ToDto();
-        
+
         // Add tags to note 
-         var tagsDto = (await tagRepository.UpdateNoteTagsAsync(userId, note.NoteId, note.Tags == null?[] : note.Tags)).ToDtoList();
-         noteDto.Tags = tagsDto;
-         noteDto.Category = category?.ToDto();
-         
+        var tagsDto = await tagManagerService.UpdateNoteTagsAsync(userId, noteDto.Id, updateNoteDto.Tags ?? []);
+
+        // var tagsDto = (await tagService.UpdateNoteTagsAsync(userId, updateNoteDto.NoteId,
+        //     updateNoteDto.Tags ?? [])).ToDtoList();
+        noteDto.Tags = tagsDto;
+        noteDto.Category = category?.ToDto();
+
         return noteDto;
     }
 
     public async Task<NoteDto?> RestoreAsync(int userId, Guid noteId)
     {
-        await userValidationService.EnsureUserValidation(userId);
-        
+        await userValidatorService.EnsureUserValidationAsync(userId);
+
         if (noteId == Guid.Empty)
         {
-            throw new InvalidNoteIdException("NoteId cannot be empty");
+            throw new InvalidNoteIdException("Note id is invalid");
         }
-        
+
         var note = await noteRepository.RestoreAsync(userId, noteId);
         return note?.ToDto();
     }
 
-    public async Task<bool> DeleteAsync(int userId, Guid noteId)
+    public async Task DeleteAsync(int userId, Guid noteId)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         if (noteId == Guid.Empty)
         {
-            throw new InvalidNoteIdException("NoteId cannot be empty");
+            throw new InvalidNoteIdException("Note id is invalid");
         }
 
-        var note = await noteRepository.GetById(userId, noteId);
+        var note = await noteRepository.GetByIdAsync(userId, noteId);
 
         if (note == null)
         {
@@ -171,9 +176,7 @@ public class NoteManagerService(
         note.Category = null;
         note.Tags = [];
         note.Resources = [];
-        
-        await noteRepository.UpdateAsync(note);
 
-        return true;
+        await noteRepository.UpdateAsync(note);
     }
 }

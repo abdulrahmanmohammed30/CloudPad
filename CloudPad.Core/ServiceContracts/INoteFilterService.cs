@@ -1,12 +1,13 @@
 ﻿using CloudPad.Core.Dtos;
 using CloudPad.Core.Services;
+using NoteTakingApp.Core.Enums;
 
 namespace CloudPad.Core.ServiceContracts;
 
 public interface INoteFilterService
 {
     Task<IEnumerable<NoteDto>> SearchAsync(int userId, string searchTerm,
-        SearchFields SearchFields, int pageNumber = 0, int pageSize = 20);
+        SearchFields searchFields, int pageNumber = 0, int pageSize = 20);
 
     Task<IEnumerable<NoteDto>> SearchByTitleAsync(int userId, string searchTerm, int pageNumber = 0,
         int pageSize = 20);

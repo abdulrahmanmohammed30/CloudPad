@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace CloudPad.Core.Exceptions
 {
-    internal class InvalidNoteException : Exception
+    public class InvalidNoteException : Exception
     {
         public InvalidNoteException() : base() { }
         public InvalidNoteException(string message) : base(message) { }
         public InvalidNoteException(string message, Exception? innerException) : base(message, innerException) { }
-
     }
 }

@@ -7,65 +7,15 @@ using CloudPad.Core.Mappers;
 
 namespace CloudPad.Core.Services;
 
-public class CategoryService(ICategoryRepository categoryRepository, IMemoryCache cache, IUserValidationService userValidationService) : ICategoryService
+public class CategoryManagerService(
+    ICategoryRepository categoryRepository,
+    IMemoryCache cache,
+    IUserValidatorService userValidatorService,
+    ICategoryValidatorService categoryValidatorService) : ICategoryManagerService
 {
-    public async Task<CategoryDto?> GetByIdAsync(int userId, Guid categoryId)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-        
-        if(categoryId == Guid.Empty)
-            throw new InvalidCategoryIdException("Category id cannot be empty");
-        
-        var category = await categoryRepository.GetByIdAsync(userId, categoryId);
-        return category?.ToDto();
-    }
-
-    public async Task<CategoryDto?> GetByNameAsync(int userId, string categoryName)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-
-        if(string.IsNullOrWhiteSpace(categoryName))
-            throw new InvalidCategoryException($"{categoryName} is not a valid category name");
-        
-        var category = await categoryRepository.GetByNameAsync(userId, categoryName);
-        return category?.ToDto();
-    }
-    
-    public async Task<bool> ExistsAsync(int userId, string categoryName)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-
-        if(string.IsNullOrWhiteSpace(categoryName))
-            throw new InvalidCategoryException($"{categoryName} is not a valid category name");
-
-        return await categoryRepository.ExistsAsync(userId, categoryName);
-    }
-
-    public async Task<IEnumerable<CategoryDto>> GetAllAsync(int userId)
-    {
-         await userValidationService.EnsureUserValidation(userId);
-
-        return await cache.GetOrCreateAsync($"Categories/{userId}", async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);
-            var categories = await categoryRepository.GetAllAsync(userId);
-            return categories.ToDtoList();
-        }) ?? throw new InvalidOperationException();
-    }
-
-    public async Task<bool> ExistsAsync(int userId, Guid categoryId)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-
-        if(categoryId == Guid.Empty)
-            throw new InvalidCategoryIdException("Category id cannot be empty");
-
-        return await categoryRepository.ExistsAsync(userId, categoryId);
-    }
-
     public async Task<CategoryDto> CreateAsync(int userId, CreateCategoryDto categoryDto)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         if (categoryDto == null)
         {
@@ -77,7 +27,7 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
             throw new InvalidCategoryException("Category name cannot be null or empty");
         }
 
-        if (await ExistsAsync(userId, categoryDto.Name))
+        if (await categoryValidatorService.ExistsAsync(userId, categoryDto.Name))
         {
             throw new DuplicateCategoryNameException("Category name already exists");
         }
@@ -102,7 +52,7 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
 
     public async Task<CategoryDto> UpdateAsync(int userId, UpdateCategoryDto categoryDto)
     {
-        await userValidationService.EnsureUserValidation(userId);
+        await userValidatorService.EnsureUserValidationAsync(userId);
 
         if (categoryDto == null)
         {
@@ -113,7 +63,7 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
         {
             throw new InvalidCategoryIdException("Category id cannot be empty");
         }
-        
+
         if (string.IsNullOrEmpty(categoryDto.Name))
         {
             throw new InvalidCategoryException("Category name cannot be null or empty");
@@ -131,16 +81,16 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
             throw new CategoryNotFoundException("Category was not found");
         }
 
-        if (category.Name != categoryDto.Name && await ExistsAsync(userId, categoryDto.Name))
+        if (category.Name != categoryDto.Name && await categoryValidatorService.ExistsAsync(userId, categoryDto.Name))
         {
             throw new DuplicateCategoryNameException("Category name already exists");
         }
-        
+
         category.Name = categoryDto.Name;
         category.Description = categoryDto.Description;
         category.IsFavorite = categoryDto.IsFavorite;
         category.UpdatedAt = DateTime.UtcNow;
-        
+
         var updatedCategory = await categoryRepository.UpdateAsync(userId, category);
 
         cache.Remove($"Categories/{userId}");
@@ -148,21 +98,11 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
         return updatedCategory.ToDto();
     }
 
-    public async Task<int?> FindCategoryIdByGuidAsync(int userId, Guid categoryId)
-    {
-        await userValidationService.EnsureUserValidation(userId);
-
-        if(categoryId == Guid.Empty)
-            throw new InvalidCategoryIdException("Category id cannot be empty");
-
-        return await categoryRepository.FindCategoryIdByGuidAsync(userId, categoryId);
-    }
-
     public async Task<bool> DeleteAsync(int userId, Guid categoryId)
     {
-        await userValidationService.EnsureUserValidation(userId);
-        
-        if(categoryId == Guid.Empty)
+        await userValidatorService.EnsureUserValidationAsync(userId);
+
+        if (categoryId == Guid.Empty)
             throw new InvalidCategoryIdException("Category id cannot be empty");
 
         var category = await categoryRepository.GetByIdAsync(userId, categoryId);
@@ -175,10 +115,8 @@ public class CategoryService(ICategoryRepository categoryRepository, IMemoryCach
         category.IsDeleted = true;
 
         await categoryRepository.UpdateAsync(userId, category);
-       
+
         cache.Remove($"Categories/{userId}");
         return true;
     }
-
 }
-

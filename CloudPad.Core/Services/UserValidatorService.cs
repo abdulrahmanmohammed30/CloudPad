@@ -2,9 +2,9 @@
 
 namespace CloudPad.Core.Services;
 
-public class UserValidationService(IUserService userService) :IUserValidationService
+public class UserValidatorService(IUserService userService) :IUserValidatorService
 {
-    public async Task EnsureUserValidation(int userId)
+    public async Task EnsureUserValidationAsync(int userId)
     {
         //ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
     }

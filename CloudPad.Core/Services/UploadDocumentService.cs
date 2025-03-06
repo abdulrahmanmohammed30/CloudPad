@@ -24,7 +24,7 @@ namespace CloudPad.Core.Services
             ".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a", ".wma", ".aiff", ".alac", ".opus"
         };
 
-        public async Task<string> Upload(string uploadsDirectoryPath, IFormFile file)
+        public async Task<string> UploadAsync(string uploadsDirectoryPath, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {

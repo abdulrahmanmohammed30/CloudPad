@@ -33,16 +33,20 @@ public static class ConfigureServicesExtension
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<INoteRepository, NoteRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
-        services.AddScoped<IGetterCountryService, GetterCountryService>();
+        services.AddScoped<ICountryRetrieverService, CountryRetrieverService>();
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<ICategoryRetrieverService, CategoryRetrieverService>();
+        services.AddScoped<ICategoryManagerService, CategoryManagerService>();
+        services.AddScoped<ICategoryValidatorService, CategoryValidatorService>();
         services.AddScoped<INoteFilterService, NoteFilterService>();
         services.AddScoped<INoteManagerService, NoteManagerService>();
         services.AddScoped<INoteRetrieverService, NoteRetrieverService>();
         services.AddScoped<INoteSorterService, NoteSorterService>();
         services.AddScoped<INoteValidatorService, NoteValidatorService>();
-        services.AddScoped<ITagService, TagService>();
-        services.AddScoped<IUserValidationService, UserValidationService>();
+        services.AddScoped<ITagManagerService, TagManagerService>();
+        services.AddScoped<ITagRetrieverService,TagRetrieverService>();
+        services.AddScoped<ITagValidatorService,TagValidatorService>();
+        services.AddScoped<IUserValidatorService, UserValidatorService>();
         services.AddScoped<EnsureUserIdExistsFilter>();
         services.AddScoped<IUploadDocumentService, UploadDocumentService>();
         services.AddScoped<IUploadImageService, UploadImageService>();
@@ -51,7 +55,7 @@ public static class ConfigureServicesExtension
         services.AddScoped<IResourceRepository, ResourceRepository>();
         services.AddScoped<IResourceService, ResourceService>();
         services.AddScoped<ILanguageRepository, LanguageRepository>();
-        services.AddScoped<ILanguageGetterService, LanguageGetterService>();
+        services.AddScoped<ILanguageRetrieverService, LanguageRetrieverService>();
         services.AddTransient<IEmailService, EmailService>();
 
         services.AddScoped<NoteExceptionFilter>();
