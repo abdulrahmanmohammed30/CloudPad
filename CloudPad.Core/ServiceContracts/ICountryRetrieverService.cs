@@ -2,7 +2,7 @@
 
 namespace CloudPad.Core.ServiceContracts;
 
-public interface IGetterCountryService
+public interface ICountryRetrieverService
 {
     Task<List<CountryDto>> GetAllCountriesAsync();
     Task<CountryDto?> GetCountryByIdAsync(short id);

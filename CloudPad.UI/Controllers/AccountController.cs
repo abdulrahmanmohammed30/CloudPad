@@ -14,7 +14,7 @@ namespace CloudPad.Controllers;
 [Route("[controller]")]
 [AllowAnonymous]
 public class AccountController(
-    IGetterCountryService getterCountryService,
+    ICountryRetrieverService countryRetrieverService,
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     IEmailService emailService,
@@ -44,7 +44,7 @@ public class AccountController(
             return RedirectToAction("Index", "Note");
         }
 
-        ViewBag.Countries = await getterCountryService.GetAllCountriesAsync();
+        ViewBag.Countries = await countryRetrieverService.GetAllCountriesAsync();
         return View(new RegisterDto());
     }
 
@@ -59,7 +59,7 @@ public class AccountController(
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
-        ViewBag.Countries = await getterCountryService.GetAllCountriesAsync();
+        ViewBag.Countries = await countryRetrieverService.GetAllCountriesAsync();
         if (!ModelState.IsValid)
         {
             // Todo: Log errors  

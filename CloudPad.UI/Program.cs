@@ -40,5 +40,24 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+app.Use(async (context, next) =>
+{
+    var routeValues = context.Request.RouteValues;
 
+    if (routeValues.TryGetValue("pageNumber", out var pageNumberObj)
+        && pageNumberObj is int pageNumber
+        && pageNumber <= 0)
+    {
+        routeValues["pageNumber"] = 1;
+    }
+
+    if (routeValues.TryGetValue("pageSize", out var pageSizeObj)
+        && pageSizeObj is int pageSize
+        && pageSize <= 0)
+    {
+        routeValues["pageSize"] = 20;
+    }
+
+    await next.Invoke();
+});
+app.Run();

@@ -33,7 +33,7 @@ public static class ConfigureServicesExtension
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<INoteRepository, NoteRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
-        services.AddScoped<IGetterCountryService, GetterCountryService>();
+        services.AddScoped<ICountryRetrieverService, CountryRetrieverService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ICategoryRetrieverService, CategoryRetrieverService>();
         services.AddScoped<ICategoryManagerService, CategoryManagerService>();
@@ -55,7 +55,7 @@ public static class ConfigureServicesExtension
         services.AddScoped<IResourceRepository, ResourceRepository>();
         services.AddScoped<IResourceService, ResourceService>();
         services.AddScoped<ILanguageRepository, LanguageRepository>();
-        services.AddScoped<ILanguageGetterService, LanguageGetterService>();
+        services.AddScoped<ILanguageRetrieverService, LanguageRetrieverService>();
         services.AddTransient<IEmailService, EmailService>();
 
         services.AddScoped<NoteExceptionFilter>();

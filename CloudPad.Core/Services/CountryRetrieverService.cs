@@ -7,7 +7,7 @@ using CloudPad.Core.Mappers;
 
 namespace CloudPad.Core.Services;
 
-public class GetterCountryService(ICountryRepository countryRepository, IMemoryCache cache) : IGetterCountryService
+public class CountryRetrieverService(ICountryRepository countryRepository, IMemoryCache cache) : ICountryRetrieverService
 {
     private const string CacheKey = "CountriesCache";
 
