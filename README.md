@@ -1,4 +1,5 @@
 **CloudPad** 
+
 A powerful multi-layered, clean-architecture MVC application that redefines how you create, organize, and share notes. Designed with students, professionals, and language learners in mind, CloudPad offers an intuitive system for categorizing and tagging your notes, uploading files, and keeping track of your progress with robust search functionalities.
 
 ## Key Highlights
