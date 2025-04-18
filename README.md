@@ -2,7 +2,7 @@
 
 A powerful multi-layered, clean-architecture MVC application that redefines how you create, organize, and share notes. Designed with students, professionals, and language learners in mind, CloudPad offers an intuitive system for categorizing and tagging your notes, uploading files, and keeping track of your progress with robust search functionalities.
 
-## Key Highlights
+## Key Features
 
 1. **Advanced Note Management**  
    - Create, update, and delete notes with ease.  
@@ -30,6 +30,3 @@ A powerful multi-layered, clean-architecture MVC application that redefines how 
 
 7. **Unit Testing**  
    - Comprehensive tests ensure reliability and maintain code quality across all layers.
-
-CloudPad combines simplicity with robust features to transform standard note-taking into an efficient, scalable, and easily maintainable experience. Whether you’re tracking daily tasks, brainstorming ideas,
-or studying languages, CloudPad delivers the power, flexibility, and security you need to excel.
